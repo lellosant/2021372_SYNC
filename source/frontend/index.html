@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAnalytics - Enterprise Visits Optimizer</title>
+    <meta name="description" content="Dashboard avanzata per l'ottimizzazione geografica e commerciale delle visite aziendali.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <h1>GeoAnalytics <span style="font-weight: 300; font-size: 1rem; margin-left: 10px; color: #94a3b8;">Visits Optimizer</span></h1>
+    </header>
+    <main>
+        <aside class="sidebar">
+            <h2>Parametri di Analisi</h2>
+            <form id="analyze-form">
+                <div class="form-group">
+                    <label for="dataset">Dataset Excel (Esportazione ERP)</label>
+                    <input type="file" id="dataset" accept=".xlsx" required>
+                </div>
+                <div class="form-group">
+                    <label for="days">Giorni lavorativi a disposizione</label>
+                    <input type="number" id="days" value="30" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="hours">Ore richieste per visita</label>
+                    <input type="number" id="hours" value="3.5" step="0.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Filtra Gruppi / Aziende</label>
+                    <div class="checkbox-group" id="companies-group">
+                        <span id="companies-placeholder" style="font-size: 0.8rem; color: #94a3b8; font-style: italic;">
+                            Seleziona un file Excel per caricare i gruppi aziendali
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn">Calcola Scenario</button>
+            </form>
+        </aside>
+        
+        <section class="content">
+            <div class="kpi-container" id="kpis" style="display: none;">
+                <div class="kpi-card">
+                    <h3>Fatturato Recuperabile</h3>
+                    <div class="kpi-value" id="kpi-revenue">€ 0</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Totale Visite Planner</h3>
+                    <div class="kpi-value" id="kpi-visits">0</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Aziende Analizzate</h3>
+                    <div class="kpi-value" id="kpi-companies">3</div>
+                </div>
+            </div>
+            
+            <div id="map-container">
+                <div id="map"></div>
+                <div id="map-overlay" class="overlay-msg">Carica un file per visualizzare i clienti geolocalizzati</div>
+            </div>
+            
+            <div class="table-container" id="table-container" style="display: none;">
+                <h3>Agenda Ottimizzata Consigliata</h3>
+                <div class="table-scroll">
+                    <table id="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Giorno</th>
+                                <th>Orario</th>
+                                <th>Cliente / Ragione Sociale</th>
+                                <th>Città</th>
+                                <th>Fatturato Stimato</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

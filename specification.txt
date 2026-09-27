@@ -1,0 +1,11 @@
+- considerate il seguente dataset, reale; siete automaticamente legati ad un NDA - Non Disclosure Agreement nello svolgere l'esercizio
+- realizzare sulla base di esso una dashboard Web di analytics che permetta di fare analisi georeferenziate per azienda, ad es:
+   - mappa che mostri i clienti per azienda A (meregalli spirits), per B (visconti), per C (wines)
+   - il dataset si assuma che possa essere modificato a piacimento dell'analista (ogni volta lui/lei lo estragga dall'ERP principale)
+   - deve essere possibile fare varie analisi che ottimizzino le visite 
+
+Il contesto è quello di una federazione di aziende (A,B,C), ognuna delle quali si occupa di rifornire vari clienti (colonna A) nei punti di vendita (colonna B). Nel particolare contesto commerciale, per produrre maggiore fatturato bisogna andare a visitare personalmente il cliente e quindi si vuole che la dashboard suggerisca percorsi di visita che massimizzino il fatturato. Si ipotizzi che una visita richieda 3/4 ore, e che le visite in genere devono concentrarsi in occasione dei periodi di maggiore interesse (prima di Natale, prima di Pasqua, fine estate, ecc.)
+
+La dashboard deve essere parametrica, ovvero funzionare non solo su questo specifico Excel ma anche su quello ipotetico del 2026, ecc. La dashboard funziona caricando il file, dando indicazioni su al massimo in quanto tempo completare le visite, e propone la sequenza ed i giorni in cui effettuarle. Si lavora solo lun - ven, e ovviamente deve essere possibile fare what-if analysis (se non riesco ad ottimizzare in 30 giorni, cosa succede se provo in 40, in 20, ecc.)
+
+Se ci sono dubbi, chiedere allo stakeholder

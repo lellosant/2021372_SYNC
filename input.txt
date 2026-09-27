@@ -1,0 +1,10 @@
+# Analytics & Ottimizzazione Visite - Sistema
+
+## Descrizione del Sistema (Pitch)
+Il sistema è una dashboard Web analitica rivolta ai manager e agli analisti di una federazione di aziende (Wines, Visconti, Spirits). Il suo obiettivo è permettere agli stakeholder di caricare dataset di vendita provenienti dall'ERP e visualizzare in mappa i clienti. In base a vincoli di tempo per visita (3/4 ore) e giorni lavorativi a disposizione (es. 20-30 gg prima di una festività), il sistema calcola un piano di visite ottimizzato (what-if analysis) suggerendo quali clienti visitare per massimizzare il fatturato recuperabile.
+
+## User Stories
+1. Come analista aziendale, voglio poter caricare un file Excel esportato dall'ERP in modo da aggiornare la mappa con i dati reali e più recenti.
+2. Come manager commerciale, voglio visualizzare su una mappa georeferenziata i miei clienti, potendoli filtrare per azienda (Wines, Visconti, Spirits) così da capire la distribuzione territoriale.
+3. Come manager commerciale, voglio impostare il numero di giorni a disposizione e le ore per singola visita in modo da pianificare una campagna di visite ottimizzata per le festività.
+4. Come manager commerciale, voglio che la dashboard mi proponga un'agenda settimanale (lunedì-venerdì) suggerendo chi visitare in ogni data, massimizzando il fatturato totale stimato.
