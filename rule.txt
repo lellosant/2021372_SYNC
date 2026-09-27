@@ -1,0 +1,48 @@
+The initial idea (pitch) will be a text of a few paragraphs describing what are the objectives of the project, what the system should do, what are the potential users and the more important use cases. After the idea has been published, you can start specifying the user stories of the system, and then developing it. The project should be fully completed, demonstrated as fully running and presented in a short talk.
+ 
+Conducting and presenting the projects
+
+Here are the instructions for conducting and presenting your projects
+Register your group 
+When the group wants to take the exam, register on INFOSTUD
+On the specific day, the idea will be published by the instructor
+In a few days, the group needs to develop the project, by
+- defining the user stories. For each user story, it should be provided also a LoFi mockup, to be prepared with the suggested tools (e.g., Balsamiq), and a textual description highlighting specific non functional requirements (if any).
+- design your project and document the software architecture.
+- the system can be developed in whatever technologies/framework you may want. The release should be done by providing the link of a GitHub repo with all the source code, configuration files, any other file you may need (please remember we have adopted a IaC approach - Infrastructure as Code) AND the Dockerfiles, docker-compose files, etc. which will allow the instructors to re-build/re-deploy your system on whatever platform (either on-premise or on cloud).
+At the discussion of the project, you may need to take
+- a laptop with all the system running, to be used for a demo of the project
+- slides to be used (maximum 10 minutes of talk) for presenting the project idea, development, etc.
+- all the booklets produced during the development process
+All exams are IN-PRESENCE, so all group members will have to attend physically the discussion. Discussions will be held in a room with an HDMI projector, so please take a laptop for presenting your slides and your demo, and the adapter for your specific laptop in order to connect to the HDMI cable. The discussion of the project consists in a short talk with slides (maximum 10 minutes of talk) which presents the user stories, the architecture, lessons learned during the development, etc., and a demo of the system being built (via Docker tools) and running. The overall length of the discussion is approx. 20 minutes for each group.
+
+Submission of the project material
+
+A link to a GitHub repo, containing the following items.
+
+1. The following textual items. All the textual documents must follow the Markdown syntax. Please refer to https://www.markdownguide.org/basic-syntax/ if you are not entirely familiar with it.
+Following is the list of textual files to be submitted:
+input.txt, which contains the description of the system and the list of user stories.
+Structure of the file: input.txt, cf. https://drive.google.com/file/d/10mAO_d-HR4ubnqR8bcofkAYdddfDJKdu/view?usp=sharing 
+An example of input.txt is accessible at https://drive.google.com/file/d/1klvQ8r8WKfW86HS8HQ801QZh-yXZ05sK/view?usp=sharing
+Student_doc.md, which contains the specifics of the deployed system.
+Structure of the file: Student_doc.md, cf. https://drive.google.com/file/d/1stCQoen6ojT3hBexAkyp0Ja8H6XzOuFn/view?usp=sharing
+An example of a Student_doc.md file is accessible at https://drive.google.com/file/d/15lmOqwYTG4qORk3bZgwMlRBWLaA5Gn-I/view?usp=sharing
+2. A folder with the system developed in whatever technologies/framework you may want. In this folder all the source code, configuration files, and any other file you may need (please remember we have adopted an IaC approach - Infrastructure as Code) AND the Dockerfiles, docker-compose files, etc. which will allow the instructors to re-build/re-deploy your system on whatever platform (either on-premise or on cloud).
+
+So, to wrap up, the structure of the repo submitted should be like this one, cf. https://drive.google.com/drive/folders/1HO9h8lQ8udyBhqjNk8BJ8hAODIONItcA?usp=sharing:
+.
+├── input.txt
+├── Student_doc.md
+├── source    # directory containing the source files of the developed system
+└── booklets # directory containing the documents about the design, slides to be used for the discussion, etc.
+
+Each group needs to create a repo named <MATRICOLA>_<PROJECT> where <MATRICOLA> is the INFOSTUD Student ID of the group leader and <PROJECT> is the acronym of your project.
+
+In order to avoid misunderstandings, this is repeated.
+Before the discussion, you need to share with the instructor all the documents and materials of your project, in particular
+The requirements (as user stories) of your entire system. User stories can be documented by using a spreadsheet and collecting all of them in a booklet. For each user story, it should be provided also a LoFi mockup, to be prepared with the suggested tools (e.g., Balsamiq), and a textual description highlighting specific non functional requirements (if any).
+All the work done (design of the system, software architecture, etc.) should be documented in a booklet.
+The system developed in whatever technologies/framework you may want. The release should be done by providing the link of a GitHub repo with all the source code, configuration files, any other file you may need (please remember we have adopted a IaC approach - Infrastructure as Code) AND the Dockerfiles, docker-compose files, etc. which will allow the instructors to re-build/re-deploy your system on whatever platform (either on-premise or on cloud).
+Specific textual files (input.txt, Student_doc.md)
+All the above materials should be provided as a link to a GitHub repo with everything or it, or in any way you may deem appropriate.
