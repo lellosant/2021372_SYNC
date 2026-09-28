@@ -5,72 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoAnalytics - Enterprise Visits Optimizer</title>
     <meta name="description" content="Dashboard avanzata per l'ottimizzazione geografica e commerciale delle visite aziendali.">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
     <header>
-        <h1>GeoAnalytics <span style="font-weight: 300; font-size: 1rem; margin-left: 10px; color: #94a3b8;">Visits Optimizer</span></h1>
+        <h1>GeoAnalytics Planner</h1>
     </header>
+
     <main>
         <aside class="sidebar">
-            <h2>Parametri di Analisi</h2>
+            <h2>Parametri di Ottimizzazione</h2>
             <form id="analyze-form">
                 <div class="form-group">
-                    <label for="dataset">Dataset Excel (Esportazione ERP)</label>
-                    <input type="file" id="dataset" accept=".xlsx" required>
+                    <label for="dataset">Carica Dataset (Excel/CSV)</label>
+                    <input type="file" id="dataset" accept=".xlsx, .xls, .csv" required>
                 </div>
+                
                 <div class="form-group">
                     <label for="start-date">Data inizio scenario</label>
                     <input type="date" id="start-date" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="days">Giorni lavorativi a disposizione</label>
-                    <input type="number" id="days" value="30" min="1" required>
+                    <label for="days">Giorni Lavorativi a Disposizione</label>
+                    <input type="number" id="days" value="30" min="1" max="365" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="hours">Ore richieste per visita</label>
-                    <input type="number" id="hours" value="3.5" step="0.5" required>
+                    <label for="hours">Ore Richieste per Visita</label>
+                    <input type="number" id="hours" value="3.5" min="0.5" step="0.5" max="8" required>
                 </div>
+
                 <div class="form-group">
-                    <label>Filtra Gruppi / Aziende</label>
-                    <div class="checkbox-group" id="companies-group">
-                        <span id="companies-placeholder" style="font-size: 0.8rem; color: #94a3b8; font-style: italic;">
-                            Seleziona un file Excel per caricare i gruppi aziendali
-                        </span>
+                    <label for="company-select">Azienda</label>
+                    <div class="select-wrapper">
+                        <select id="company-select" required>
+                            <option value="" disabled selected>Prima carica un file Excel/CSV...</option>
+                        </select>
                     </div>
                 </div>
+
                 <button type="submit" id="submit-btn">Calcola Scenario</button>
             </form>
         </aside>
-        
+
         <section class="content">
-            <div class="kpi-container" id="kpis" style="display: none;">
-                <div class="kpi-card">
-                    <h3>Fatturato Recuperabile</h3>
-                    <div class="kpi-value" id="kpi-revenue">€ 0</div>
+            <div class="kpi-container" id="kpi-container">
+                <div class="kpi-card featured">
+                    <div class="kpi-header">
+                        <h3>Fatturato Recuperabile Totale</h3>
+                        <span class="company-tag" id="kpi-company-badge">-</span>
+                    </div>
+                    <div class="kpi-value accent-glow" id="kpi-recovered-revenue">€ 0,00</div>
+                    <div class="kpi-subtitle">Valore stimato visite programmate</div>
                 </div>
                 <div class="kpi-card">
-                    <h3>Totale Visite Planner</h3>
+                    <div class="kpi-header">
+                        <h3>Fatturato Potenziale Globale</h3>
+                    </div>
+                    <div class="kpi-value" id="kpi-potential-revenue">€ 0,00</div>
+                    <div class="kpi-subtitle">Portafoglio totale per <strong id="kpi-company-pot-name">-</strong></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <h3>Visite Pianificate</h3>
+                    </div>
                     <div class="kpi-value" id="kpi-visits">0</div>
+                    <div class="kpi-subtitle">Clienti inseriti nel calendario</div>
                 </div>
                 <div class="kpi-card">
-                    <h3>Aziende Analizzate</h3>
-                    <div class="kpi-value" id="kpi-companies">3</div>
+                    <div class="kpi-header">
+                        <h3>Tasso di Recupero</h3>
+                    </div>
+                    <div class="kpi-value" id="kpi-recovery-rate">0%</div>
+                    <div class="kpi-subtitle">Fatturato recuperato su potenziale</div>
                 </div>
             </div>
-            
+
             <div id="map-container">
                 <div id="map"></div>
-                <div id="map-overlay" class="overlay-msg">Carica un file per visualizzare i clienti geolocalizzati</div>
+                <div class="overlay-msg" id="map-overlay">
+                    Mappa Interattiva: Carica il file e seleziona l'azienda da ottimizzare
+                </div>
             </div>
             
             <div class="table-container" id="table-container" style="display: none;">
                 <div class="table-header-flex">
-                    <h3>Agenda Ottimizzata Consigliata</h3>
-                    <select id="agenda-company-filter">
-                        <option value="TUTTE">Tutte le Aziende/Gruppi</option>
-                    </select>
+                    <div>
+                        <h3>Agenda Ottimizzata Consigliata</h3>
+                        <span class="table-subtitle" id="table-company-subtitle">Piano visite per l'azienda selezionata</span>
+                    </div>
                 </div>
                 <div class="table-scroll">
                     <table id="schedule-table">
@@ -86,13 +111,14 @@
                                 <th>Fatturato Stimato</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>
