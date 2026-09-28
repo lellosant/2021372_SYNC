@@ -20,7 +20,10 @@ GIORNI_IT = {
 }
 
 
-# OSRM usa la rete stradale OpenStreetMap.
+# ---------------------------------------------------------
+# Routing
+# ---------------------------------------------------------
+
 OSRM_BASE_URL = os.getenv(
     "OSRM_BASE_URL",
     "https://router.project-osrm.org"
@@ -53,10 +56,8 @@ _matrix_cache_lock = threading.Lock()
 
 
 def format_time(minutes):
-
     hours = int(minutes // 60)
     minutes = int(minutes % 60)
-
     return f"{hours:02d}:{minutes:02d}"
 
 
@@ -64,25 +65,25 @@ def _parse_time_env(
     env_var,
     default_minutes
 ):
-
     value = os.getenv(env_var)
 
     if not value:
         return default_minutes
 
     try:
-
         hours, minutes = map(
             int,
             value.strip('"\'').split(':')
         )
-
         return hours * 60 + minutes
 
     except ValueError:
-
         return default_minutes
 
+
+# ---------------------------------------------------------
+# Orario di lavoro e pausa pranzo flessibile
+# ---------------------------------------------------------
 
 WORK_START_MIN = _parse_time_env(
     "WORK_START",
@@ -94,16 +95,122 @@ WORK_END_MIN = _parse_time_env(
     18 * 60
 )
 
-LUNCH_START_MIN = _parse_time_env(
-    "LUNCH_START",
-    13 * 60
+# La pausa non è più fissata rigidamente 13:00-14:00.
+# Può essere collocata in modo flessibile nella finestra indicata.
+LUNCH_EARLIEST_MIN = _parse_time_env(
+    "LUNCH_EARLIEST",
+    12 * 60
 )
 
-LUNCH_END_MIN = _parse_time_env(
-    "LUNCH_END",
+LUNCH_LATEST_START_MIN = _parse_time_env(
+    "LUNCH_LATEST_START",
     14 * 60
 )
 
+LUNCH_DURATION_MIN = int(
+    os.getenv(
+        "LUNCH_DURATION_MINUTES",
+        "60"
+    )
+)
+
+
+# ---------------------------------------------------------
+# Calendario lavorativo italiano
+# ---------------------------------------------------------
+
+FIXED_ITALIAN_HOLIDAYS = {
+    (1, 1),    # Capodanno
+    (1, 6),    # Epifania
+    (4, 25),   # Festa della Liberazione
+    (5, 1),    # Festa dei Lavoratori
+    (6, 2),    # Festa della Repubblica
+    (8, 15),   # Ferragosto
+    (11, 1),   # Ognissanti
+    (12, 8),   # Immacolata Concezione
+    (12, 25),  # Natale
+    (12, 26),  # Santo Stefano
+}
+
+
+def _easter_sunday(year):
+    """
+    Calcola la data della Pasqua gregoriana
+    con l'algoritmo di Meeus/Jones/Butcher.
+    """
+
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+
+    month = (
+        h + l - 7 * m + 114
+    ) // 31
+
+    day = (
+        (h + l - 7 * m + 114) % 31
+    ) + 1
+
+    return datetime.date(
+        year,
+        month,
+        day
+    )
+
+
+def _italian_holidays_for_year(year):
+    holidays = {
+        datetime.date(
+            year,
+            month,
+            day
+        )
+        for month, day
+        in FIXED_ITALIAN_HOLIDAYS
+    }
+
+    # Pasquetta (lunedì dell'Angelo)
+    holidays.add(
+        _easter_sunday(year)
+        + datetime.timedelta(days=1)
+    )
+
+    return holidays
+
+
+def _is_business_day(day):
+    if day.weekday() > 4:
+        return False
+
+    return (
+        day
+        not in _italian_holidays_for_year(
+            day.year
+        )
+    )
+
+
+def _next_business_day(day):
+    while not _is_business_day(day):
+        day += datetime.timedelta(
+            days=1
+        )
+
+    return day
+
+
+# ---------------------------------------------------------
+# Routing helpers
+# ---------------------------------------------------------
 
 def _haversine_minutes(a, b):
     """
@@ -140,7 +247,6 @@ def _haversine_minutes(a, b):
         )
     )
 
-    # Approssimazione della distanza stradale
     road_km = straight_km * 1.25
 
     return (
@@ -150,7 +256,6 @@ def _haversine_minutes(a, b):
 
 
 def _fallback_matrix(coords):
-
     return [
         [
             (
@@ -161,11 +266,9 @@ def _fallback_matrix(coords):
                     destination
                 )
             )
-
             for j, destination
             in enumerate(coords)
         ]
-
         for i, origin
         in enumerate(coords)
     ]
@@ -190,7 +293,6 @@ def _routing_matrix(coords):
     )
 
     with _matrix_cache_lock:
-
         cached = _matrix_cache.get(
             rounded
         )
@@ -215,7 +317,6 @@ def _routing_matrix(coords):
     )
 
     try:
-
         request = urllib.request.Request(
             url,
             headers={
@@ -228,8 +329,9 @@ def _routing_matrix(coords):
             request,
             timeout=OSRM_TIMEOUT_SECONDS
         ) as response:
-
-            payload = json.load(response)
+            payload = json.load(
+                response
+            )
 
         durations = payload.get(
             "durations"
@@ -253,10 +355,8 @@ def _routing_matrix(coords):
                     if seconds is None
                     else float(seconds) / 60
                 )
-
                 for seconds in row
             ]
-
             for row in durations
         ]
 
@@ -266,13 +366,11 @@ def _routing_matrix(coords):
         KeyError,
         json.JSONDecodeError
     ):
-
         matrix = _fallback_matrix(
             coords
         )
 
     with _matrix_cache_lock:
-
         if len(_matrix_cache) >= 16:
             _matrix_cache.pop(
                 next(
@@ -280,46 +378,79 @@ def _routing_matrix(coords):
                 )
             )
 
-        _matrix_cache[rounded] = matrix
+        _matrix_cache[
+            rounded
+        ] = matrix
 
     return matrix
 
 
-def _advance_past_lunch(
-    start_minute,
-    duration_minute
+# ---------------------------------------------------------
+# Scheduling helper per pausa pranzo
+# ---------------------------------------------------------
+
+def _fit_visit_with_lunch(
+    arrival,
+    visit_minutes,
+    lunch_taken
 ):
+    """
+    Determina quando può iniziare la visita.
 
-    if (
-        start_minute < LUNCH_START_MIN
-        and
-        start_minute + duration_minute
-        > LUNCH_START_MIN
-    ):
+    La pausa pranzo è flessibile:
+    - se una visita può terminare entro l'orario massimo
+      di inizio pausa, la visita può essere effettuata prima;
+    - altrimenti la pausa viene inserita prima della visita.
 
-        return LUNCH_END_MIN
+    Restituisce:
+    (visit_start, visit_end, lunch_before_visit)
+    """
 
-    if (
-        LUNCH_START_MIN
-        <= start_minute
-        < LUNCH_END_MIN
-    ):
-
-        return LUNCH_END_MIN
-
-    return start_minute
-
-
-def _next_business_day(day):
-
-    while day.weekday() > 4:
-
-        day += datetime.timedelta(
-            days=1
+    if lunch_taken:
+        visit_start = arrival
+        return (
+            visit_start,
+            visit_start + visit_minutes,
+            False
         )
 
-    return day
+    direct_end = (
+        arrival
+        +
+        visit_minutes
+    )
 
+    # La visita può essere svolta prima di pranzo.
+    # La pausa verrà eventualmente inserita subito dopo.
+    if direct_end <= LUNCH_LATEST_START_MIN:
+        return (
+            arrival,
+            direct_end,
+            False
+        )
+
+    # Altrimenti facciamo prima la pausa.
+    lunch_start = max(
+        arrival,
+        LUNCH_EARLIEST_MIN
+    )
+
+    visit_start = (
+        lunch_start
+        +
+        LUNCH_DURATION_MIN
+    )
+
+    return (
+        visit_start,
+        visit_start + visit_minutes,
+        True
+    )
+
+
+# ---------------------------------------------------------
+# Ottimizzazione
+# ---------------------------------------------------------
 
 def optimize_visits(
     df,
@@ -331,12 +462,15 @@ def optimize_visits(
 ):
     """
     Crea un piano euristico che cerca di massimizzare
-    il fatturato delle AZIENDE SELEZIONATE,
+    il fatturato delle aziende selezionate,
     considerando anche il tempo di viaggio.
 
-    Il problema è una variante dell'orienteering:
-    viene utilizzata una strategia euristica greedy
-    invece di un algoritmo esatto.
+    I "days" sono giorni LAVORATIVI:
+    vengono automaticamente esclusi
+    sabato, domenica e festività nazionali italiane.
+
+    La pausa pranzo è flessibile e non forza più
+    rigidamente gli slot 09-11 / 14-16.
     """
 
     if (
@@ -344,15 +478,13 @@ def optimize_visits(
         or hours_per_visit <= 0
         or work_hours_per_day <= 0
     ):
-
         return pd.DataFrame()
 
-    # ---------------------------------------------------------
-    # 1. Identificazione delle aziende selezionate
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 1. Aziende selezionate
+    # -----------------------------------------------------
 
     if companies_filter:
-
         valid_companies = [
             column
             for column in companies_filter
@@ -363,27 +495,28 @@ def optimize_visits(
             return pd.DataFrame()
 
     else:
-
         return pd.DataFrame()
 
-    # ---------------------------------------------------------
-    # 2. Calcolo del fatturato rilevante per lo scenario
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 2. Fatturato dello scenario
+    # -----------------------------------------------------
 
     df_filtered = df.copy()
 
-    df_filtered["SelectedRevenue"] = (
-        df_filtered[valid_companies]
+    df_filtered[
+        "SelectedRevenue"
+    ] = (
+        df_filtered[
+            valid_companies
+        ]
         .sum(axis=1)
     )
 
     df_filtered = df_filtered[
-        df_filtered["SelectedRevenue"] > 0
+        df_filtered[
+            "SelectedRevenue"
+        ] > 0
     ].copy()
-
-    # ---------------------------------------------------------
-    # 3. Controllo delle colonne necessarie
-    # ---------------------------------------------------------
 
     required = {
         "SelectedRevenue",
@@ -397,16 +530,19 @@ def optimize_visits(
             df_filtered.columns
         )
     ):
-
         return pd.DataFrame()
 
-    # ---------------------------------------------------------
-    # 4. Pulizia dei dati
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 3. Pulizia dati
+    # -----------------------------------------------------
 
-    df_filtered["SelectedRevenue"] = (
+    df_filtered[
+        "SelectedRevenue"
+    ] = (
         pd.to_numeric(
-            df_filtered["SelectedRevenue"],
+            df_filtered[
+                "SelectedRevenue"
+            ],
             errors="coerce"
         )
         .fillna(0)
@@ -451,9 +587,9 @@ def optimize_visits(
     if df_filtered.empty:
         return pd.DataFrame()
 
-    # ---------------------------------------------------------
-    # 5. Numero massimo teorico di visite
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 4. Shortlist candidati
+    # -----------------------------------------------------
 
     max_visits = (
         days
@@ -476,40 +612,76 @@ def optimize_visits(
         )
     )
 
-    # Shortlist dei clienti economicamente più rilevanti
     candidates = (
         df_filtered
         .head(candidate_count)
         .reset_index(drop=True)
     )
 
-    # ---------------------------------------------------------
-    # 6. Matrice dei tempi di viaggio
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 5. Tempi stradali
+    # -----------------------------------------------------
 
     coords = list(
         zip(
-            candidates["Lat"].astype(float),
-            candidates["Lon"].astype(float)
+            candidates[
+                "Lat"
+            ].astype(float),
+            candidates[
+                "Lon"
+            ].astype(float)
         )
     )
 
-    travel_matrix = _routing_matrix(
-        coords
+    travel_matrix = (
+        _routing_matrix(
+            coords
+        )
     )
 
     visit_minutes = int(
         round(
-            hours_per_visit * 60
+            hours_per_visit
+            * 60
         )
     )
 
     day_start = WORK_START_MIN
     day_end = WORK_END_MIN
 
-    # ---------------------------------------------------------
-    # 7. Costruzione del calendario
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
+    # 6. Data iniziale
+    # -----------------------------------------------------
+
+    if start_date:
+        if isinstance(
+            start_date,
+            str
+        ):
+            base_date = (
+                datetime.datetime
+                .strptime(
+                    start_date,
+                    "%Y-%m-%d"
+                )
+                .date()
+            )
+        else:
+            base_date = start_date
+    else:
+        base_date = (
+            datetime.date.today()
+        )
+
+    current_date = (
+        _next_business_day(
+            base_date
+        )
+    )
+
+    # -----------------------------------------------------
+    # 7. Costruzione calendario
+    # -----------------------------------------------------
 
     schedule = []
 
@@ -519,38 +691,34 @@ def optimize_visits(
         )
     )
 
-    if start_date:
-        if isinstance(start_date, str):
-            base_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-        else:
-            base_date = start_date
-    else:
-        base_date = datetime.date.today()
-
-    current_date = _next_business_day(
-        base_date
-    )
-
     for _ in range(days):
 
         if not remaining:
             break
 
-        current_minute = day_start
+        # Sicurezza ulteriore:
+        # ogni iterazione parte sempre da un giorno lavorativo.
+        current_date = (
+            _next_business_day(
+                current_date
+            )
+        )
+
+        current_minute = (
+            day_start
+        )
+
         previous = None
+        lunch_taken = False
 
         while remaining:
-
             feasible = []
 
             for index in remaining:
 
                 if previous is None:
-
                     travel = 0
-
                 else:
-
                     travel = (
                         travel_matrix[
                             previous
@@ -572,21 +740,17 @@ def optimize_visits(
                     )
                 )
 
-                visit_start = (
-                    _advance_past_lunch(
-                        arrival,
-                        visit_minutes
-                    )
-                )
-
-                visit_end = (
-                    visit_start
-                    +
-                    visit_minutes
+                (
+                    visit_start,
+                    visit_end,
+                    lunch_before
+                ) = _fit_visit_with_lunch(
+                    arrival,
+                    visit_minutes,
+                    lunch_taken
                 )
 
                 if visit_end <= day_end:
-
                     revenue = float(
                         candidates.at[
                             index,
@@ -594,14 +758,20 @@ def optimize_visits(
                         ]
                     )
 
-                    # Rapporto tra valore commerciale
-                    # e tempo richiesto
+                    effective_minutes = (
+                        visit_minutes
+                        +
+                        travel
+                    )
+
+                    # La pausa è obbligatoria per tutti:
+                    # non la usiamo come penalizzazione economica.
                     score = (
                         revenue
                         /
                         max(
                             1,
-                            visit_minutes + travel
+                            effective_minutes
                         )
                     )
 
@@ -611,9 +781,9 @@ def optimize_visits(
                             revenue,
                             -travel,
                             index,
-                            arrival,
                             visit_start,
-                            visit_end
+                            visit_end,
+                            lunch_before
                         )
                     )
 
@@ -625,10 +795,12 @@ def optimize_visits(
                 revenue,
                 neg_travel,
                 index,
-                arrival,
                 visit_start,
-                visit_end
-            ) = max(feasible)
+                visit_end,
+                lunch_before
+            ) = max(
+                feasible
+            )
 
             travel_minutes = int(
                 math.ceil(
@@ -640,60 +812,74 @@ def optimize_visits(
                 index
             ]
 
-            # Trova il gruppo principale per questo cliente
             main_comp = ""
+
             if companies_filter:
                 max_val = -1
+
                 for comp in companies_filter:
                     try:
-                        val = float(row.get(comp, 0))
-                        if pd.notna(val) and val > max_val:
+                        val = float(
+                            row.get(
+                                comp,
+                                0
+                            )
+                        )
+
+                        if (
+                            pd.notna(val)
+                            and val > max_val
+                        ):
                             max_val = val
                             main_comp = comp
-                    except (ValueError, TypeError):
+
+                    except (
+                        ValueError,
+                        TypeError
+                    ):
                         pass
 
             schedule.append({
+                "Data Visita":
+                    current_date.strftime(
+                        "%d/%m/%Y"
+                    ),
 
-                    "Data Visita":
-                        current_date.strftime(
-                            "%d/%m/%Y"
-                        ),
+                "Giorno":
+                    GIORNI_IT[
+                        current_date.weekday()
+                    ],
 
-                    "Giorno":
-                        GIORNI_IT[
-                            current_date.weekday()
-                        ],
+                "Orario":
+                    (
+                        f"{format_time(visit_start)}"
+                        f" - "
+                        f"{format_time(visit_end)}"
+                    ),
 
-                    "Orario":
-                        (
-                            f"{format_time(visit_start)}"
-                            f" - "
-                            f"{format_time(visit_end)}"
-                        ),
-
-                    "Cliente":
+                "Cliente":
+                    row.get(
+                        "Cliente",
                         row.get(
-                            "Cliente",
-                            row.get(
-                                "Ragione Sociale",
-                                "Sconosciuto"
-                            )
-                        ),
+                            "Ragione Sociale",
+                            "Sconosciuto"
+                        )
+                    ),
 
-                    "Gruppo": main_comp,
+                "Gruppo":
+                    main_comp,
 
-                    "Città":
-                        row.get(
-                            "Citta",
-                            ""
-                        ),
+                "Città":
+                    row.get(
+                        "Citta",
+                        ""
+                    ),
 
-                    "Indirizzo":
-                        row.get(
-                            "Indirizzo",
-                            ""
-                        ),
+                "Indirizzo":
+                    row.get(
+                        "Indirizzo",
+                        ""
+                    ),
 
                 "Fatturato Stimato":
                     revenue,
@@ -718,9 +904,31 @@ def optimize_visits(
 
             previous = index
 
-            current_minute = (
-                visit_end
-            )
+            # Se la pausa è stata inserita prima della visita,
+            # da questo momento risulta già effettuata.
+            if lunch_before:
+                lunch_taken = True
+                current_minute = visit_end
+
+            else:
+                current_minute = visit_end
+
+                # Se abbiamo terminato una visita nell'area pranzo
+                # e la pausa non è stata ancora fatta,
+                # la inseriamo immediatamente dopo.
+                if (
+                    not lunch_taken
+                    and
+                    visit_end
+                    >= LUNCH_EARLIEST_MIN
+                ):
+                    current_minute = (
+                        visit_end
+                        +
+                        LUNCH_DURATION_MIN
+                    )
+
+                    lunch_taken = True
 
         current_date = (
             _next_business_day(

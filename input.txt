@@ -1,10 +1,62 @@
-# Analytics & Ottimizzazione Visite - Sistema
+# SYSTEM DESCRIPTION:
 
-## Descrizione del Sistema (Pitch)
-Il sistema è una dashboard Web analitica rivolta ai manager e agli analisti di una federazione di aziende (Wines, Visconti, Spirits). Il suo obiettivo è permettere agli stakeholder di caricare dataset di vendita provenienti dall'ERP e visualizzare in mappa i clienti. In base a vincoli di tempo per visita (3/4 ore) e giorni lavorativi a disposizione (es. 20-30 gg prima di una festività), il sistema calcola un piano di visite ottimizzato (what-if analysis) suggerendo quali clienti visitare per massimizzare il fatturato recuperabile.
+Sales Visit Optimizer is a web application that helps a sales manager plan customer visits.
 
-## User Stories
-1. Come analista aziendale, voglio poter caricare un file Excel esportato dall'ERP in modo da aggiornare la mappa con i dati reali e più recenti.
-2. Come manager commerciale, voglio visualizzare su una mappa georeferenziata i miei clienti, potendoli filtrare per azienda (Wines, Visconti, Spirits) così da capire la distribuzione territoriale.
-3. Come manager commerciale, voglio impostare il numero di giorni a disposizione e le ore per singola visita in modo da pianificare una campagna di visite ottimizzata per le festività.
-4. Come manager commerciale, voglio che la dashboard mi proponga un'agenda settimanale (lunedì-venerdì) suggerendo chi visitare in ogni data, massimizzando il fatturato totale stimato.
+The system works with an Excel file exported from the company ERP.
+The dataset contains customers, delivery points, addresses, sales agents and revenue data for the companies of the federation.
+
+The user can upload a new dataset, select one company, choose the starting date, the number of working days available and the expected duration of each visit.
+
+The system shows the customers on a map and creates a suggested visit plan.
+The purpose is to visit the most relevant customers and recover as much revenue as possible in the available time.
+
+The application can also be used with future ERP extracts having the same logical structure, so it is not limited to the current dataset.
+
+
+# USER STORIES:
+
+1) As a Business Analyst, I want to upload an Excel file, so that I can work with the latest data extracted from the ERP.
+
+2) As a Business Analyst, I want the system to detect the companies contained in the uploaded file, so that I do not have to configure them manually.
+
+3) As a Business Analyst, I want the system to work with future ERP files having the same logical structure, so that I can reuse the application with new yearly data.
+
+4) As a Business Analyst, I want the system to group duplicate ERP rows referring to the same delivery point, so that the same physical customer location is not considered as multiple visits.
+
+5) As a Sales Manager, I want to select a company, so that I can analyze only the customers and revenue related to that company.
+
+6) As a Sales Manager, I want to see the customers of the selected company on a map, so that I can understand their geographic distribution.
+
+7) As a Sales Manager, I want to see the customer name, address and revenue on the map, so that I can understand the commercial value of each location.
+
+8) As a Sales Manager, I want the system to geocode customer addresses, so that delivery points can be shown in their real geographic position.
+
+9) As a Sales Manager, I want the system to report customers that cannot be geocoded, so that I know which data cannot be used for geographic planning.
+
+10) As a Sales Manager, I want to choose the starting date of the visit campaign, so that I can plan visits for a specific commercial period.
+
+11) As a Sales Manager, I want to define the number of working days available, so that I can test different plans.
+
+12) As a Sales Manager, I want to define the expected duration of each customer visit, so that the visit plan reflects different scenarios.
+
+13) As a Sales Manager, I want the system to use only working days from Monday to Friday, so that visits are not planned during weekends.
+
+14) As a Sales Manager, I want the system to exclude Italian national holidays, so that visits are not planned on non-working days.
+
+15) As a Sales Manager, I want the system to consider travel time between customers, so that the suggested agenda is realistic.
+
+16) As a Sales Manager, I want the system to create a suggested sequence of customer visits, so that I can organize the working day.
+
+17) As a Sales Manager, I want each planned visit to show date, time, customer, city, address and estimated revenue, so that I can use the agenda for daily planning.
+
+18) As a Sales Manager, I want to see how many visits can be completed in the selected period, so that I can understand the capacity of the sales campaign.
+
+19) As a Sales Manager, I want to see the estimated recoverable revenue of the proposed plan, so that I can understand the economic value of the campaign.
+
+20) As a Sales Manager, I want to see how many customers are available and how many have valid geographic coordinates, so that I can understand the coverage of the analysis.
+
+21) As a Sales Manager, I want to change the number of available days and run the analysis again, so that I can compare different what-if scenarios.
+
+22) As a Sales Manager, I want to change the duration of a visit and run the analysis again, so that I can understand how visit duration changes the number of customers that can be visited.
+
+23) As a User, I want clear error messages when the uploaded file cannot be processed, so that I can understand what went wrong.

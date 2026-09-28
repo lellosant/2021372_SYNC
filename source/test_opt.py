@@ -1,17 +1,70 @@
 import datetime
 import pandas as pd
-from backend.optimizer import optimize_visits, _next_business_day
 
-df = pd.DataFrame({
-    "Lat": [41.9, 41.91],
-    "Lon": [12.5, 12.51],
-    "WINES": [1000, 2000]
-})
-df["SelectedRevenue"] = df["WINES"]
+from backend import optimizer
 
-# Simulate optimize_visits behavior
-res1 = optimize_visits(df, 2, 2.0, 8.0, ["WINES"], start_date="2026-10-01")
-print(res1[["Data Visita", "Giorno", "Fatturato Stimato"]])
 
-res2 = optimize_visits(df, 2, 2.0, 8.0, ["WINES"], start_date="2026-10-15")
-print(res2[["Data Visita", "Giorno", "Fatturato Stimato"]])
+def zero_travel_matrix(coords):
+    return [
+        [0.0 for _ in coords]
+        for _ in coords
+    ]
+
+
+# Evita dipendenze dalla rete nel test.
+optimizer._routing_matrix = zero_travel_matrix
+
+
+def test_four_two_hour_visits_fit_in_one_day():
+    df = pd.DataFrame({
+        "Lat": [41.90, 41.91, 41.92, 41.93],
+        "Lon": [12.50, 12.51, 12.52, 12.53],
+        "WINES": [4000, 3000, 2000, 1000],
+        "Cliente": ["A", "B", "C", "D"],
+        "Citta": ["ROMA"] * 4,
+        "Indirizzo": ["A", "B", "C", "D"]
+    })
+
+    result = optimizer.optimize_visits(
+        df,
+        days=1,
+        hours_per_visit=2.0,
+        work_hours_per_day=8.0,
+        companies_filter=["WINES"],
+        start_date="2026-09-28"
+    )
+
+    assert len(result) == 4
+    assert result["Orario"].tolist() == [
+        "09:00 - 11:00",
+        "11:00 - 13:00",
+        "14:00 - 16:00",
+        "16:00 - 18:00",
+    ]
+
+
+def test_weekend_is_skipped():
+    assert optimizer._next_business_day(
+        datetime.date(2026, 10, 3)  # sabato
+    ) == datetime.date(2026, 10, 5)
+
+
+def test_christmas_is_skipped():
+    assert optimizer._next_business_day(
+        datetime.date(2026, 12, 25)
+    ) == datetime.date(2026, 12, 28)
+
+
+def test_easter_monday_is_skipped():
+    # Pasqua 2027: 28 marzo -> Pasquetta 29 marzo.
+    assert optimizer._next_business_day(
+        datetime.date(2027, 3, 29)
+    ) == datetime.date(2027, 3, 30)
+
+
+if __name__ == "__main__":
+    test_four_two_hour_visits_fit_in_one_day()
+    test_weekend_is_skipped()
+    test_christmas_is_skipped()
+    test_easter_monday_is_skipped()
+    print("Tutti i test del planner sono passati.")

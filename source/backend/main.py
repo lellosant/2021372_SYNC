@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SCENARIO_CACHE_DIR = "/app/cache/scenarios"
+PLANNER_CACHE_VERSION = "v2_workdays_flexible_lunch"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 
@@ -66,7 +67,7 @@ async def analyze_data(
         except Exception:
             target_company = companies.split(',')[0].strip()
 
-    cache_key = f"{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}"
+    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}"
 
     # 1. Verifica cache in memoria
     if cache_key in _scenario_memory_cache:
