@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoAnalytics - Enterprise Visits Optimizer</title>
     <meta name="description" content="Dashboard avanzata per l'ottimizzazione geografica e commerciale delle visite aziendali.">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
@@ -19,6 +19,10 @@
                 <div class="form-group">
                     <label for="dataset">Dataset Excel (Esportazione ERP)</label>
                     <input type="file" id="dataset" accept=".xlsx" required>
+                </div>
+                <div class="form-group">
+                    <label for="start-date">Data inizio scenario</label>
+                    <input type="date" id="start-date" required>
                 </div>
                 <div class="form-group">
                     <label for="days">Giorni lavorativi a disposizione</label>
@@ -62,7 +66,12 @@
             </div>
             
             <div class="table-container" id="table-container" style="display: none;">
-                <h3>Agenda Ottimizzata Consigliata</h3>
+                <div class="table-header-flex">
+                    <h3>Agenda Ottimizzata Consigliata</h3>
+                    <select id="agenda-company-filter">
+                        <option value="TUTTE">Tutte le Aziende/Gruppi</option>
+                    </select>
+                </div>
                 <div class="table-scroll">
                     <table id="schedule-table">
                         <thead>
@@ -71,7 +80,9 @@
                                 <th>Giorno</th>
                                 <th>Orario</th>
                                 <th>Cliente / Ragione Sociale</th>
+                                <th>Gruppo</th>
                                 <th>Città</th>
+                                <th>Indirizzo</th>
                                 <th>Fatturato Stimato</th>
                             </tr>
                         </thead>
@@ -82,6 +93,6 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>

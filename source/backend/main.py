@@ -64,8 +64,10 @@ async def analyze_data(
     days: int = Form(30),
     hours_per_visit: float = Form(3.5),
     work_hours: float = Form(8.0),
-    companies: str = Form(None)
+    companies: str = Form(None),
+    start_date: str = Form(None)
 ):
+    print(f"DEBUG: Received start_date: {start_date}", flush=True)
     contents = await file.read()
 
     df, available_companies = (
@@ -199,7 +201,8 @@ async def analyze_data(
         days,
         hours_per_visit,
         work_hours,
-        selected_companies
+        selected_companies,
+        start_date=start_date
     )
 
     if not schedule_df.empty:

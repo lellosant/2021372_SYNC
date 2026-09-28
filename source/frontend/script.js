@@ -4,6 +4,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let markersLayer = L.layerGroup().addTo(map);
+let currentSchedule = [];
 
 // Palette per l'assegnazione dinamica dei colori ai gruppi/aziende rilevati
 const PALETTE = [
@@ -26,6 +27,22 @@ document.getElementById('analyze-form').addEventListener('submit', async (e) => 
     performAnalysis();
 });
 
+document.getElementById('agenda-company-filter').addEventListener('change', renderScheduleTable);
+
+// Imposta la data di inizio di default (oggi o prossimo lunedì se weekend)
+const startDateInput = document.getElementById('start-date');
+const today = new Date();
+if (today.getDay() === 6) {
+    today.setDate(today.getDate() + 2); // Sabato -> Lunedì
+} else if (today.getDay() === 0) {
+    today.setDate(today.getDate() + 1); // Domenica -> Lunedì
+}
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, '0');
+const day = String(today.getDate()).padStart(2, '0');
+startDateInput.value = `${year}-${month}-${day}`;
+
+
 // Listener per file upload immediato
 document.getElementById('dataset').addEventListener('change', () => {
     // Reset loaded companies cache per forzare il refresh con il nuovo file
@@ -34,7 +51,7 @@ document.getElementById('dataset').addEventListener('change', () => {
 });
 
 // Parametri What-If in tempo reale
-const inputsToWatch = ['days', 'hours'];
+const inputsToWatch = ['days', 'hours', 'start-date'];
 inputsToWatch.forEach(id => {
     document.getElementById(id).addEventListener('change', () => {
         if (document.getElementById('dataset').files.length > 0) {
@@ -55,6 +72,7 @@ async function performAnalysis() {
     const file = fileInput.files[0];
     const days = document.getElementById('days').value;
     const hours = document.getElementById('hours').value;
+    const startDate = document.getElementById('start-date').value;
     
     const checkboxes = document.querySelectorAll('input[name="company"]:checked');
     const companies = Array.from(checkboxes).map(cb => cb.value).join(',');
@@ -64,6 +82,9 @@ async function performAnalysis() {
     formData.append('days', days);
     formData.append('hours_per_visit', hours);
     formData.append('work_hours', 8.0);
+    if (startDate) {
+        formData.append('start_date', startDate);
+    }
     if (companies) {
         formData.append('companies', companies);
     }
@@ -163,16 +184,44 @@ function updateDashboard(data) {
         map.fitBounds(group.getBounds().pad(0.1));
     }
 
+    currentSchedule = data.schedule;
+
+    const agendaFilter = document.getElementById('agenda-company-filter');
+    const previousSelection = agendaFilter.value;
+    agendaFilter.innerHTML = '<option value="TUTTE">Tutte le Aziende/Gruppi</option>';
+    data.selected_companies.forEach(comp => {
+        const opt = document.createElement('option');
+        opt.value = comp;
+        opt.textContent = comp;
+        agendaFilter.appendChild(opt);
+    });
+    
+    // Ripristina la selezione se ancora valida
+    if (data.selected_companies.includes(previousSelection)) {
+        agendaFilter.value = previousSelection;
+    }
+
+    renderScheduleTable();
+}
+
+function renderScheduleTable() {
     const tbody = document.querySelector('#schedule-table tbody');
     tbody.innerHTML = '';
-    data.schedule.forEach(row => {
+    const filterValue = document.getElementById('agenda-company-filter').value;
+    const formatter = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+    
+    currentSchedule.forEach(row => {
+        if (filterValue !== 'TUTTE' && row['Gruppo'] !== filterValue) return;
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="font-weight:600;">${row['Data Visita']}</td>
             <td><span style="background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:4px;font-size:0.8rem;">${row['Giorno']}</span></td>
             <td><span style="color:#38bdf8;font-weight:600;font-size:0.85rem;">${row['Orario']}</span></td>
             <td>${row['Cliente']}</td>
+            <td><span class="dot" style="background:${getCompanyColor(row['Gruppo'])}; margin-right:5px; vertical-align: middle;"></span>${row['Gruppo'] || '-'}</td>
             <td>${row['Città']}</td>
+            <td><small style="color:#94a3b8;">${row['Indirizzo']}</small></td>
             <td style="color:var(--accent); font-weight:600;">${formatter.format(row['Fatturato Stimato'])}</td>
         `;
         tbody.appendChild(tr);

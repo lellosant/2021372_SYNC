@@ -326,7 +326,8 @@ def optimize_visits(
     days,
     hours_per_visit,
     work_hours_per_day,
-    companies_filter
+    companies_filter,
+    start_date=None
 ):
     """
     Crea un piano euristico che cerca di massimizzare
@@ -518,8 +519,16 @@ def optimize_visits(
         )
     )
 
+    if start_date:
+        if isinstance(start_date, str):
+            base_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+        else:
+            base_date = start_date
+    else:
+        base_date = datetime.date.today()
+
     current_date = _next_business_day(
-        datetime.date.today()
+        base_date
     )
 
     for _ in range(days):
@@ -631,39 +640,60 @@ def optimize_visits(
                 index
             ]
 
+            # Trova il gruppo principale per questo cliente
+            main_comp = ""
+            if companies_filter:
+                max_val = -1
+                for comp in companies_filter:
+                    try:
+                        val = float(row.get(comp, 0))
+                        if pd.notna(val) and val > max_val:
+                            max_val = val
+                            main_comp = comp
+                    except (ValueError, TypeError):
+                        pass
+
             schedule.append({
 
-                "Data Visita":
-                    current_date.strftime(
-                        "%d/%m/%Y"
-                    ),
+                    "Data Visita":
+                        current_date.strftime(
+                            "%d/%m/%Y"
+                        ),
 
-                "Giorno":
-                    GIORNI_IT[
-                        current_date.weekday()
-                    ],
+                    "Giorno":
+                        GIORNI_IT[
+                            current_date.weekday()
+                        ],
 
-                "Orario":
-                    (
-                        f"{format_time(visit_start)}"
-                        f" - "
-                        f"{format_time(visit_end)}"
-                    ),
+                    "Orario":
+                        (
+                            f"{format_time(visit_start)}"
+                            f" - "
+                            f"{format_time(visit_end)}"
+                        ),
 
-                "Cliente":
-                    row.get(
-                        "Cliente",
+                    "Cliente":
                         row.get(
-                            "Ragione Sociale",
-                            "Sconosciuto"
-                        )
-                    ),
+                            "Cliente",
+                            row.get(
+                                "Ragione Sociale",
+                                "Sconosciuto"
+                            )
+                        ),
 
-                "Città":
-                    row.get(
-                        "Citta",
-                        ""
-                    ),
+                    "Gruppo": main_comp,
+
+                    "Città":
+                        row.get(
+                            "Citta",
+                            ""
+                        ),
+
+                    "Indirizzo":
+                        row.get(
+                            "Indirizzo",
+                            ""
+                        ),
 
                 "Fatturato Stimato":
                     revenue,
