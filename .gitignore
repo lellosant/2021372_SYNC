@@ -16,3 +16,10 @@ cache/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Datasets & spreadsheets
+*.xlsx
+*.xls
+*.csv
+Screenshot table excel xlsx.png
+
