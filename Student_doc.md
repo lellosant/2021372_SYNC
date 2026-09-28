@@ -1,6 +1,6 @@
 # SPECIFICS OF THE DEPLOYED SYSTEM
 
-# SYSTEM OVERVIEW
+## SYSTEM OVERVIEW
 
 Sales Visit Optimizer is a web application for geographic customer analysis and sales visit planning.
 
@@ -12,86 +12,114 @@ The system is composed of two main parts:
 The application is deployed using Docker and Docker Compose.
 
 The user uploads an ERP dataset and selects the parameters of the visit campaign.
+
 The Backend processes the dataset, geocodes customer addresses and creates a suggested visit plan.
-The Frontend shows the results through a map, some main indicators and a visit agenda.
 
-# USER STORIES
-1) As a Business Analyst, I want to upload an Excel file, so that I can work with the latest data extracted from the ERP.
+The Frontend shows the results through a map, key indicators and a visit agenda.
 
-2) As a Business Analyst, I want the system to detect the companies contained in the uploaded file, so that I do not have to configure them manually.
+## USER STORIES
 
-3) As a Business Analyst, I want the system to work with future ERP files having the same logical structure, so that I can reuse the application with new yearly data.
+1. As a Business Analyst, I want to upload an Excel file, so that I can work with the latest data extracted from the ERP.
 
-4) As a Business Analyst, I want the system to group duplicate ERP rows referring to the same delivery point, so that the same physical customer location is not considered as multiple visits.
+2. As a Business Analyst, I want the system to detect the companies contained in the uploaded file, so that I do not have to configure them manually.
 
-5) As a Sales Manager, I want to select a company, so that I can analyze only the customers and revenue related to that company.
+3. As a Business Analyst, I want the system to work with future ERP files having the same logical structure, so that I can reuse the application with new yearly data.
 
-6) As a Sales Manager, I want to see the customers of the selected company on a map, so that I can understand their geographic distribution.
+4. As a Business Analyst, I want the system to group duplicate ERP rows referring to the same delivery point, so that the same physical customer location is not considered as multiple visits.
 
-7) As a Sales Manager, I want to see the customer name, address and revenue on the map, so that I can understand the commercial value of each location.
+5. As a Sales Manager, I want to select a company, so that I can analyze only the customers and revenue related to that company.
 
-8) As a Sales Manager, I want the system to geocode customer addresses, so that delivery points can be shown in their real geographic position.
+6. As a Sales Manager, I want to see the customers of the selected company on a map, so that I can understand their geographic distribution.
 
-9) As a Sales Manager, I want the system to report customers that cannot be geocoded, so that I know which data cannot be used for geographic planning.
+7. As a Sales Manager, I want to see the customer name, address and revenue on the map, so that I can understand the commercial value of each location.
 
-10) As a Sales Manager, I want to choose the starting date of the visit campaign, so that I can plan visits for a specific commercial period.
+8. As a Sales Manager, I want the system to geocode customer addresses, so that delivery points can be shown in their real geographic position.
 
-11) As a Sales Manager, I want to define the number of working days available, so that I can test different plans.
+9. As a Sales Manager, I want the system to report customers that cannot be geocoded, so that I know which data cannot be used for geographic planning.
 
-12) As a Sales Manager, I want to define the expected duration of each customer visit, so that the visit plan reflects different scenarios.
+10. As a Sales Manager, I want to choose the starting date of the visit campaign, so that I can plan visits for a specific commercial period.
 
-13) As a Sales Manager, I want the system to use only working days from Monday to Friday, so that visits are not planned during weekends.
+11. As a Sales Manager, I want to define the number of working days available, so that I can test different plans.
 
-14) As a Sales Manager, I want the system to exclude Italian national holidays, so that visits are not planned on non-working days.
+12. As a Sales Manager, I want to define the expected duration of each customer visit, so that the visit plan reflects different scenarios.
 
-15) As a Sales Manager, I want the system to consider travel time between customers, so that the suggested agenda is realistic.
+13. As a Sales Manager, I want the system to use only working days from Monday to Friday, so that visits are not planned during weekends.
 
-16) As a Sales Manager, I want the system to create a suggested sequence of customer visits, so that I can organize the working day.
+14. As a Sales Manager, I want the system to exclude Italian national holidays, so that visits are not planned on non-working days.
 
-17) As a Sales Manager, I want each planned visit to show date, time, customer, city, address and estimated revenue, so that I can use the agenda for daily planning.
+15. As a Sales Manager, I want the system to consider travel time between customers, so that the suggested agenda is realistic.
 
-18) As a Sales Manager, I want to see how many visits can be completed in the selected period, so that I can understand the capacity of the sales campaign.
+16. As a Sales Manager, I want the system to create a suggested sequence of customer visits, so that I can organize the working day.
 
-19) As a Sales Manager, I want to see the estimated recoverable revenue of the proposed plan, so that I can understand the economic value of the campaign.
+17. As a Sales Manager, I want each planned visit to show date, time, customer, city, address and estimated revenue, so that I can use the agenda for daily planning.
 
-20) As a Sales Manager, I want to see how many customers are available and how many have valid geographic coordinates, so that I can understand the coverage of the analysis.
+18. As a Sales Manager, I want to see how many visits can be completed in the selected period, so that I can understand the capacity of the sales campaign.
 
-21) As a Sales Manager, I want to change the number of available days and run the analysis again, so that I can compare different what-if scenarios.
+19. As a Sales Manager, I want to see the estimated recoverable revenue of the proposed plan, so that I can understand the economic value of the campaign.
 
-22) As a Sales Manager, I want to change the duration of a visit and run the analysis again, so that I can understand how visit duration changes the number of customers that can be visited.
+20. As a Sales Manager, I want to see how many customers are available and how many have valid geographic coordinates, so that I can understand the coverage of the analysis.
 
-23) As a User, I want clear error messages when the uploaded file cannot be processed, so that I can understand what went wrong.
+21. As a Sales Manager, I want to change the number of available days and run the analysis again, so that I can compare different what-if scenarios.
 
+22. As a Sales Manager, I want to change the duration of a visit and run the analysis again, so that I can understand how visit duration changes the number of customers that can be visited.
 
-# CONTAINERS
+23. As a User, I want clear error messages when the uploaded file cannot be processed, so that I can understand what went wrong.
 
+## LOFI MOCKUPS
 
-## CONTAINER_NAME: Backend
+### Mockup 1 - Upload and Scenario Setup
 
-### DESCRIPTION:
+This mockup represents the initial configuration page.
+
+It is related mainly to user stories 1, 2, 5, 10, 11 and 12.
+
+![Upload and Scenario Setup](booklets/mockup_01_setup.png)
+
+### Mockup 2 - Results, Map and KPIs
+
+This mockup represents the results page with the customer map and the main indicators.
+
+It is related mainly to user stories 5, 6, 7, 18, 19, 20, 21 and 22.
+
+![Results, Map and KPIs](booklets/mockup_02_results.png)
+
+### Mockup 3 - Suggested Visit Plan
+
+This mockup represents the suggested visit agenda.
+
+It is related mainly to user stories 16, 17, 18, 19, 21 and 22.
+
+![Suggested Visit Plan](booklets/mockup_03_agenda.png)
+
+## CONTAINERS
+
+### CONTAINER_NAME: Backend
+
+#### DESCRIPTION
 
 The Backend container manages the main application logic.
 
-It reads and processes the uploaded dataset, detects the available companies, groups duplicated ERP rows referring to the same delivery point, geocodes customer addresses and creates the data used for the visit plan.
+It reads and processes the uploaded dataset, detects the available companies, groups duplicate ERP rows referring to the same delivery point, geocodes customer addresses and creates the data used for the visit plan.
 
-It also calculates the values returned to the Frontend, such as the number of visits, the number of customers with valid coordinates and the recoverable revenue.
+It also calculates the values returned to the Frontend, such as the number of visits, the number of customers with valid coordinates and the estimated recoverable revenue.
 
-### RELATED USER STORIES:
+#### RELATED USER STORIES
 
 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23
 
-### PORTS:
+#### PORTS
 
-8000:8000
+`8000:8000`
 
-### PERSISTENCE EVALUATION:
+#### PERSISTENCE EVALUATION
 
 The Backend does not use a relational database.
 
 The application does not need to permanently store the uploaded ERP dataset.
+
 Some technical data may be stored locally to avoid repeating operations that have already been completed.
 
-### EXTERNAL SERVICES CONNECTIONS:
+#### EXTERNAL SERVICES CONNECTIONS
 
 The Backend connects to:
 
@@ -100,31 +128,31 @@ The Backend connects to:
 
 If the routing service is not available, the application can use an approximate geographic distance as a fallback.
 
-### MICROSERVICES:
+#### MICROSERVICES
 
-#### MICROSERVICE: visits-api
+##### MICROSERVICE: visits-api
 
-- TYPE: backend
-- DESCRIPTION: Manages dataset processing, geocoding, analytics and visit planning.
-- PORTS: 8000
+- **TYPE:** backend
+- **DESCRIPTION:** Manages dataset processing, geocoding, analytics and visit planning.
+- **PORTS:** 8000
 
-### TECHNOLOGICAL SPECIFICATION:
+#### TECHNOLOGICAL SPECIFICATION
 
 The Backend is developed in Python.
 
 The main technologies are:
 
-- FastAPI: used to expose the REST API;
-- pandas: used to read, clean, group and analyze the ERP dataset;
-- Uvicorn: used to run the FastAPI application;
-- Nominatim / OpenStreetMap: used for geocoding;
-- OSRM: used to calculate travel times.
+- **FastAPI:** used to expose the REST API;
+- **pandas:** used to read, clean, group and analyze the ERP dataset;
+- **Uvicorn:** used to run the FastAPI application;
+- **Nominatim / OpenStreetMap:** used for geocoding;
+- **OSRM:** used to calculate travel times.
 
 FastAPI also provides automatic API documentation through Swagger at:
 
 `http://localhost:8000/docs`
 
-### SERVICE ARCHITECTURE:
+#### SERVICE ARCHITECTURE
 
 The main Backend files are:
 
@@ -132,18 +160,17 @@ The main Backend files are:
 - `data_processor.py`: reads and normalizes the uploaded file, groups delivery points and manages geocoding;
 - `optimizer.py`: creates the suggested visit plan according to the selected parameters.
 
-### ENDPOINTS:
+#### ENDPOINTS
 
 | HTTP METHOD | URL | Description | Related User Stories |
-| ----------- | --- | ----------- | -------------------- |
-| POST | /api/extract-companies | Reads the uploaded file and returns the companies detected in the dataset | 1, 2, 3 |
-| POST | /api/analyze | Processes the dataset and returns map points, indicators and the suggested visit plan | 4-23 |
-| GET | /docs | Opens the automatic Swagger API documentation | - |
+| --- | --- | --- | --- |
+| POST | `/api/extract-companies` | Reads the uploaded file and returns the companies detected in the dataset | 1, 2, 3 |
+| POST | `/api/analyze` | Processes the dataset and returns map points, indicators and the suggested visit plan | 4-23 |
+| GET | `/docs` | Opens the automatic Swagger API documentation | - |
 
+### CONTAINER_NAME: Frontend
 
-## CONTAINER_NAME: Frontend
-
-### DESCRIPTION:
+#### DESCRIPTION
 
 The Frontend container provides the user interface of Sales Visit Optimizer.
 
@@ -151,35 +178,35 @@ The user can upload the ERP file, select a company, choose the starting date, th
 
 The Frontend displays the customer map, the main indicators and the suggested visit agenda.
 
-### RELATED USER STORIES:
+#### RELATED USER STORIES
 
 1, 5, 6, 7, 9, 10, 11, 12, 17, 18, 19, 20, 21, 22, 23
 
-### PORTS:
+#### PORTS
 
-8080:80
+`8080:80`
 
-### PERSISTENCE EVALUATION:
+#### PERSISTENCE EVALUATION
 
 The Frontend does not use a database.
 
 The uploaded ERP file is sent to the Backend for processing.
 
-### EXTERNAL SERVICES CONNECTIONS:
+#### EXTERNAL SERVICES CONNECTIONS
 
 The Frontend uses Leaflet to display the interactive map.
 
 The map uses OpenStreetMap tiles.
 
-### MICROSERVICES:
+#### MICROSERVICES
 
-#### MICROSERVICE: web-interface
+##### MICROSERVICE: web-interface
 
-- TYPE: frontend
-- DESCRIPTION: Provides the graphical user interface of the application.
-- PORTS: 80 inside the container, exposed as port 8080 on the host.
+- **TYPE:** frontend
+- **DESCRIPTION:** Provides the graphical user interface of the application.
+- **PORTS:** 80 inside the container, exposed as port 8080 on the host.
 
-### TECHNOLOGICAL SPECIFICATION:
+#### TECHNOLOGICAL SPECIFICATION
 
 The Frontend is developed using:
 
@@ -189,7 +216,7 @@ The Frontend is developed using:
 - Leaflet.js for the interactive map;
 - Nginx to serve the web application.
 
-### SERVICE ARCHITECTURE:
+#### SERVICE ARCHITECTURE
 
 The main Frontend files are:
 
@@ -197,14 +224,13 @@ The main Frontend files are:
 - `style.css`: contains the graphical style;
 - `script.js`: manages user actions, API calls, map updates and result visualization.
 
-### PAGES:
+#### PAGES
 
 | Name | Description | Related Service | Related User Stories |
-| ---- | ----------- | --------------- | -------------------- |
-| index.html | Main page used to upload the dataset, set the scenario parameters, view the map, indicators and visit agenda | visits-api | 1, 5-7, 9-12, 17-23 |
+| --- | --- | --- | --- |
+| `index.html` | Main page used to upload the dataset, set the scenario parameters, view the map, indicators and visit agenda | visits-api | 1, 5-7, 9-12, 17-23 |
 
-
-# INFRASTRUCTURE
+## INFRASTRUCTURE
 
 The application is deployed using Docker and Docker Compose.
 
@@ -221,8 +247,8 @@ docker compose up --build
 
 After startup:
 
-- Web Application: `http://localhost:8080`
-- Swagger API Documentation: `http://localhost:8000/docs`
+- **Web Application:** `http://localhost:8080`
+- **Swagger API Documentation:** `http://localhost:8000/docs`
 
 Configuration values are stored in the `.env` file.
 
