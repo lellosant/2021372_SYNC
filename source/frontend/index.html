@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoAnalytics - Enterprise Visits Optimizer</title>
     <meta name="description" content="Dashboard avanzata per l'ottimizzazione geografica e commerciale delle visite aziendali.">
-    <link rel="stylesheet" href="style.css?v=3">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="style.css?v=6">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
@@ -25,7 +28,6 @@
                 <div class="form-group">
                     <label for="start-date">Data inizio scenario</label>
                     <input type="date" id="start-date" required>
-                    <small>Solo giorni lavorativi: lun–ven, escluse le festività nazionali italiane.</small>
                 </div>
 
                 <div class="form-group">
@@ -35,19 +37,72 @@
 
                 <div class="form-group">
                     <label for="hours">Ore Richieste per Visita</label>
-                    <input type="number" id="hours" value="3.5" min="0.5" step="0.5" max="8" required>
+                    <input type="number" id="hours" value="3.5" min="0.1" step="any" max="24" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group company-form-group">
                     <label for="company-select">Azienda</label>
                     <div class="select-wrapper">
                         <select id="company-select" required>
                             <option value="" disabled selected>Prima carica un file Excel/CSV...</option>
                         </select>
                     </div>
+
+                    <!-- Badge riepilogo indirizzo agente salvato -->
+                    <div id="start-loc-badge" class="start-loc-badge" style="display: none;">
+                        <span class="badge-pin">📍</span>
+                        <div class="badge-content">
+                            <span class="badge-label">Partenza agente:</span>
+                            <span id="start-loc-badge-text" class="badge-text"></span>
+                        </div>
+                        <button type="button" id="badge-edit-btn" class="badge-action-btn" title="Modifica indirizzo">Modifica</button>
+                    </div>
+
+                    <!-- Card per inserimento o modifica punto di partenza agente -->
+                    <div id="start-loc-card" class="start-loc-card" style="display: none;">
+                        <div class="start-loc-card-header">
+                            <div class="card-title-wrap">
+                                <span class="card-icon">📍</span>
+                                <div>
+                                    <h4 class="card-heading">Punto di Partenza Agente</h4>
+                                    <span id="card-company-tag" class="card-company-tag">Azienda</span>
+                                </div>
+                            </div>
+                            <button type="button" id="close-start-loc-card" class="card-close-btn" title="Chiudi scheda">✕</button>
+                        </div>
+                        <p class="card-desc">Indica la sede o l'indirizzo da cui parte l'agente per le visite di questa azienda:</p>
+                        
+                        <div class="card-field">
+                            <label for="start-address">Via / Indirizzo completo</label>
+                            <input type="text" id="start-address" placeholder="es. Via del Corso 120, Roma">
+                        </div>
+
+                        <div class="card-divider">
+                            <span>oppure coordinate GPS</span>
+                        </div>
+
+                        <div class="card-coords-grid">
+                            <div class="card-field">
+                                <label for="start-lat">Latitudine</label>
+                                <input type="number" id="start-lat" step="any" placeholder="es. 41.9028">
+                            </div>
+                            <div class="card-field">
+                                <label for="start-lon">Longitudine</label>
+                                <input type="number" id="start-lon" step="any" placeholder="es. 12.4964">
+                            </div>
+                        </div>
+
+                        <div id="start-loc-msg" class="card-msg" style="display: none;"></div>
+
+                        <div class="card-footer">
+                            <button type="button" id="save-start-loc-btn" class="btn-save-loc">
+                                <span>Salva Punto di Partenza</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <button type="submit" id="submit-btn">Calcola Scenario</button>
+                <button type="submit" id="submit-btn">Avvia pianificazione</button>
             </form>
         </aside>
 
@@ -89,13 +144,18 @@
                 <div class="overlay-msg" id="map-overlay">
                     Mappa Interattiva: Carica il file e seleziona l'azienda da ottimizzare
                 </div>
+                <div class="map-legend" id="map-legend" style="display: none;">
+                    <div class="legend-item"><span style="font-size: 14px;">🏠</span> Sede Agente</div>
+                    <div class="legend-item"><span class="legend-dot planned"></span> Visita Programmata</div>
+                    <div class="legend-item"><span class="legend-dot unplanned"></span> Altro Cliente Azienda</div>
+                </div>
             </div>
             
             <div class="table-container" id="table-container" style="display: none;">
                 <div class="table-header-flex">
                     <div>
                         <h3>Agenda Ottimizzata Consigliata</h3>
-                        <span class="table-subtitle" id="table-company-subtitle">Piano visite per l'azienda selezionata</span>
+                        <div class="table-subtitle" id="table-company-subtitle">Piano visite per l'azienda selezionata</div>
                     </div>
                 </div>
                 <div class="table-scroll">
@@ -120,6 +180,6 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=16"></script>
 </body>
 </html>

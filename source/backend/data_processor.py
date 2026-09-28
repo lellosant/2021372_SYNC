@@ -2,6 +2,7 @@ import pandas as pd
 import io
 import json
 import os
+import re
 import time
 import urllib.parse
 import urllib.request
@@ -247,87 +248,77 @@ def geocode_address(
 
     # Se già geocodificato, usa la cache
     if cache_key in cache:
-        cached_value = cache[
-            cache_key
-        ]
-
+        cached_value = cache[cache_key]
         if cached_value is None:
             return None, None
-
         return (
             cached_value["lat"],
             cached_value["lon"]
         )
 
-    # Richiesta a Nominatim
-    params = urllib.parse.urlencode({
-        "q": query,
-        "format": "jsonv2",
-        "limit": 1,
-        "countrycodes": "it"
-    })
+    # Genera varianti di query per gestire abbreviazioni toponomastiche comuni
+    variants = [query]
+    sub_di = re.sub(r'(?i)\bvia\s+(san|santa|sant\')\b', r'via di \1', query)
+    if sub_di != query:
+        variants.append(sub_di)
+    sub_ariosto = re.sub(r'(?i)\bvia\s+ariosto\b', 'via ludovico ariosto', query)
+    if sub_ariosto != query:
+        variants.append(sub_ariosto)
 
-    url = (
-        f"{NOMINATIM_URL}"
-        f"?{params}"
-    )
+    best_match = None
+    fallback_match = None
 
-    request = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": USER_AGENT
-        }
-    )
-
-    try:
-        with urllib.request.urlopen(
-            request,
-            timeout=10
-        ) as response:
-            results = json.load(
-                response
-            )
-
-        if results:
-            lat = float(
-                results[0]["lat"]
-            )
-
-            lon = float(
-                results[0]["lon"]
-            )
-
-            cache[cache_key] = {
-                "lat": lat,
-                "lon": lon
+    for v in variants:
+        params = urllib.parse.urlencode({
+            "q": v,
+            "format": "jsonv2",
+            "limit": 5,
+            "countrycodes": "it"
+        })
+        url = f"{NOMINATIM_URL}?{params}"
+        request = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": USER_AGENT
             }
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                results = json.load(response)
+                if not results:
+                    continue
+                if fallback_match is None:
+                    fallback_match = results[0]
+                # Se tra i risultati ce n'è uno nel comune/centro di Roma (es. Municipio Roma o Roma centro)
+                for r in results:
+                    dn = r.get("display_name", "")
+                    if "Municipio Roma" in dn or ", Roma, Roma Capitale" in dn:
+                        best_match = r
+                        break
+                if best_match:
+                    break
+        except Exception:
+            continue
 
-        else:
-            lat = None
-            lon = None
-
-            cache[
-                cache_key
-            ] = None
-
-    except (
-        OSError,
-        ValueError,
-        KeyError,
-        json.JSONDecodeError
-    ):
+    chosen = best_match or fallback_match
+    if chosen:
+        lat = float(chosen["lat"])
+        lon = float(chosen["lon"])
+        cache[cache_key] = {
+            "lat": lat,
+            "lon": lon,
+            "display_name": chosen.get("display_name", "")
+        }
+    else:
         lat = None
         lon = None
+        cache[cache_key] = None
 
     # Salvataggio progressivo della cache
-    save_geocache(
-        cache
-    )
+    save_geocache(cache)
 
     # Pausa per rispettare il servizio pubblico Nominatim
-    time.sleep(
-        GEOCODING_DELAY_SECONDS
-    )
+    time.sleep(GEOCODING_DELAY_SECONDS)
 
     return lat, lon
 

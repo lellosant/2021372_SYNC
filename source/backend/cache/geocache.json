@@ -2014,5 +2014,45 @@
   "VIA DELLA FONTANELLA DI BORGHESE 48, ROMA, ITALY": {
     "lat": 41.9039337,
     "lon": 12.4772671
+  },
+  "VIA DEL CORSO 120, ROMA, ITALY": {
+    "lat": 41.9054361,
+    "lon": 12.4786204
+  },
+  "VIA ROMA 18 ROMA, ITALY": {
+    "lat": 45.614421,
+    "lon": 8.196085
+  },
+  "VIA ROMA CIAMPINO, ITALY": {
+    "lat": 41.8082563,
+    "lon": 12.5763646
+  },
+  "VIA PASQUALE LEOMBARDO CIAMPINO, ITALY": null,
+  "VIA PASQUALE LOMBARDO CIAMPINO, ITALY": {
+    "lat": 41.7898612,
+    "lon": 12.620074
+  },
+  "VIA ROMA CAGLIARI, ITALY": {
+    "lat": 39.2127353,
+    "lon": 9.1145532
+  },
+  "VIA ARIOSTO ROMA, ITALY": {
+    "lat": 42.2075781,
+    "lon": 12.4811751
+  },
+  "VIA SAN GIACOMO ROMA, ITALY": {
+    "lat": 41.9078324,
+    "lon": 12.4785769,
+    "display_name": "Via di San Giacomo, Campo Marzio, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia"
+  },
+  "VIA LUDOVICO ARIOSTO 21, ROMA, ITALY": {
+    "lat": 45.4072067,
+    "lon": 10.9837611,
+    "display_name": "21, Via Ludovico Ariosto, Borgo Roma, Sud, Verona, Veneto, 37135, Italia"
+  },
+  "VIA V. ARIOSTO 25, ROMA, ITALY": {
+    "lat": 41.8909555,
+    "lon": 12.5036374,
+    "display_name": "Dipartimento di Informatica e Sistemistica \"Antonio Ruberti\", 25, Via Ludovico Ariosto, Esquilino, Municipio Roma I, Roma, Roma Capitale, Lazio, 00185, Italia"
   }
 }

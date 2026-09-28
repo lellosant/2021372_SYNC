@@ -8,7 +8,13 @@ import pandas as pd
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from data_processor import extract_companies_from_file, process_data
+from data_processor import (
+    extract_companies_from_file,
+    process_data,
+    geocode_address,
+    load_geocache,
+    save_geocache
+)
 from optimizer import optimize_visits
 
 logging.basicConfig(level=logging.INFO)
@@ -34,12 +40,63 @@ app.add_middleware(
 async def upload_file(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        companies = extract_companies_from_file(contents)
-        return {"companies": companies}
+        df, companies = process_data(contents)
+        
+        company_clients = {}
+        for comp in companies:
+            if comp in df.columns:
+                mask = (pd.to_numeric(df[comp], errors='coerce').fillna(0) > 0) & df['Lat'].notna() & df['Lon'].notna()
+                comp_df = df[mask]
+                clients_list = []
+                for _, r in comp_df.iterrows():
+                    clients_list.append({
+                        "name": str(r.get("Cliente", "Cliente")),
+                        "address": str(r.get("Indirizzo", "")),
+                        "city": str(r.get("Città", "")),
+                        "lat": float(r["Lat"]),
+                        "lon": float(r["Lon"]),
+                        "revenue": float(r.get(comp, 0))
+                    })
+                company_clients[comp] = clients_list
+
+        return {
+            "companies": companies,
+            "company_clients": company_clients
+        }
     except Exception as e:
         logger.error(f"Errore in /api/upload: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/geocode")
+async def geocode_endpoint(address: str, city: str = ""):
+    try:
+        geo_cache = load_geocache()
+        lat, lon = geocode_address(address, city, geo_cache)
+        save_geocache(geo_cache)
+        if lat is not None and lon is not None:
+            cache_key = ", ".join(part for part in [address, city, "Italy"] if part).upper()
+            cached_item = geo_cache.get(cache_key) or {}
+            display_name = cached_item.get("display_name", "")
+            return {
+                "success": True,
+                "address": address,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "display_name": display_name
+            }
+        return {
+            "success": False,
+            "message": "Indirizzo non trovato su OpenStreetMap. Inserisci manualmente le coordinate GPS."
+        }
+    except Exception as e:
+        logger.error(f"Errore geocodifica indirizzo '{address}': {e}")
+        return {
+            "success": False,
+            "message": f"Errore durante la geocodifica: {str(e)}"
+        }
 
 
 @app.post("/api/analyze")
@@ -50,7 +107,10 @@ async def analyze_data(
     work_hours: float = Form(8.0),
     company: str = Form(None),
     companies: str = Form(None),
-    start_date: str = Form(None)
+    start_date: str = Form(None),
+    start_address: str = Form(None),
+    start_lat: float = Form(None),
+    start_lon: float = Form(None)
 ):
     contents = await file.read()
     content_hash = hashlib.sha256(contents).hexdigest()[:16]
@@ -67,7 +127,8 @@ async def analyze_data(
         except Exception:
             target_company = companies.split(',')[0].strip()
 
-    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}"
+    loc_suffix = f"_{start_address or ''}_{start_lat or ''}_{start_lon or ''}"
+    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}"
 
     # 1. Verifica cache in memoria
     if cache_key in _scenario_memory_cache:
@@ -126,7 +187,10 @@ async def analyze_data(
             hours_per_visit,
             work_hours,
             [target_company],
-            start_date=start_date
+            start_date=start_date,
+            start_address=start_address,
+            start_lat=start_lat,
+            start_lon=start_lon
         )
     except Exception as e:
         logger.error(f"Errore in optimize_visits per {target_company}: {e}")
@@ -136,7 +200,10 @@ async def analyze_data(
     recovered_revenue = float(schedule_df["Fatturato Stimato"].sum()) if not schedule_df.empty and "Fatturato Stimato" in schedule_df.columns else 0.0
     visits_count = len(schedule_df)
 
+    scheduled_client_names = set(schedule_df["Cliente"].dropna().unique()) if not schedule_df.empty and "Cliente" in schedule_df.columns else set()
+
     map_points = []
+    # 1. Clienti pianificati per la visita
     if not schedule_df.empty:
         for _, row in schedule_df.iterrows():
             lat = row.get("Lat")
@@ -152,8 +219,31 @@ async def analyze_data(
                     "city": row.get("Città", ""),
                     "day": row.get("Giorno", ""),
                     "date": row.get("Data Visita", ""),
-                    "time": row.get("Orario", "")
+                    "time": row.get("Orario", ""),
+                    "planned": True
                 })
+
+    # 2. Tutti gli altri clienti di quell'azienda localizzabili ma non pianificati
+    if target_company in df.columns:
+        for _, row in valid_clients_df.iterrows():
+            client_name = row.get("Cliente", "")
+            if client_name not in scheduled_client_names:
+                lat = row.get("Lat")
+                lon = row.get("Lon")
+                if pd.notna(lat) and pd.notna(lon):
+                    map_points.append({
+                        "lat": float(lat),
+                        "lon": float(lon),
+                        "name": str(client_name),
+                        "revenue": float(row.get(target_company, 0)),
+                        "main_company": target_company,
+                        "address": row.get("Indirizzo", ""),
+                        "city": row.get("Città", ""),
+                        "day": "",
+                        "date": "",
+                        "time": "",
+                        "planned": False
+                    })
 
     schedule_records = schedule_df.to_dict(orient="records") if not schedule_df.empty else []
 
@@ -171,6 +261,11 @@ async def analyze_data(
         },
         "schedule": schedule_records,
         "map_points": map_points,
+        "agent_start_location": {
+            "address": start_address,
+            "lat": start_lat,
+            "lon": start_lon
+        },
         "companies_data": {
             target_company: {
                 "schedule": schedule_records,

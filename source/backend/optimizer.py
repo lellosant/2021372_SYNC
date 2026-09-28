@@ -458,7 +458,11 @@ def optimize_visits(
     hours_per_visit,
     work_hours_per_day,
     companies_filter,
-    start_date=None
+    start_date=None,
+    start_address=None,
+    start_lat=None,
+    start_lon=None,
+    **kwargs
 ):
     """
     Crea un piano euristico che cerca di massimizzare
