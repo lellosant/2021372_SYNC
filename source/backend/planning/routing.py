@@ -1,0 +1,80 @@
+import math
+import urllib.parse
+import urllib.request
+import json
+import threading
+from typing import List
+
+from .config import (
+    AVERAGE_FALLBACK_SPEED_KMH,
+    OSRM_BASE_URL,
+    OSRM_TIMEOUT_SECONDS
+)
+from .models import Location, Client
+
+_matrix_cache = {}
+_matrix_cache_lock = threading.Lock()
+
+def _haversine_minutes(lat1, lon1, lat2, lon2):
+    radius_km = 6371.0
+    p1 = math.radians(lat1)
+    p2 = math.radians(lat2)
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    h = math.sin(d_lat / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(d_lon / 2) ** 2
+    straight_km = 2 * radius_km * math.asin(min(1.0, math.sqrt(h)))
+    road_km = straight_km * 1.25
+    return (road_km / AVERAGE_FALLBACK_SPEED_KMH) * 60
+
+def _fallback_matrix(coords):
+    return [
+        [
+            0.0 if i == j else _haversine_minutes(lat1, lon1, lat2, lon2)
+            for j, (lat2, lon2) in enumerate(coords)
+        ]
+        for i, (lat1, lon1) in enumerate(coords)
+    ]
+
+def build_travel_matrix(depot: Location, clients: List[Client]) -> List[List[float]]:
+    coords = [(depot.lat, depot.lon)] + [(c.latitude, c.longitude) for c in clients]
+    if not coords:
+        return []
+        
+    rounded = tuple((round(lat, 5), round(lon, 5)) for lat, lon in coords)
+
+    with _matrix_cache_lock:
+        if rounded in _matrix_cache:
+            return _matrix_cache[rounded]
+
+    coordinate_string = ";".join(f"{lon},{lat}" for lat, lon in rounded)
+    query = urllib.parse.urlencode({"annotations": "duration"})
+    url = f"{OSRM_BASE_URL}/table/v1/driving/{coordinate_string}?{query}"
+
+    try:
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "visits-optimizer/1.0"}
+        )
+        with urllib.request.urlopen(request, timeout=OSRM_TIMEOUT_SECONDS) as response:
+            payload = json.load(response)
+
+        durations = payload.get("durations")
+        if payload.get("code") != "Ok" or not durations:
+            raise ValueError(payload.get("message", "OSRM matrix unavailable"))
+
+        matrix = [
+            [
+                math.inf if seconds is None else float(seconds) / 60
+                for seconds in row
+            ]
+            for row in durations
+        ]
+    except Exception:
+        matrix = _fallback_matrix(coords)
+
+    with _matrix_cache_lock:
+        if len(_matrix_cache) >= 16:
+            _matrix_cache.pop(next(iter(_matrix_cache)))
+        _matrix_cache[rounded] = matrix
+
+    return matrix

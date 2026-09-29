@@ -109,7 +109,8 @@ async def get_config():
         "lunch_latest_start": os.getenv("LUNCH_LATEST_START", "14:00").strip('"\''),
         "lunch_duration_minutes": int(os.getenv("LUNCH_DURATION_MINUTES", "60")),
         "default_visit_hours": float(os.getenv("DEFAULT_VISIT_HOURS", "3.5")),
-        "max_work_hours_per_day": float(os.getenv("MAX_WORK_HOURS_PER_DAY", "8.0"))
+        "max_work_hours_per_day": float(os.getenv("MAX_WORK_HOURS_PER_DAY", "8.0")),
+        "work_end_grace_minutes": int(os.getenv("WORK_END_GRACE_MINUTES", "15"))
     }
 
 

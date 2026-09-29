@@ -21,5 +21,7 @@ Thumbs.db
 *.xlsx
 *.xls
 *.csv
-Screenshot table excel xlsx.png
 
+
+venv/
+other/

@@ -1,8 +1,8 @@
 import datetime
 import pandas as pd
 
-from backend import optimizer
-from backend.planning import calendar, routing
+import optimizer
+from planning import calendar, routing
 
 
 def zero_travel_matrix(coords):
@@ -18,8 +18,8 @@ routing._routing_matrix = zero_travel_matrix
 def _mock_build_travel_matrix(depot, clients):
     coords = [(depot.lat, depot.lon)] + [(c.latitude, c.longitude) for c in clients]
     return zero_travel_matrix(coords)
-import backend.planning.facade
-backend.planning.facade.build_travel_matrix = _mock_build_travel_matrix
+import planning.facade
+planning.facade.build_travel_matrix = _mock_build_travel_matrix
 
 def test_four_two_hour_visits_fit_in_one_day():
     df = pd.DataFrame({
