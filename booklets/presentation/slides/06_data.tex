@@ -1,0 +1,16 @@
+\begin{frame}[fragile]{Data Processing, Geocoding \& Routing}
+\begin{itemize}
+    \item \textbf{Data Normalization:} Uses Pandas to parse the ERP file, rename columns, and remove summary rows dynamically.
+    \item \textbf{Aggregation:} Duplicate ERP rows referring to the same delivery point (Client, Address, City) are grouped into single physical locations.
+    \item \textbf{Geocoding:} Real geographic coordinates are fetched via Nominatim, using caching to minimize network requests.
+\end{itemize}
+
+\begin{block}{Snippet: Grouping Locations}
+\begin{verbatim}
+df = df.groupby(
+    ['Cliente', 'Indirizzo', 'Citta'],
+    dropna=False, as_index=False
+).agg(aggregation_rules)
+\end{verbatim}
+\end{block}
+\end{frame}

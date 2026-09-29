@@ -1,0 +1,19 @@
+\begin{frame}[fragile]{Docker \& Infrastructure as Code}
+\begin{itemize}
+    \item \textbf{Containerization:} The application is fully containerized using Docker, isolating dependencies and ensuring consistency across environments.
+    \item \textbf{Services Setup:} Managed via \texttt{docker-compose.yml}, spinning up two services: \texttt{backend} and \texttt{frontend}.
+\end{itemize}
+
+\begin{block}{docker-compose.yml snippet}
+\begin{verbatim}
+services:
+  backend:
+    build: ./backend
+    ports: [ "8000:8000" ]
+  frontend:
+    build: ./frontend
+    ports: [ "8080:80" ]
+    depends_on: [ backend ]
+\end{verbatim}
+\end{block}
+\end{frame}

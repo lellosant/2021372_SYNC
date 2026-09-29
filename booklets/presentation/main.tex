@@ -1,0 +1,41 @@
+\documentclass{beamer}
+\usepackage{amsfonts,amsmath,oldgerm}
+\usepackage{tikz}
+\usetheme{sintef}
+
+\newcommand{\testcolor}[1]{\colorbox{#1}{\textcolor{#1}{test}}~\texttt{#1}}
+
+\usefonttheme[onlymath]{serif}
+
+\titlebackground*{assets/background}
+
+\newcommand{\hrefcol}[2]{\textcolor{cyan}{\href{#1}{#2}}}
+
+\title{Sales Visit Optimizer}
+\subtitle{GeoAnalytics and Planning Dashboard}
+\course{Hackathon September 2026}
+\author{Alessandro Savo, \textit{2021372} \\ Leonardo Santucci, \textit{2282707}}
+\IDnumber{}
+\date{Academic Year 2025/2026}
+
+\begin{document}
+\maketitle
+
+\input{slides/01_problem.tex}
+\input{slides/02_user_stories_1.tex}
+\input{slides/02_user_stories_2.tex}
+\input{slides/02_nfr.tex}
+\input{slides/03_mockups.tex}
+\input{slides/05_architecture.tex}
+\input{slides/06_docker.tex}
+\input{slides/07_data_processing.tex}
+\input{slides/08_optimization_problem.tex}
+\input{slides/09_optimizer_works.tex}
+\input{slides/10_pseudocode.tex}
+\input{slides/11_real_code_destroy.tex}
+\input{slides/11_real_code_repair.tex}
+\input{slides/12_testing.tex}
+\input{slides/13_conclusions.tex}
+\input{slides/14_demo.tex}
+
+\end{document}

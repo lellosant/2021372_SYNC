@@ -1,0 +1,47 @@
+\begin{frame}{How the Optimizer Works}
+\centering
+\begin{tikzpicture}[
+    box/.style={draw, rectangle, rounded corners, minimum width=7cm, minimum height=0.5cm, text centered, font=\scriptsize, fill=sintefblue!10},
+    arrow/.style={->, thick, >=stealth}
+]
+
+\node (step1) at (0, 6.2) [box] {\textbf{CUSTOMERS}};
+
+\node (step2) at (0, 5.2) [box] {
+    \begin{tabular}{c}
+    \textbf{K-MEANS CLUSTERING} \\
+    Groups nearby customers.
+    \end{tabular}
+};
+
+\node (step3) at (0, 4.2) [box] {
+    \begin{tabular}{c}
+    \textbf{INITIAL FEASIBLE PLAN} \\
+    Creates a first valid schedule.
+    \end{tabular}
+};
+
+\node (step4) at (0, 2.8) [box, fill=sintefyellow!20] {
+    \begin{tabular}{c}
+    \textbf{ALNS IMPROVEMENT} \\
+    \textbf{Destroy:} temporarily removes some visits. \\
+    \textbf{Repair:} tries to reinsert them in better positions.
+    \end{tabular}
+};
+
+\node (step5) at (0, 1.4) [box] {
+    \begin{tabular}{c}
+    \textbf{FEASIBILITY CHECK} \\
+    Verifies the main constraints.
+    \end{tabular}
+};
+
+\node (step6) at (0, 0.4) [box] {\textbf{BEST PLAN}};
+
+\draw [arrow] (step1) -- (step2);
+\draw [arrow] (step2) -- (step3);
+\draw [arrow] (step3) -- (step4);
+\draw [arrow] (step4) -- (step5);
+\draw [arrow] (step5) -- (step6);
+\end{tikzpicture}
+\end{frame}

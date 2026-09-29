@@ -1,0 +1,27 @@
+\begin{frame}[fragile]{Testing}
+\begin{block}{Test Execution}
+\texttt{\$ python3 -m pytest -q source/test}\\
+\texttt{......}\\
+\texttt{6 passed in 0.08s}
+\end{block}
+
+\vspace{0.3cm}
+\footnotesize
+\textbf{Working-time limits}\\
+Checks that visits do not exceed the available working day.
+
+\vspace{0.15cm}
+\textbf{Calendar rules}\\
+Checks that weekends and national holidays are skipped.
+
+\vspace{0.15cm}
+\textbf{Travel / transfer rules}\\
+Checks that travel-related constraints do not create invalid plans.
+
+\vspace{0.15cm}
+\textbf{Final feasibility}\\
+Checks again that the final schedule respects the main constraints before it is returned.
+
+\vspace{0.15cm}
+\textit{Tests verify that the planner respects the main constraints.}
+\end{frame}

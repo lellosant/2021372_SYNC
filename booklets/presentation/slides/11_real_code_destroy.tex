@@ -1,0 +1,40 @@
+\begin{frame}[fragile]{Real Optimizer Code - Destroy}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{\texttt{alns.py}}
+\scriptsize
+\begin{verbatim}
+num_remove = max(1, int(len(
+    route.client_indices) * 
+    random.uniform(0.1, 0.2)))
+
+indices_to_remove = random.sample(
+    range(len(route.client_indices)), 
+    num_remove)
+
+for idx in sorted(indices_to_remove, 
+                  reverse=True):
+    client_idx = \
+      route.client_indices.pop(idx)
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\vspace{0.4cm}
+\footnotesize
+\begin{enumerate}
+    \item \textbf{Decide how many visits to remove.}
+    \vspace{0.4cm}
+    \item \textbf{Randomly choose the visits.}
+    \vspace{0.4cm}
+    \item \textbf{Remove them from the current route.}
+\end{enumerate}
+\end{column}
+\end{columns}
+
+\vspace{0.4cm}
+\footnotesize
+\textbf{Why?}\\
+Removing visits gives the algorithm space to rebuild part of the route differently.
+\end{frame}

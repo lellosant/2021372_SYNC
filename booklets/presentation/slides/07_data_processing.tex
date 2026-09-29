@@ -1,0 +1,25 @@
+\begin{frame}{Data Processing}
+The same physical location can appear several times in the Excel file because it can have revenue from different companies.
+
+\vspace{0.4cm}
+\begin{block}{Example}
+\footnotesize
+Customer A - Via Roma 10 - WINES - EUR 1,000\\
+Customer A - Via Roma 10 - VISCONTI - EUR 500
+
+\vspace{0.2cm}
+\centering $\downarrow$ GROUP BY PHYSICAL LOCATION $\downarrow$
+
+\vspace{0.2cm}
+\raggedright
+Customer A - Via Roma 10 - Total relevant revenue
+\end{block}
+
+\vspace{0.4cm}
+\begin{enumerate}
+    \item Clean the Excel data.
+    \item Group rows referring to the same physical location.
+    \item Convert addresses into geographic coordinates.
+    \item Estimate driving times between locations.
+\end{enumerate}
+\end{frame}

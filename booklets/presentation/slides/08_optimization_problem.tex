@@ -1,0 +1,36 @@
+\begin{frame}{Optimization Problem}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{INPUTS}
+\begin{itemize}
+    \item Customers
+    \item Revenue
+    \item Location
+    \item Available days
+    \item Visit duration
+    \item Starting point
+\end{itemize}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{CONSTRAINTS}
+\begin{itemize}
+    \item Working days
+    \item Working hours
+    \item Holidays
+    \item Lunch break
+    \item Visit time
+    \item Driving time
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.6cm}
+\textbf{GOAL}\\
+Find a feasible visit plan that covers as much revenue as possible.
+
+\vspace{0.6cm}
+\centering \footnotesize \textit{Testing every possible route would take too long, so we use a heuristic algorithm.}
+\end{frame}

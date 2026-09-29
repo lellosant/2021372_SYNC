@@ -1,0 +1,21 @@
+\begin{frame}{Software Architecture}
+\begin{itemize}
+    \item \textbf{Frontend (Web Interface):}
+        \begin{itemize}
+            \item HTML5, CSS3, JavaScript
+            \item Leaflet.js for interactive mapping
+            \item Served by Nginx (Port 8080)
+        \end{itemize}
+    \item \textbf{Backend (Visits API):}
+        \begin{itemize}
+            \item Python with FastAPI (Port 8000)
+            \item Pandas for data cleaning and aggregation
+            \item Uvicorn as the ASGI server
+        \end{itemize}
+    \item \textbf{External Services:}
+        \begin{itemize}
+            \item Nominatim / OpenStreetMap for address geocoding
+            \item OSRM for travel time and routing calculations
+        \end{itemize}
+\end{itemize}
+\end{frame}

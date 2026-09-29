@@ -1,0 +1,46 @@
+\begin{frame}[fragile]{Simplified Algorithm}
+\textit{Simplified logic — not the actual source code}
+
+\vspace{0.4cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{block}{}
+\scriptsize
+\begin{verbatim}
+best = initial_plan
+
+for each iteration:
+    partial = destroy(current_plan)
+    candidate = repair(partial)
+
+    if candidate is feasible:
+        current_plan = candidate
+
+        if candidate is better than best:
+            best = candidate
+
+return best
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+\vspace{0.2cm}
+\footnotesize
+\textbf{DESTROY}\\
+Remove some visits.
+
+\vspace{0.3cm}
+\textbf{REPAIR}\\
+Try to insert them again in better positions.
+
+\vspace{0.3cm}
+\textbf{FEASIBLE}\\
+All time and calendar constraints are respected.
+
+\vspace{0.3cm}
+\textbf{BEST}\\
+Keep the best plan found so far.
+\end{column}
+\end{columns}
+\end{frame}

@@ -1,0 +1,38 @@
+\begin{frame}[fragile]{Docker Deployment}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\vspace{0.4cm}
+\textbf{Docker}\\
+Packages the application and its dependencies.
+
+\vspace{0.4cm}
+\textbf{Docker Compose}\\
+Starts the two application services together.
+
+\vspace{0.4cm}
+\textbf{Frontend}\\
+Port 8080
+
+\vspace{0.4cm}
+\textbf{Backend}\\
+Port 8000
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\vspace{0.4cm}
+\begin{block}{docker-compose.yml}
+\scriptsize
+\begin{verbatim}
+backend:
+  build: ./backend
+  ports: ["8000:8000"]
+
+frontend:
+  build: ./frontend
+  ports: ["8080:80"]
+  depends_on: [backend]
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}

@@ -1,0 +1,54 @@
+\begin{frame}[fragile]{Real Optimizer Code - Repair}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{\texttt{alns.py}}
+\scriptsize
+\begin{verbatim}
+for client_idx in candidates:
+    # ... skips if already scheduled ...
+    
+    insertion = _find_best_insertion(...)
+    
+    if insertion:
+        d_idx, pos, new_route, _ = insertion
+        solution.day_routes[d_idx] = new_route
+        solution.scheduled_client_ids.add(...)
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\footnotesize
+\textbf{Removed customer}
+
+\vspace{0.1cm}
+\centering $\downarrow$
+
+\vspace{0.1cm}
+\raggedright
+\textbf{Try possible positions}
+\begin{itemize}
+    \item Day 1 - Position 1\\
+    \textcolor{red}{Not feasible}
+    
+    \vspace{0.1cm}
+    \item Day 1 - Position 2\\
+    \textcolor{green!60!black}{Feasible}
+    
+    \vspace{0.1cm}
+    \item Day 2 - Position 1\\
+    \textcolor{green!60!black}{\textbf{Feasible and better}}
+\end{itemize}
+
+\vspace{0.1cm}
+\centering $\downarrow$
+
+\vspace{0.1cm}
+\raggedright
+\textbf{Choose the best feasible position}
+
+\vspace{0.4cm}
+\textit{\texttt{\_find\_best\_insertion} searches for the best valid day and position.}
+\end{column}
+\end{columns}
+\end{frame}

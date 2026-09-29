@@ -1,0 +1,36 @@
+\begin{frame}{Software Architecture}
+\centering
+\begin{tikzpicture}[
+    box/.style={draw, rectangle, rounded corners, minimum width=4cm, minimum height=0.6cm, text centered, font=\footnotesize, fill=sintefblue!10},
+    arrow/.style={->, thick, >=stealth}
+]
+
+\node (browser) at (0, 4) [box, fill=sintefyellow!20] {\textbf{USER / BROWSER}};
+
+\node (frontend) at (-2.8, 1.8) [box, text width=4.2cm] {
+    \textbf{FRONTEND}\\
+    HTML/CSS/JavaScript\\
+    Leaflet: map\\
+    Nginx: web server
+};
+
+\node (backend) at (2.8, 1.8) [box, text width=4.2cm] {
+    \textbf{BACKEND}\\
+    Python + FastAPI\\
+    Data processing\\
+    Optimization
+};
+
+\node (external) at (0, -0.8) [box, text width=5.5cm, fill=gray!10] {
+    \textbf{EXTERNAL SERVICES}\\
+    Nominatim: address $\rightarrow$ coordinates\\
+    OSRM: driving-time estimates
+};
+
+\draw [arrow] (browser) -- (0, 3) -| (frontend);
+\draw [arrow] (browser) -- (0, 3) -| (backend);
+\draw [arrow] (frontend) |- (0.5, 0.4) -- (external);
+\draw [arrow] (backend) |- (-0.5, 0.4) -- (external);
+
+\end{tikzpicture}
+\end{frame}
