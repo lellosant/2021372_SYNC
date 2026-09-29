@@ -46,7 +46,7 @@ def evaluate_day_route(
         lunch_before = False
         direct_end = arrival + client.service_minutes
         
-        if not lunch_taken and direct_end > lunch.latest_start:
+        if lunch.duration > 0 and not lunch_taken and direct_end > lunch.latest_start:
             lunch_start = max(arrival, lunch.earliest)
             visit_start = lunch_start + lunch.duration
             lunch_before = True
@@ -59,7 +59,7 @@ def evaluate_day_route(
             is_feas = False
             break
 
-        if lunch_before and max(arrival, lunch.earliest) > lunch.latest_start:
+        if lunch.duration > 0 and lunch_before and max(arrival, lunch.earliest) > lunch.latest_start:
             is_feas = False
             break
 
@@ -80,7 +80,7 @@ def evaluate_day_route(
             current_minute = visit_end
         else:
             current_minute = visit_end
-            if not lunch_taken and visit_end >= lunch.earliest:
+            if lunch.duration > 0 and not lunch_taken and visit_end >= lunch.earliest:
                 current_minute = visit_end + lunch.duration
                 lunch_taken = True
                 
@@ -94,7 +94,7 @@ def evaluate_day_route(
             travel_to_depot_int = int(math.ceil(travel_to_depot))
             arrival_depot = current_minute + travel_to_depot_int
             
-            if not lunch_taken:
+            if lunch.duration > 0 and not lunch_taken:
                 if arrival_depot > lunch.latest_start:
                     lunch_start = max(current_minute, lunch.earliest)
                     if lunch_start > lunch.latest_start:
