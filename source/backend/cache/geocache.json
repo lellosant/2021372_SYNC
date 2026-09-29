@@ -2054,5 +2054,20 @@
     "lat": 41.8909555,
     "lon": 12.5036374,
     "display_name": "Dipartimento di Informatica e Sistemistica \"Antonio Ruberti\", 25, Via Ludovico Ariosto, Esquilino, Municipio Roma I, Roma, Roma Capitale, Lazio, 00185, Italia"
+  },
+  "VIA A, ROMA, ITALY": {
+    "lat": 41.8827866,
+    "lon": 13.1079156,
+    "display_name": "Via, Arcinazzo Romano, Roma Capitale, Lazio, 00028, Italia"
+  },
+  "VIA B, ROMA, ITALY": {
+    "lat": 41.8827866,
+    "lon": 13.1079156,
+    "display_name": "Via, Arcinazzo Romano, Roma Capitale, Lazio, 00028, Italia"
+  },
+  "VIA C, ROMA, ITALY": {
+    "lat": 41.8827866,
+    "lon": 13.1079156,
+    "display_name": "Via, Arcinazzo Romano, Roma Capitale, Lazio, 00028, Italia"
   }
 }

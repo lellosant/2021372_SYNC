@@ -343,7 +343,14 @@ function getCacheKey(company) {
     const startDate = document.getElementById('start-date').value;
     const loc = getAgentStartLocation(company);
     const locStr = loc ? `${loc.address || ''}_${loc.lat || ''}_${loc.lon || ''}` : 'noloc';
-    return `${fileName}__${company}__${days}__${hours}__${startDate}__${locStr}`;
+
+    const workStart = document.getElementById('work-start')?.value || '09:00';
+    const workEnd = document.getElementById('work-end')?.value || '18:00';
+    const lunchEarliest = document.getElementById('lunch-earliest')?.value || '12:00';
+    const lunchLatestStart = document.getElementById('lunch-latest-start')?.value || '14:00';
+    const lunchDuration = document.getElementById('lunch-duration')?.value || '60';
+
+    return `${fileName}__${company}__${days}__${hours}__${startDate}__${locStr}__${workStart}__${workEnd}__${lunchEarliest}__${lunchLatestStart}__${lunchDuration}`;
 }
 
 // Listener cambio file Excel/CSV
@@ -526,15 +533,94 @@ document.getElementById('save-start-loc-btn').addEventListener('click', async ()
     renderCompanyClientsOnMap(company, true);
 });
 
+// Helpers per gestione parametri orari e pausa pranzo
+function timeToMinutes(timeStr) {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10);
+}
+
+function calculateNetWorkHours(startStr, endStr, pauseMin) {
+    const start = timeToMinutes(startStr);
+    const end = timeToMinutes(endStr);
+    const pause = parseInt(pauseMin, 10) || 0;
+    const netMinutes = Math.max(30, end - start - pause);
+    return Math.round((netMinutes / 60) * 10) / 10;
+}
+
+function updateTimeSummaryAndCalculations() {
+    const start = document.getElementById('work-start')?.value || '09:00';
+    const end = document.getElementById('work-end')?.value || '18:00';
+    const pause = document.getElementById('lunch-duration')?.value || '60';
+
+    const summaryEl = document.getElementById('time-settings-summary');
+    if (summaryEl) {
+        summaryEl.textContent = `${start} - ${end} • Pausa ${pause}m`;
+    }
+
+    const netHours = calculateNetWorkHours(start, end, pause);
+    const computedHoursEl = document.getElementById('computed-work-hours');
+    if (computedHoursEl) {
+        computedHoursEl.textContent = netHours.toFixed(1);
+    }
+}
+
+// Accordion toggle per card orari
+const toggleTimeSettings = document.getElementById('toggle-time-settings');
+const timeSettingsBody = document.getElementById('time-settings-body');
+const timeSettingsChevron = document.getElementById('time-settings-chevron');
+if (toggleTimeSettings && timeSettingsBody && timeSettingsChevron) {
+    toggleTimeSettings.addEventListener('click', () => {
+        const isCollapsed = timeSettingsBody.style.display === 'none';
+        timeSettingsBody.style.display = isCollapsed ? 'block' : 'none';
+        timeSettingsChevron.textContent = isCollapsed ? '▾' : '▸';
+    });
+}
+
+// Caricamento configurazioni iniziali da /api/config
+async function loadConfigDefaults() {
+    try {
+        const res = await fetch(`${API_BASE}/api/config`);
+        if (res.ok) {
+            const cfg = await res.json();
+            if (cfg.work_start && document.getElementById('work-start')) {
+                document.getElementById('work-start').value = cfg.work_start;
+            }
+            if (cfg.work_end && document.getElementById('work-end')) {
+                document.getElementById('work-end').value = cfg.work_end;
+            }
+            if (cfg.lunch_earliest && document.getElementById('lunch-earliest')) {
+                document.getElementById('lunch-earliest').value = cfg.lunch_earliest;
+            }
+            if (cfg.lunch_latest_start && document.getElementById('lunch-latest-start')) {
+                document.getElementById('lunch-latest-start').value = cfg.lunch_latest_start;
+            }
+            if (cfg.lunch_duration_minutes && document.getElementById('lunch-duration')) {
+                document.getElementById('lunch-duration').value = cfg.lunch_duration_minutes;
+            }
+            updateTimeSummaryAndCalculations();
+        }
+    } catch (e) {
+        console.warn('Config endpoint non raggiungibile, utilizzo valori predefiniti:', e);
+    }
+}
+loadConfigDefaults();
+
 // Se l'utente modifica parametri già precedentemente calcolati in questa sessione, mostra dalla cache
-['days', 'hours', 'start-date'].forEach(id => {
-    document.getElementById(id).addEventListener('change', () => {
+['days', 'hours', 'start-date', 'work-start', 'work-end', 'lunch-earliest', 'lunch-latest-start', 'lunch-duration'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', () => {
+        updateTimeSummaryAndCalculations();
         const selectedCompany = document.getElementById('company-select').value;
         if (!selectedCompany) return;
         const key = getCacheKey(selectedCompany);
         if (clientScenarioCache.has(key)) {
             renderScenario(clientScenarioCache.get(key));
         }
+    });
+    el.addEventListener('input', () => {
+        updateTimeSummaryAndCalculations();
     });
 });
 
@@ -583,12 +669,24 @@ async function performAnalysis() {
     overlay.style.display = 'flex';
 
     try {
+        const workStart = document.getElementById('work-start')?.value || '09:00';
+        const workEnd = document.getElementById('work-end')?.value || '18:00';
+        const lunchEarliest = document.getElementById('lunch-earliest')?.value || '12:00';
+        const lunchLatestStart = document.getElementById('lunch-latest-start')?.value || '14:00';
+        const lunchDuration = document.getElementById('lunch-duration')?.value || '60';
+        const netWorkHours = calculateNetWorkHours(workStart, workEnd, lunchDuration);
+
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
         formData.append('days', document.getElementById('days').value);
         formData.append('hours_per_visit', document.getElementById('hours').value);
-        formData.append('work_hours', 8.0);
+        formData.append('work_hours', netWorkHours);
         formData.append('company', selectedCompany);
+        formData.append('work_start', workStart);
+        formData.append('work_end', workEnd);
+        formData.append('lunch_earliest', lunchEarliest);
+        formData.append('lunch_latest_start', lunchLatestStart);
+        formData.append('lunch_duration_minutes', lunchDuration);
 
         if (startLoc.address) {
             formData.append('start_address', startLoc.address);
@@ -654,10 +752,15 @@ function renderScenario(data) {
     // 2. Aggiorna header agenda
     const subtitle = document.getElementById('table-company-subtitle');
     const droppedCount = (kpis.total_clients || 0) - (kpis.geocoded_clients || 0);
+    const timeInfo = data.time_params || {
+        work_start: document.getElementById('work-start')?.value || '09:00',
+        work_end: document.getElementById('work-end')?.value || '18:00',
+        lunch_duration_minutes: document.getElementById('lunch-duration')?.value || 60
+    };
     subtitle.innerHTML = `
         <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
         <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
-        <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali</div>
+        <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, pausa ${timeInfo.lunch_duration_minutes}m)</div>
         <div>${droppedCount} visite senza coordinate valide</div>
     `;
 

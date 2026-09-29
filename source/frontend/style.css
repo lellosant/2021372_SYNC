@@ -58,7 +58,7 @@ main {
 
 .form-group { margin-bottom: 1.5rem; }
 label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-input[type="file"], input[type="number"], input[type="date"], input[type="text"] {
+input[type="file"], input[type="number"], input[type="date"], input[type="text"], input[type="time"] {
     width: 100%;
     padding: 0.85rem;
     border-radius: 10px;
@@ -69,19 +69,19 @@ input[type="file"], input[type="number"], input[type="date"], input[type="text"]
     outline: none;
     transition: border-color 0.3s;
 }
-input[type="file"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="text"]:focus { border-color: var(--primary); }
+input[type="file"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="text"]:focus, input[type="time"]:focus { border-color: var(--primary); }
 
-input[type="date"] {
+input[type="date"], input[type="time"] {
     color-scheme: dark;
     cursor: pointer;
 }
-input[type="date"]::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     filter: invert(0.8) sepia(1) hue-rotate(180deg) saturate(200%); /* Adds a slight blue tint */
     opacity: 0.7;
     transition: opacity 0.2s;
 }
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
@@ -515,4 +515,117 @@ tr:hover td { background: rgba(255,255,255,0.03); }
     font-size: 0.85rem;
     background: linear-gradient(135deg, var(--primary), #2563eb);
     border-radius: 8px;
+}
+
+/* Card Parametri Orari Lavoro & Pausa Pranzo */
+.time-settings-card {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    backdrop-filter: blur(10px);
+}
+.time-settings-card:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.time-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 41, 59, 0.55);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+.time-settings-header:hover {
+    background: rgba(59, 130, 246, 0.14);
+}
+.time-settings-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+.time-settings-icon {
+    font-size: 1.15rem;
+}
+.time-settings-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.time-settings-summary {
+    display: block;
+    font-size: 0.73rem;
+    color: #38bdf8;
+    font-weight: 500;
+    margin-top: 0.15rem;
+}
+.time-settings-chevron {
+    font-size: 1rem;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+}
+.time-settings-body {
+    padding: 0.85rem 1rem 1rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    animation: fadeIn 0.2s ease-out;
+}
+.time-settings-section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 0.45rem;
+}
+.time-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+.time-field {
+    display: flex;
+    flex-direction: column;
+}
+.time-field label {
+    font-size: 0.7rem;
+    color: #cbd5e1;
+    margin-bottom: 0.25rem;
+    text-transform: none;
+    font-weight: 500;
+}
+.time-field input {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+.time-computed-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+    padding: 0.45rem 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: #a7f3d0;
+}
+.time-computed-info .computed-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+.time-computed-info strong {
+    color: #34d399;
 }

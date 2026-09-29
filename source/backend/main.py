@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SCENARIO_CACHE_DIR = "/app/cache/scenarios"
-PLANNER_CACHE_VERSION = "v2_workdays_flexible_lunch"
+PLANNER_CACHE_VERSION = "v3_parametric_work_lunch"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 
@@ -99,6 +99,20 @@ async def geocode_endpoint(address: str, city: str = ""):
         }
 
 
+@app.get("/api/config")
+async def get_config():
+    """Restituisce le configurazioni predefinite di orari e parametri da .env"""
+    return {
+        "work_start": os.getenv("WORK_START", "09:00").strip('"\''),
+        "work_end": os.getenv("WORK_END", "18:00").strip('"\''),
+        "lunch_earliest": os.getenv("LUNCH_EARLIEST", "12:00").strip('"\''),
+        "lunch_latest_start": os.getenv("LUNCH_LATEST_START", "14:00").strip('"\''),
+        "lunch_duration_minutes": int(os.getenv("LUNCH_DURATION_MINUTES", "60")),
+        "default_visit_hours": float(os.getenv("DEFAULT_VISIT_HOURS", "3.5")),
+        "max_work_hours_per_day": float(os.getenv("MAX_WORK_HOURS_PER_DAY", "8.0"))
+    }
+
+
 @app.post("/api/analyze")
 async def analyze_data(
     file: UploadFile = File(...),
@@ -110,7 +124,12 @@ async def analyze_data(
     start_date: str = Form(None),
     start_address: str = Form(None),
     start_lat: float = Form(None),
-    start_lon: float = Form(None)
+    start_lon: float = Form(None),
+    work_start: str = Form(None),
+    work_end: str = Form(None),
+    lunch_earliest: str = Form(None),
+    lunch_latest_start: str = Form(None),
+    lunch_duration_minutes: int = Form(None)
 ):
     contents = await file.read()
     content_hash = hashlib.sha256(contents).hexdigest()[:16]
@@ -127,8 +146,19 @@ async def analyze_data(
         except Exception:
             target_company = companies.split(',')[0].strip()
 
+    # Normalizzazione parametri orari lavorativi e pausa pranzo
+    eff_work_start = work_start.strip() if work_start and work_start.strip() else os.getenv("WORK_START", "09:00").strip('"\'')
+    eff_work_end = work_end.strip() if work_end and work_end.strip() else os.getenv("WORK_END", "18:00").strip('"\'')
+    eff_lunch_earliest = lunch_earliest.strip() if lunch_earliest and lunch_earliest.strip() else os.getenv("LUNCH_EARLIEST", "12:00").strip('"\'')
+    eff_lunch_latest_start = lunch_latest_start.strip() if lunch_latest_start and lunch_latest_start.strip() else os.getenv("LUNCH_LATEST_START", "14:00").strip('"\'')
+    try:
+        eff_lunch_duration = int(lunch_duration_minutes) if lunch_duration_minutes is not None and str(lunch_duration_minutes).strip() != "" else int(os.getenv("LUNCH_DURATION_MINUTES", "60"))
+    except (ValueError, TypeError):
+        eff_lunch_duration = 60
+
     loc_suffix = f"_{start_address or ''}_{start_lat or ''}_{start_lon or ''}"
-    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}"
+    time_suffix = f"_{eff_work_start}_{eff_work_end}_{eff_lunch_earliest}_{eff_lunch_latest_start}_{eff_lunch_duration}"
+    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}{time_suffix}"
 
     # 1. Verifica cache in memoria
     if cache_key in _scenario_memory_cache:
@@ -190,7 +220,12 @@ async def analyze_data(
             start_date=start_date,
             start_address=start_address,
             start_lat=start_lat,
-            start_lon=start_lon
+            start_lon=start_lon,
+            work_start=eff_work_start,
+            work_end=eff_work_end,
+            lunch_earliest=eff_lunch_earliest,
+            lunch_latest_start=eff_lunch_latest_start,
+            lunch_duration_minutes=eff_lunch_duration
         )
     except Exception as e:
         logger.error(f"Errore in optimize_visits per {target_company}: {e}")
@@ -265,6 +300,13 @@ async def analyze_data(
             "address": start_address,
             "lat": start_lat,
             "lon": start_lon
+        },
+        "time_params": {
+            "work_start": eff_work_start,
+            "work_end": eff_work_end,
+            "lunch_earliest": eff_lunch_earliest,
+            "lunch_latest_start": eff_lunch_latest_start,
+            "lunch_duration_minutes": eff_lunch_duration
         },
         "companies_data": {
             target_company: {

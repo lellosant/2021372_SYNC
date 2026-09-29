@@ -81,6 +81,29 @@ def _parse_time_env(
         return default_minutes
 
 
+def _parse_time_val(val, default_minutes):
+    """
+    Converte un valore orario (str 'HH:MM' o minuti int/float) in minuti dalla mezzanotte.
+    Se il valore non è valido o vuoto, restituisce default_minutes.
+    """
+    if val is None:
+        return default_minutes
+    if isinstance(val, (int, float)):
+        return int(val)
+    if isinstance(val, str):
+        val = val.strip().strip('"\'')
+        if not val:
+            return default_minutes
+        try:
+            parts = val.split(':')
+            if len(parts) == 2:
+                return int(parts[0]) * 60 + int(parts[1])
+            return int(float(parts[0]))
+        except (ValueError, TypeError):
+            return default_minutes
+    return default_minutes
+
+
 # ---------------------------------------------------------
 # Orario di lavoro e pausa pranzo flessibile
 # ---------------------------------------------------------
@@ -392,7 +415,10 @@ def _routing_matrix(coords):
 def _fit_visit_with_lunch(
     arrival,
     visit_minutes,
-    lunch_taken
+    lunch_taken,
+    lunch_earliest_min=None,
+    lunch_latest_start_min=None,
+    lunch_duration_min=None
 ):
     """
     Determina quando può iniziare la visita.
@@ -405,6 +431,12 @@ def _fit_visit_with_lunch(
     Restituisce:
     (visit_start, visit_end, lunch_before_visit)
     """
+    if lunch_earliest_min is None:
+        lunch_earliest_min = LUNCH_EARLIEST_MIN
+    if lunch_latest_start_min is None:
+        lunch_latest_start_min = LUNCH_LATEST_START_MIN
+    if lunch_duration_min is None:
+        lunch_duration_min = LUNCH_DURATION_MIN
 
     if lunch_taken:
         visit_start = arrival
@@ -422,7 +454,7 @@ def _fit_visit_with_lunch(
 
     # La visita può essere svolta prima di pranzo.
     # La pausa verrà eventualmente inserita subito dopo.
-    if direct_end <= LUNCH_LATEST_START_MIN:
+    if direct_end <= lunch_latest_start_min:
         return (
             arrival,
             direct_end,
@@ -432,13 +464,13 @@ def _fit_visit_with_lunch(
     # Altrimenti facciamo prima la pausa.
     lunch_start = max(
         arrival,
-        LUNCH_EARLIEST_MIN
+        lunch_earliest_min
     )
 
     visit_start = (
         lunch_start
         +
-        LUNCH_DURATION_MIN
+        lunch_duration_min
     )
 
     return (
@@ -462,6 +494,11 @@ def optimize_visits(
     start_address=None,
     start_lat=None,
     start_lon=None,
+    work_start=None,
+    work_end=None,
+    lunch_earliest=None,
+    lunch_latest_start=None,
+    lunch_duration_minutes=None,
     **kwargs
 ):
     """
@@ -476,6 +513,18 @@ def optimize_visits(
     La pausa pranzo è flessibile e non forza più
     rigidamente gli slot 09-11 / 14-16.
     """
+
+    day_start = _parse_time_val(work_start, WORK_START_MIN)
+    day_end = _parse_time_val(work_end, WORK_END_MIN)
+    lunch_earliest_min = _parse_time_val(lunch_earliest, LUNCH_EARLIEST_MIN)
+    lunch_latest_start_min = _parse_time_val(lunch_latest_start, LUNCH_LATEST_START_MIN)
+    try:
+        lunch_duration_min = int(lunch_duration_minutes) if (lunch_duration_minutes is not None and str(lunch_duration_minutes).strip() != "") else LUNCH_DURATION_MIN
+    except (ValueError, TypeError):
+        lunch_duration_min = LUNCH_DURATION_MIN
+
+    if work_hours_per_day is None or work_hours_per_day <= 0:
+        work_hours_per_day = max(0.5, (day_end - day_start - lunch_duration_min) / 60.0)
 
     if (
         days <= 0
@@ -650,9 +699,6 @@ def optimize_visits(
         )
     )
 
-    day_start = WORK_START_MIN
-    day_end = WORK_END_MIN
-
     # -----------------------------------------------------
     # 6. Data iniziale
     # -----------------------------------------------------
@@ -751,7 +797,10 @@ def optimize_visits(
                 ) = _fit_visit_with_lunch(
                     arrival,
                     visit_minutes,
-                    lunch_taken
+                    lunch_taken,
+                    lunch_earliest_min=lunch_earliest_min,
+                    lunch_latest_start_min=lunch_latest_start_min,
+                    lunch_duration_min=lunch_duration_min
                 )
 
                 if visit_end <= day_end:
@@ -924,12 +973,12 @@ def optimize_visits(
                     not lunch_taken
                     and
                     visit_end
-                    >= LUNCH_EARLIEST_MIN
+                    >= lunch_earliest_min
                 ):
                     current_minute = (
                         visit_end
                         +
-                        LUNCH_DURATION_MIN
+                        lunch_duration_min
                     )
 
                     lunch_taken = True
