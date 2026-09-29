@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SCENARIO_CACHE_DIR = "/app/cache/scenarios"
-PLANNER_CACHE_VERSION = "v4_parametric_work_lunch_duration"
+PLANNER_CACHE_VERSION = "v5_day_weights_swap_alns"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 
