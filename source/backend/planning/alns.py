@@ -4,14 +4,18 @@ import copy
 from typing import List
 from .models import Client, PlanningSolution, WorkdayConfig, LunchConfig
 from .config import PLANNING_TIME_LIMIT_SECONDS, PLANNING_MAX_ITERATIONS, PLANNING_RANDOM_SEED
-from .construction import _find_best_insertion
+from .construction import _find_best_insertion, _get_covered_days
 from .feasibility import evaluate_day_route
 
-def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes):
+def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
     new_solution = copy.deepcopy(solution)
     removed_clients = []
     
-    for route in new_solution.day_routes:
+    covered_days = _get_covered_days(new_solution.day_routes)
+    
+    for d_idx, route in enumerate(new_solution.day_routes):
+        if d_idx in covered_days:
+            continue
         if route.client_indices:
             num_remove = max(1, int(len(route.client_indices) * random.uniform(0.1, 0.2)))
             indices_to_remove = random.sample(range(len(route.client_indices)), min(num_remove, len(route.client_indices)))
@@ -19,16 +23,21 @@ def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, wo
                 client_idx = route.client_indices.pop(idx)
                 removed_clients.append(client_idx)
                 new_solution.scheduled_client_ids.remove(clients[client_idx].id)
-            new_solution.day_routes[route.day.day_index] = evaluate_day_route(route.client_indices, clients, matrix, route.day, workday, lunch, work_end_grace_minutes)
+            new_r = evaluate_day_route(route.client_indices, clients, matrix, route.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
+            new_solution.day_routes[d_idx] = new_r
             
     return new_solution, removed_clients
 
-def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes):
+def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
     new_solution = copy.deepcopy(solution)
     removed_clients = []
     
+    covered_days = _get_covered_days(new_solution.day_routes)
+    
     clusters_present = set()
-    for route in new_solution.day_routes:
+    for d_idx, route in enumerate(new_solution.day_routes):
+        if d_idx in covered_days:
+            continue
         for cid in route.client_indices:
             if clients[cid].cluster_id is not None:
                 clusters_present.add(clients[cid].cluster_id)
@@ -38,7 +47,9 @@ def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, w
         
     target_cluster = random.choice(list(clusters_present))
     
-    for route in new_solution.day_routes:
+    for d_idx, route in enumerate(new_solution.day_routes):
+        if d_idx in covered_days:
+            continue
         new_indices = []
         for cid in route.client_indices:
             if clients[cid].cluster_id == target_cluster and random.random() < 0.5:
@@ -47,11 +58,11 @@ def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, w
             else:
                 new_indices.append(cid)
         if len(new_indices) != len(route.client_indices):
-             new_solution.day_routes[route.day.day_index] = evaluate_day_route(new_indices, clients, matrix, route.day, workday, lunch, work_end_grace_minutes)
+             new_solution.day_routes[d_idx] = evaluate_day_route(new_indices, clients, matrix, route.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
              
     return new_solution, removed_clients
     
-def repair_greedy(solution: PlanningSolution, removed_clients: List[int], clients: List[Client], pool: List[Client], matrix, workday, lunch, work_end_grace_minutes):
+def repair_greedy(solution: PlanningSolution, removed_clients: List[int], clients: List[Client], pool: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
     candidates = removed_clients.copy()
     unscheduled = [c.source_index for c in pool if c.id not in solution.scheduled_client_ids]
     candidates.extend(random.sample(unscheduled, min(5, len(unscheduled))))
@@ -59,24 +70,28 @@ def repair_greedy(solution: PlanningSolution, removed_clients: List[int], client
     for client_idx in candidates:
         if clients[client_idx].id in solution.scheduled_client_ids: continue
         client = clients[client_idx]
-        insertion = _find_best_insertion(client_idx, client, solution.day_routes, clients, matrix, workday, lunch, work_end_grace_minutes, False)
+        insertion = _find_best_insertion(client_idx, client, solution.day_routes, clients, matrix, workday, lunch, work_end_grace_minutes, False, enable_trasferte, max_giorni_trasferta)
         if insertion:
             d_idx, pos, new_route, _ = insertion
             solution.day_routes[d_idx] = new_route
             solution.scheduled_client_ids.add(client.id)
             
-    solution.total_revenue = sum(r.revenue for r in solution.day_routes)
-    solution.total_travel_minutes = sum(r.travel_minutes for r in solution.day_routes)
+    covered = _get_covered_days(solution.day_routes)
+    solution.total_revenue = sum(r.revenue for i, r in enumerate(solution.day_routes) if i not in covered)
+    solution.total_travel_minutes = sum(r.travel_minutes for i, r in enumerate(solution.day_routes) if i not in covered)
     return solution
 
-def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunch, work_end_grace_minutes):
+def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
     if len(solution.day_routes) < 2: return False
     
-    d1_idx, d2_idx = random.sample(range(len(solution.day_routes)), 2)
+    covered_days = _get_covered_days(solution.day_routes)
+    available_indices = [i for i in range(len(solution.day_routes)) if i not in covered_days and solution.day_routes[i].client_indices]
+    
+    if len(available_indices) < 2: return False
+    
+    d1_idx, d2_idx = random.sample(available_indices, 2)
     r1 = solution.day_routes[d1_idx]
     r2 = solution.day_routes[d2_idx]
-    
-    if not r1.client_indices or not r2.client_indices: return False
     
     c1_idx = random.randint(0, len(r1.client_indices) - 1)
     c2_idx = random.randint(0, len(r2.client_indices) - 1)
@@ -87,23 +102,38 @@ def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunc
     new_r1_ids[c1_idx] = r2.client_indices[c2_idx]
     new_r2_ids[c2_idx] = r1.client_indices[c1_idx]
     
-    new_r1 = evaluate_day_route(new_r1_ids, clients, matrix, r1.day, workday, lunch, work_end_grace_minutes)
-    new_r2 = evaluate_day_route(new_r2_ids, clients, matrix, r2.day, workday, lunch, work_end_grace_minutes)
+    new_r1 = evaluate_day_route(new_r1_ids, clients, matrix, r1.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
+    new_r2 = evaluate_day_route(new_r2_ids, clients, matrix, r2.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
     
     if new_r1.feasible and new_r2.feasible:
-        old_rev = r1.revenue + r2.revenue
-        new_rev = new_r1.revenue + new_r2.revenue
-        old_w_rev = r1.revenue * r1.day.weight + r2.revenue * r2.day.weight
-        new_w_rev = new_r1.revenue * new_r1.day.weight + new_r2.revenue * new_r2.day.weight
-        old_trv = r1.travel_minutes + r2.travel_minutes
-        new_trv = new_r1.travel_minutes + new_r2.travel_minutes
+        # Check capacity
+        can_fit = True
+        for (idx, old_r, new_r) in [(d1_idx, r1, new_r1), (d2_idx, r2, new_r2)]:
+            if new_r.spans_days > old_r.spans_days:
+                # Need extra days
+                extra = new_r.spans_days - old_r.spans_days
+                if idx + new_r.spans_days - 1 >= len(solution.day_routes):
+                    can_fit = False
+                    break
+                for k in range(old_r.spans_days, new_r.spans_days):
+                    if solution.day_routes[idx + k].client_indices or (idx + k) in covered_days:
+                        can_fit = False
+                        break
         
-        if (new_rev, new_w_rev, -new_trv) > (old_rev, old_w_rev, -old_trv):
-            solution.day_routes[d1_idx] = new_r1
-            solution.day_routes[d2_idx] = new_r2
-            solution.total_revenue += (new_rev - old_rev)
-            solution.total_travel_minutes += (new_trv - old_trv)
-            return True
+        if can_fit:
+            old_rev = r1.revenue + r2.revenue
+            new_rev = new_r1.revenue + new_r2.revenue
+            old_w_rev = r1.revenue * r1.day.weight + r2.revenue * r2.day.weight
+            new_w_rev = new_r1.revenue * new_r1.day.weight + new_r2.revenue * new_r2.day.weight
+            old_trv = r1.travel_minutes + r2.travel_minutes
+            new_trv = new_r1.travel_minutes + new_r2.travel_minutes
+            
+            if (new_rev, new_w_rev, -new_trv) > (old_rev, old_w_rev, -old_trv):
+                solution.day_routes[d1_idx] = new_r1
+                solution.day_routes[d2_idx] = new_r2
+                solution.total_revenue += (new_rev - old_rev)
+                solution.total_travel_minutes += (new_trv - old_trv)
+                return True
     return False
 
 def run_alns(
@@ -112,7 +142,9 @@ def run_alns(
     matrix: List[List[float]],
     workday: WorkdayConfig,
     lunch: LunchConfig,
-    work_end_grace_minutes: int
+    work_end_grace_minutes: int,
+    enable_trasferte: bool,
+    max_giorni_trasferta: int
 ) -> PlanningSolution:
     random.seed(PLANNING_RANDOM_SEED)
     best_solution = copy.deepcopy(initial_solution)
@@ -124,12 +156,17 @@ def run_alns(
     while iterations < PLANNING_MAX_ITERATIONS and (time.time() - start_time) < PLANNING_TIME_LIMIT_SECONDS:
         iterations += 1
         destroy_op = random.choice([destroy_random, destroy_cluster])
-        temp_solution, removed = destroy_op(current_solution, pool, matrix, workday, lunch, work_end_grace_minutes)
-        temp_solution = repair_greedy(temp_solution, removed, pool, pool, matrix, workday, lunch, work_end_grace_minutes)
+        temp_solution, removed = destroy_op(current_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
+        temp_solution = repair_greedy(temp_solution, removed, pool, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
         
         if random.random() < 0.1:
-             local_search_swap(temp_solution, pool, matrix, workday, lunch, work_end_grace_minutes)
+             local_search_swap(temp_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
              
+        # Recompute totals for safety
+        covered = _get_covered_days(temp_solution.day_routes)
+        temp_solution.total_revenue = sum(r.revenue for i, r in enumerate(temp_solution.day_routes) if i not in covered)
+        temp_solution.total_travel_minutes = sum(r.travel_minutes for i, r in enumerate(temp_solution.day_routes) if i not in covered)
+        
         temp_score = (temp_solution.total_revenue, temp_solution.weighted_revenue, -temp_solution.total_travel_minutes)
         current_score = (current_solution.total_revenue, current_solution.weighted_revenue, -current_solution.total_travel_minutes)
         

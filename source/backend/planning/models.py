@@ -46,6 +46,7 @@ class VisitSchedule:
     visit_end: int
     lunch_before: bool
     travel_from_prev: int
+    day_offset: int = 0
 
 @dataclass
 class DayRoute:
@@ -57,6 +58,7 @@ class DayRoute:
     travel_minutes: int
     return_minute: int
     visits: List[VisitSchedule]
+    spans_days: int = 1
 
 @dataclass
 class PlanningSolution:

@@ -9,6 +9,7 @@ PLANNING_RANDOM_SEED = int(os.getenv("PLANNING_RANDOM_SEED", "42"))
 PLANNING_TIME_LIMIT_SECONDS = float(os.getenv("PLANNING_TIME_LIMIT_SECONDS", "5"))
 PLANNING_MAX_ITERATIONS = int(os.getenv("PLANNING_MAX_ITERATIONS", "500"))
 PLANNING_POOL_MULTIPLIER = int(os.getenv("PLANNING_POOL_MULTIPLIER", "5"))
+MIN_TRASFERTA_TRAVEL_MINUTES = int(os.getenv("MIN_TRASFERTA_TRAVEL_MINUTES", "120"))
 
 def _parse_time_val(val, default_minutes):
     if val is None:

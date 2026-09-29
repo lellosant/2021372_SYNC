@@ -130,7 +130,9 @@ async def analyze_data(
     work_end: str = Form(None),
     lunch_earliest: str = Form(None),
     lunch_latest_start: str = Form(None),
-    lunch_duration_minutes: int = Form(None)
+    lunch_duration_minutes: int = Form(None),
+    enable_trasferte: bool = Form(False),
+    max_giorni_trasferta: int = Form(3)
 ):
     contents = await file.read()
     content_hash = hashlib.sha256(contents).hexdigest()[:16]
@@ -159,7 +161,7 @@ async def analyze_data(
 
     loc_suffix = f"_{start_address or ''}_{start_lat or ''}_{start_lon or ''}"
     time_suffix = f"_{eff_work_start}_{eff_work_end}_{eff_lunch_earliest}_{eff_lunch_latest_start}_{eff_lunch_duration}"
-    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}{time_suffix}"
+    cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}{time_suffix}_{enable_trasferte}_{max_giorni_trasferta}"
 
     # 1. Verifica cache in memoria
     if cache_key in _scenario_memory_cache:
@@ -227,7 +229,7 @@ async def analyze_data(
             lunch_earliest=eff_lunch_earliest,
             lunch_latest_start=eff_lunch_latest_start,
             lunch_duration_minutes=eff_lunch_duration
-        )
+        , enable_trasferte=enable_trasferte, max_giorni_trasferta=max_giorni_trasferta)
     except Exception as e:
         logger.error(f"Errore in optimize_visits per {target_company}: {e}")
         logger.error(traceback.format_exc())

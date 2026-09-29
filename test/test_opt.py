@@ -1,8 +1,14 @@
 import datetime
+import sys
+import os
 import pandas as pd
 
-from backend import optimizer
-from backend.planning import calendar, routing
+# Add backend to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import optimizer
+from planning import calendar, routing
 
 
 def zero_travel_matrix(coords):
@@ -14,12 +20,12 @@ def zero_travel_matrix(coords):
 
 # Evita dipendenze dalla rete nel test.
 routing._routing_matrix = zero_travel_matrix
-# For the planning package, I can just patch the build_travel_matrix
 def _mock_build_travel_matrix(depot, clients):
     coords = [(depot.lat, depot.lon)] + [(c.latitude, c.longitude) for c in clients]
     return zero_travel_matrix(coords)
-import backend.planning.facade
-backend.planning.facade.build_travel_matrix = _mock_build_travel_matrix
+
+import planning.facade
+planning.facade.build_travel_matrix = _mock_build_travel_matrix
 
 def test_four_two_hour_visits_fit_in_one_day():
     df = pd.DataFrame({
@@ -75,4 +81,4 @@ if __name__ == "__main__":
     test_weekend_is_skipped()
     test_christmas_is_skipped()
     test_easter_monday_is_skipped()
-    print("Tutti i test del planner sono passati.")
+    print("Tutti i test del planner sono passati con successo!")

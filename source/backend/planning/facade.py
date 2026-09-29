@@ -31,6 +31,8 @@ def optimize_visits(
     lunch_earliest=None,
     lunch_latest_start=None,
     lunch_duration_minutes=None,
+    enable_trasferte=False,
+    max_giorni_trasferta=3,
     **kwargs
 ):
     if days <= 0 or hours_per_visit <= 0:
@@ -123,11 +125,11 @@ def optimize_visits(
     
     matrix = build_travel_matrix(depot, pool)
     
-    best_initial = construct_best_initial(pool, matrix, planning_days, workday, lunch, WORK_END_GRACE_MINUTES)
+    best_initial = construct_best_initial(pool, matrix, planning_days, workday, lunch, WORK_END_GRACE_MINUTES, enable_trasferte, max_giorni_trasferta)
     logger.info(f"fatturato soluzione iniziale: {best_initial.total_revenue}")
     
     alns_start = time.time()
-    final_solution = run_alns(best_initial, pool, matrix, workday, lunch, WORK_END_GRACE_MINUTES)
+    final_solution = run_alns(best_initial, pool, matrix, workday, lunch, WORK_END_GRACE_MINUTES, enable_trasferte, max_giorni_trasferta)
     alns_time = time.time() - alns_start
     
     logger.info(f"fatturato soluzione finale: {final_solution.total_revenue}")
@@ -139,7 +141,7 @@ def optimize_visits(
         logger.info(f"miglioramento percentuale: {improvement:.2f}%")
         
     for i, route in enumerate(final_solution.day_routes):
-        val = evaluate_day_route(route.client_indices, pool, matrix, route.day, workday, lunch, WORK_END_GRACE_MINUTES)
+        val = evaluate_day_route(route.client_indices, pool, matrix, route.day, workday, lunch, WORK_END_GRACE_MINUTES, enable_trasferte, max_giorni_trasferta)
         if not val.feasible:
             logger.error(f"Errore: giornata {i} non valida alla fine.")
             raise RuntimeError(f"Soluzione finale contiene una giornata non valida: {i}")

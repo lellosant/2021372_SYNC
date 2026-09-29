@@ -89,6 +89,46 @@
                     </div>
                 </div>
 
+                
+                <!-- Card Trasferte -->
+                <div class="time-settings-card" style="margin-top: 1rem;">
+                    <div class="time-settings-header" style="cursor: default;">
+                        <div class="time-settings-title-wrap" style="width: 100%;">
+                            <span class="time-settings-icon">🧳</span>
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <span class="time-settings-label">Pianifica Trasferte remote</span>
+                                <input type="checkbox" id="enable-trasferte" style="width: 18px; height: 18px; cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-settings-body" id="trasferte-body" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">Questa opzione permette all'algoritmo di accorpare agilmente 2 o pi&ugrave; giornate lavorative continue per effettuare singole visite molto lontane (includendo calcoli di A/R lunghi), se il fatturato della singola visita ne giustifica il tempo consumato.</p>
+                        <div class="time-grid-2">
+                            <div class="time-field" style="grid-column: span 2;">
+                                <label for="giorni-trasferta">Massimo di giornate per trasferta</label>
+                                <input type="number" id="giorni-trasferta" value="3" min="2" max="14">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    
+                    <div class="time-settings-body" id="trasferte-body" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
+                        <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">Se abilitate, crea Hub logistici fittizi nelle aree ad alto potenziale più lontane dalla sede, evitando ritorni giornalieri.</p>
+                        <div class="time-grid-2">
+                            <div class="time-field">
+                                <label for="num-trasferte">Numero Hub</label>
+                                <input type="number" id="num-trasferte" value="1" min="1" max="10">
+                            </div>
+                            <div class="time-field">
+                                <label for="giorni-trasferta">Max gg/Hub</label>
+                                <input type="number" id="giorni-trasferta" value="3" min="1" max="14">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group company-form-group">
                     <label for="company-select">Azienda</label>
                     <div class="select-wrapper">

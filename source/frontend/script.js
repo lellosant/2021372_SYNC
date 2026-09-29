@@ -349,8 +349,12 @@ function getCacheKey(company) {
     const lunchEarliest = document.getElementById('lunch-earliest')?.value || '12:00';
     const lunchLatestStart = document.getElementById('lunch-latest-start')?.value || '14:00';
     const lunchDuration = document.getElementById('lunch-duration')?.value || '60';
+    
+    // Trasferte
+    const enTr = document.getElementById('enable-trasferte')?.checked ? '1' : '0';
+    const ggTr = document.getElementById('giorni-trasferta')?.value || '3';
 
-    return `${fileName}__${company}__${days}__${hours}__${startDate}__${locStr}__${workStart}__${workEnd}__${lunchEarliest}__${lunchLatestStart}__${lunchDuration}`;
+    return `${fileName}__${company}__${days}__${hours}__${startDate}__${locStr}__${workStart}__${workEnd}__${lunchEarliest}__${lunchLatestStart}__${lunchDuration}__${enTr}_${ggTr}`;
 }
 
 // Listener cambio file Excel/CSV
@@ -607,7 +611,7 @@ async function loadConfigDefaults() {
 loadConfigDefaults();
 
 // Se l'utente modifica parametri già precedentemente calcolati in questa sessione, mostra dalla cache
-['days', 'hours', 'start-date', 'work-start', 'work-end', 'lunch-earliest', 'lunch-latest-start', 'lunch-duration'].forEach(id => {
+['days', 'hours', 'start-date', 'work-start', 'work-end', 'lunch-earliest', 'lunch-latest-start', 'lunch-duration', 'enable-trasferte', 'giorni-trasferta'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('change', () => {
@@ -644,11 +648,11 @@ async function performAnalysis() {
     }
 
     const startLoc = getAgentStartLocation(selectedCompany);
-    if (!startLoc) {
+        if (!startLoc || startLoc.lat === null || startLoc.lon === null) {
         openStartLocCard(selectedCompany);
         const msg = document.getElementById('start-loc-msg');
         msg.className = 'card-msg error';
-        msg.textContent = `Inserisci la via di partenza o le coordinate per ${selectedCompany} prima di continuare.`;
+        msg.textContent = `Devi geocodificare un indirizzo di partenza valido (con coordinate) per ${selectedCompany} prima di continuare. Salvati o ricontrolla la sede di partenza!`;
         msg.style.display = 'block';
         return;
     }
@@ -701,6 +705,11 @@ async function performAnalysis() {
         const startDate = document.getElementById('start-date').value;
         if (startDate) {
             formData.append('start_date', startDate);
+        }
+        
+        if (document.getElementById('enable-trasferte')?.checked) {
+            formData.append('enable_trasferte', 'true');
+            formData.append('max_giorni_trasferta', document.getElementById('giorni-trasferta').value);
         }
 
         const response = await fetch(`${API_BASE}/api/analyze`, {
@@ -923,5 +932,14 @@ function renderScenario(data) {
             <td style="color:var(--accent); font-weight:700;">${formatter.format(row['Fatturato Stimato'])}</td>
         `;
         tbody.appendChild(tr);
+    });
+}
+
+// Toggle Trasferte UI
+const enableTrasferte = document.getElementById('enable-trasferte');
+const trasferteBody = document.getElementById('trasferte-body');
+if (enableTrasferte && trasferteBody) {
+    enableTrasferte.addEventListener('change', (e) => {
+        trasferteBody.style.display = e.target.checked ? 'block' : 'none';
     });
 }

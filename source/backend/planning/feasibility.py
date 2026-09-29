@@ -1,6 +1,8 @@
 import math
 from typing import List
 from .models import Client, LunchConfig, WorkdayConfig, PlanningDay, DayRoute, VisitSchedule
+from .trasferte import evaluate_transfer
+from .config import MIN_TRASFERTA_TRAVEL_MINUTES
 
 def evaluate_day_route(
     client_indices: List[int],
@@ -10,15 +12,23 @@ def evaluate_day_route(
     workday: WorkdayConfig,
     lunch: LunchConfig,
     work_end_grace_minutes: int,
+    enable_trasferte: bool = False,
+    max_giorni_trasferta: int = 1,
+    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES
 ) -> DayRoute:
+    if enable_trasferte:
+        return evaluate_transfer(client_indices, clients, travel_matrix, day, workday, lunch, work_end_grace_minutes, max_giorni_trasferta, min_trasferta_minutes)
+
     current_minute = workday.start
     lunch_taken = False
-    visits: List[VisitSchedule] = []
+    visits = []
     revenue = 0.0
     travel_minutes = 0
     current_loc_idx = 0
-
     client_ids = []
+    
+    is_feas = True
+    arrival_depot = 0
     
     for idx in client_indices:
         client = clients[idx]
@@ -27,7 +37,8 @@ def evaluate_day_route(
         
         travel = travel_matrix[current_loc_idx][target_idx]
         if not math.isfinite(travel):
-            return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
+            is_feas = False
+            break
             
         travel_int = int(math.ceil(travel))
         arrival = current_minute + travel_int
@@ -45,10 +56,12 @@ def evaluate_day_route(
         visit_end = visit_start + client.service_minutes
         
         if visit_end > workday.end:
-            return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
+            is_feas = False
+            break
 
         if lunch_before and max(arrival, lunch.earliest) > lunch.latest_start:
-            return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
+            is_feas = False
+            break
 
         visits.append(VisitSchedule(
             client_id=client.id,
@@ -73,32 +86,27 @@ def evaluate_day_route(
                 
         current_loc_idx = target_idx
 
-    travel_to_depot = travel_matrix[current_loc_idx][0]
-    if not math.isfinite(travel_to_depot):
-        return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
-        
-    travel_to_depot_int = int(math.ceil(travel_to_depot))
-    arrival_depot = current_minute + travel_to_depot_int
-    
-    if not lunch_taken:
-        if arrival_depot > lunch.latest_start:
-            lunch_start = max(current_minute, lunch.earliest)
-            if lunch_start > lunch.latest_start:
-                 return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
-            arrival_depot = lunch_start + lunch.duration + travel_to_depot_int
+    if is_feas:
+        travel_to_depot = travel_matrix[current_loc_idx][0]
+        if not math.isfinite(travel_to_depot):
+            is_feas = False
+        else:
+            travel_to_depot_int = int(math.ceil(travel_to_depot))
+            arrival_depot = current_minute + travel_to_depot_int
             
-    if arrival_depot > workday.end + work_end_grace_minutes:
-        return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [])
-        
-    travel_minutes += travel_to_depot_int
+            if not lunch_taken:
+                if arrival_depot > lunch.latest_start:
+                    lunch_start = max(current_minute, lunch.earliest)
+                    if lunch_start > lunch.latest_start:
+                         is_feas = False
+                    arrival_depot = lunch_start + lunch.duration + travel_to_depot_int
+                    
+            if arrival_depot > workday.end + work_end_grace_minutes:
+                is_feas = False
+            
+            travel_minutes += travel_to_depot_int
 
-    return DayRoute(
-        day=day,
-        client_ids=client_ids,
-        client_indices=client_indices.copy(),
-        feasible=True,
-        revenue=revenue,
-        travel_minutes=travel_minutes,
-        return_minute=arrival_depot,
-        visits=visits
-    )
+    if is_feas:
+        return DayRoute(day, client_ids, client_indices.copy(), True, revenue, travel_minutes, arrival_depot, visits, 1)
+
+    return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [], 1)
