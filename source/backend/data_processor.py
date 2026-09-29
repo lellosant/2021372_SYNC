@@ -282,13 +282,21 @@ def save_geocache(cache):
         exist_ok=True
     )
 
+    # Protezione: unisci sempre con la cache esistente su disco per evitare che test o chiamate parziali la cancellino
+    disk_cache = load_geocache()
+    if disk_cache and cache is not disk_cache:
+        cache_to_save = dict(disk_cache)
+        cache_to_save.update(cache)
+    else:
+        cache_to_save = cache
+
     with open(
         GEOCACHE_FILE,
         "w",
         encoding="utf-8"
     ) as file:
         json.dump(
-            cache,
+            cache_to_save,
             file,
             ensure_ascii=False,
             indent=2

@@ -1,36 +1,46 @@
 \begin{frame}{Software Architecture}
 \centering
 \begin{tikzpicture}[
-    box/.style={draw, rectangle, rounded corners, minimum width=4cm, minimum height=0.6cm, text centered, font=\footnotesize, fill=sintefblue!10},
+    box/.style={draw, rectangle, rounded corners, minimum width=3.6cm, minimum height=0.55cm, text centered, font=\scriptsize, fill=sintefblue!10},
     arrow/.style={->, thick, >=stealth}
 ]
 
-\node (browser) at (0, 4) [box, fill=sintefyellow!20] {\textbf{USER / BROWSER}};
+% User / Browser
+\node (browser) at (0, 3.8) [box, fill=sintefyellow!20, minimum width=4.5cm] {\textbf{USER / WEB BROWSER}};
 
-\node (frontend) at (-2.8, 1.8) [box, text width=4.2cm] {
-    \textbf{FRONTEND}\\
-    HTML/CSS/JavaScript\\
-    Leaflet: map\\
-    Nginx: web server
+% Frontend
+\node (frontend) at (0, 2.5) [box, fill=sintefblue!15, text width=6.6cm] {
+    \textbf{FRONTEND (Nginx - Port 8080)}\\
+    Single Page App (HTML5 / CSS3 / Vanilla JS)\\
+    Leaflet.js map visualization $\cdot$ Reverse proxy \texttt{/api/}
 };
 
-\node (backend) at (2.8, 1.8) [box, text width=4.2cm] {
-    \textbf{BACKEND}\\
-    Python + FastAPI\\
-    Data processing\\
-    Optimization
+% Backend
+\node (backend) at (0, 1.0) [box, fill=sintefgreen!15, text width=6.6cm] {
+    \textbf{BACKEND (FastAPI - Port 8000)}\\
+    ERP parser \& deduplication $\cdot$ Civic number matching\\
+    ALNS Optimization Engine (clustering, calendar, routing)
 };
 
-\node (external) at (0, -0.8) [box, text width=5.5cm, fill=gray!10] {
+% Sub-blocks: Cache & External Services
+\node (cache) at (-2.3, -1.0) [box, text width=4.1cm, fill=sintefgrey!50] {
+    \textbf{LOCAL CACHE}\\
+    \texttt{geocache.json}\\
+    Precomputed scenario cache
+};
+
+\node (external) at (2.3, -1.0) [box, text width=4.4cm, fill=gray!15] {
     \textbf{EXTERNAL SERVICES}\\
-    Nominatim: address $\rightarrow$ coordinates\\
-    OSRM: driving-time estimates
+    Nominatim API (geocoding)\\
+    OSRM API (routing + Haversine fallback)\\
+    feat: Photon (local geocoding)
 };
 
-\draw [arrow] (browser) -- (0, 3) -| (frontend);
-\draw [arrow] (browser) -- (0, 3) -| (backend);
-\draw [arrow] (frontend) |- (0.5, 0.4) -- (external);
-\draw [arrow] (backend) |- (-0.5, 0.4) -- (external);
+% Connectors
+\draw [arrow] (browser) -- node[right, font=\tiny]{HTTP / UI} (frontend);
+\draw [arrow] (frontend) -- node[right, font=\tiny]{REST API / JSON} (backend);
+\draw [arrow] (backend.south) -- ++(0,-0.25) -| (cache.north);
+\draw [arrow] (backend.south) -- ++(0,-0.25) -| (external.north);
 
 \end{tikzpicture}
 \end{frame}

@@ -1,25 +1,27 @@
 \begin{frame}[fragile]{Docker Deployment}
 \begin{columns}[T,onlytextwidth]
 \begin{column}{0.48\textwidth}
-\vspace{0.4cm}
+\vspace{0.2cm}
 \textbf{Docker}\\
 Packages the application and its dependencies.
 
-\vspace{0.4cm}
+\vspace{0.25cm}
 \textbf{Docker Compose}\\
-Starts the two application services together.
+Orchestrates multi-container lifecycle.
 
-\vspace{0.4cm}
-\textbf{Frontend}\\
-Port 8080
+\vspace{0.25cm}
+\textbf{Frontend}: Port 8080 (Web UI)\\
+\textbf{Backend}: Port 8000 (REST API)
 
-\vspace{0.4cm}
-\textbf{Backend}\\
-Port 8000
+\vspace{0.25cm}
+\begin{block}{Separation of Concerns}
+\scriptsize
+Separate host ports \textbf{isolate} the end-user Web UI from direct Swagger/REST API debugging.
+\end{block}
 \end{column}
 
 \begin{column}{0.48\textwidth}
-\vspace{0.4cm}
+\vspace{0.2cm}
 \begin{block}{docker-compose.yml}
 \scriptsize
 \begin{verbatim}
