@@ -2069,20 +2069,5 @@
     "lat": 41.8827866,
     "lon": 13.1079156,
     "display_name": "Via, Arcinazzo Romano, Roma Capitale, Lazio, 00028, Italia"
-  },
-  "VIA ROMA 1, ROMA, ITALY": {
-    "lat": 42.1718169,
-    "lon": 12.5919801,
-    "display_name": "1, Via Roma, Fiano Romano, Roma Capitale, Lazio, 00065, Italia"
-  },
-  "VIA ROMA 2, ROMA, ITALY": {
-    "lat": 45.614848,
-    "lon": 8.1924928,
-    "display_name": "2, Via Roma, Gallo, Casapinta, Biella, Piemonte, 13866, Italia"
-  },
-  "VIA LUIGI LODI 50 ROMA, ITALY": {
-    "lat": 41.9108351,
-    "lon": 12.543539,
-    "display_name": "Via Luigi Lodi, Municipio Roma IV, Roma, Roma Capitale, Lazio, 00157, Italia"
   }
 }
