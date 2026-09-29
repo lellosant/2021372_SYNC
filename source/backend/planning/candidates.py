@@ -22,7 +22,9 @@ def build_candidate_pool(
     estimated_visits = num_days * max_visits_per_day
     pool_size = min(len(all_clients), max(100, estimated_visits * PLANNING_POOL_MULTIPLIER))
     
-    cluster_clients(all_clients, depot, num_days)
+    # Raggruppamento geografico con cluster tarati su 3 giorni di lavoro
+    target_cluster_size = max(1, max_visits_per_day * 3)
+    cluster_clients(all_clients, depot, target_cluster_size=target_cluster_size)
     
     clients_by_rev = sorted(all_clients, key=lambda c: c.revenue, reverse=True)
     

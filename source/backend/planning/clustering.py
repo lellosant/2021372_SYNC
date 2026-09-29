@@ -5,13 +5,16 @@ import sklearn.cluster
 from .config import PLANNING_RANDOM_SEED
 from .models import Client, Location
 
-def cluster_clients(clients: List[Client], depot: Location, num_days: int) -> None:
-    if len(clients) <= 1:
+def cluster_clients(clients: List[Client], depot: Location, target_cluster_size: int = 20) -> None:
+    if not clients:
+        return
+        
+    cluster_count = max(1, min(len(clients), math.ceil(len(clients) / max(1, target_cluster_size))))
+    
+    if len(clients) <= 1 or cluster_count <= 1:
         for c in clients:
             c.cluster_id = 0
         return
-        
-    cluster_count = min(num_days, max(1, math.ceil(len(clients) / 20)))
     
     coords = []
     depot_lat_rad = math.radians(depot.lat)
