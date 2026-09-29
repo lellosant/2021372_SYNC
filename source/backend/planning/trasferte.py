@@ -55,7 +55,7 @@ def evaluate_transfer(
         direct_end = arrival + client.service_minutes
         lunch_before = False
         
-        if not lunch_taken_today and direct_end > lunch.latest_start:
+        if lunch.duration > 0 and not lunch_taken_today and direct_end > lunch.latest_start:
             lunch_start = max(arrival, lunch.earliest)
             if lunch_start + lunch.duration + client.service_minutes > workday.end:
                 current_day += 1
@@ -97,7 +97,7 @@ def evaluate_transfer(
             current_minute = visit_end
         else:
             current_minute = visit_end
-            if not lunch_taken_today and visit_end >= lunch.earliest:
+            if lunch.duration > 0 and not lunch_taken_today and visit_end >= lunch.earliest:
                 current_minute = visit_end + lunch.duration
                 lunch_taken_today = True
                 

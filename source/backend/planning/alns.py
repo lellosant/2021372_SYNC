@@ -136,6 +136,62 @@ def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunc
                 return True
     return False
 
+def _sol_score(s: PlanningSolution):
+    return (
+        round(s.total_revenue, 2),
+        round(s.weighted_revenue, 2),
+        -round(s.total_travel_minutes, 2)
+    )
+
+def optimize_days_assignment(
+    solution: PlanningSolution,
+    clients: List[Client],
+    matrix: List[List[float]],
+    workday: WorkdayConfig,
+    lunch: LunchConfig,
+    work_end_grace_minutes: int,
+    enable_trasferte: bool,
+    max_giorni_trasferta: int
+) -> PlanningSolution:
+    """
+    Riassegna/scambia le intere giornate per allineare le giornate a più alto fatturato
+    con i giorni a maggior peso (es. giorni pre-festivi / vigilia delle festività).
+    """
+    routes = solution.day_routes
+    n = len(routes)
+    improved = True
+    while improved:
+        improved = False
+        for i in range(n):
+            if routes[i].spans_days > 1 or not routes[i].client_indices:
+                continue
+            for j in range(i + 1, n):
+                if routes[j].spans_days > 1 or not routes[j].client_indices:
+                    continue
+                w_i = routes[i].day.weight
+                w_j = routes[j].day.weight
+                if abs(w_i - w_j) < 1e-4:
+                    continue
+                rev_i = routes[i].revenue
+                rev_j = routes[j].revenue
+                
+                current_weighted = rev_i * w_i + rev_j * w_j
+                swapped_weighted = rev_j * w_i + rev_i * w_j
+                if swapped_weighted > current_weighted + 0.01:
+                    new_r_i = evaluate_day_route(routes[j].client_indices, clients, matrix, routes[i].day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
+                    new_r_j = evaluate_day_route(routes[i].client_indices, clients, matrix, routes[j].day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
+                    if new_r_i.feasible and new_r_j.feasible:
+                        routes[i] = new_r_i
+                        routes[j] = new_r_j
+                        improved = True
+                        break
+            if improved:
+                break
+    covered = _get_covered_days(routes)
+    solution.total_revenue = sum(r.revenue for k, r in enumerate(routes) if k not in covered)
+    solution.total_travel_minutes = sum(r.travel_minutes for k, r in enumerate(routes) if k not in covered)
+    return solution
+
 def run_alns(
     initial_solution: PlanningSolution,
     pool: List[Client], 
@@ -147,6 +203,7 @@ def run_alns(
     max_giorni_trasferta: int
 ) -> PlanningSolution:
     random.seed(PLANNING_RANDOM_SEED)
+    initial_solution = optimize_days_assignment(initial_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
     best_solution = copy.deepcopy(initial_solution)
     current_solution = copy.deepcopy(initial_solution)
     
@@ -167,15 +224,16 @@ def run_alns(
         temp_solution.total_revenue = sum(r.revenue for i, r in enumerate(temp_solution.day_routes) if i not in covered)
         temp_solution.total_travel_minutes = sum(r.travel_minutes for i, r in enumerate(temp_solution.day_routes) if i not in covered)
         
-        temp_score = (temp_solution.total_revenue, temp_solution.weighted_revenue, -temp_solution.total_travel_minutes)
-        current_score = (current_solution.total_revenue, current_solution.weighted_revenue, -current_solution.total_travel_minutes)
+        temp_score = _sol_score(temp_solution)
+        current_score = _sol_score(current_solution)
         
         if temp_score > current_score:
             current_solution = temp_solution
-            if temp_score > (best_solution.total_revenue, best_solution.weighted_revenue, -best_solution.total_travel_minutes):
+            if temp_score > _sol_score(best_solution):
                 best_solution = copy.deepcopy(temp_solution)
         else:
             if random.random() < 0.05:
                 current_solution = temp_solution
                 
+    best_solution = optimize_days_assignment(best_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
     import logging; logging.getLogger(__name__).info(f"iterazioni ALNS: {iterations}"); return best_solution

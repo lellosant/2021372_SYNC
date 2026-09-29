@@ -38,7 +38,7 @@ def _find_best_insertion(
         if route.client_indices:
             clusters = [clients[i].cluster_id for i in route.client_indices if clients[i].cluster_id is not None]
             if clusters and max(set(clusters), key=clusters.count) == client.cluster_id:
-                bonus = 1.10
+                bonus = route.day.weight * 1.10
 
         for pos in range(len(route.client_indices) + 1):
             new_indices = route.client_indices[:pos] + [client_idx] + route.client_indices[pos:]
@@ -128,6 +128,6 @@ def construct_best_initial(
     s3 = build_initial_solution("randomized", pool, matrix, days, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
     
     def key(s: PlanningSolution):
-        return (s.total_revenue, s.weighted_revenue, -s.total_travel_minutes)
+        return (round(s.total_revenue, 2), round(s.weighted_revenue, 2), -round(s.total_travel_minutes, 2))
         
     return max([s1, s2, s3], key=key)

@@ -348,7 +348,8 @@ function getCacheKey(company) {
     const workEnd = document.getElementById('work-end')?.value || '18:00';
     const lunchEarliest = document.getElementById('lunch-earliest')?.value || '12:00';
     const lunchLatestStart = document.getElementById('lunch-latest-start')?.value || '14:00';
-    const lunchDuration = document.getElementById('lunch-duration')?.value || '60';
+    const lunchDurationInput = document.getElementById('lunch-duration');
+    const lunchDuration = (lunchDurationInput && lunchDurationInput.value !== '') ? lunchDurationInput.value : '60';
     
     // Trasferte
     const enTr = document.getElementById('enable-trasferte')?.checked ? '1' : '0';
@@ -556,11 +557,14 @@ function calculateNetWorkHours(startStr, endStr, pauseMin) {
 function updateTimeSummaryAndCalculations() {
     const start = document.getElementById('work-start')?.value || '09:00';
     const end = document.getElementById('work-end')?.value || '18:00';
-    const pause = document.getElementById('lunch-duration')?.value || '60';
+    const lunchDurationInput = document.getElementById('lunch-duration');
+    const pause = (lunchDurationInput && lunchDurationInput.value !== '') ? lunchDurationInput.value : '60';
 
     const summaryEl = document.getElementById('time-settings-summary');
     if (summaryEl) {
-        summaryEl.textContent = `${start} - ${end} • Pausa ${pause}m`;
+        const pauseNum = parseInt(pause, 10);
+        const pauseLabel = (!isNaN(pauseNum) && pauseNum === 0) ? 'Nessuna pausa' : `Pausa ${pause}m`;
+        summaryEl.textContent = `${start} - ${end} • ${pauseLabel}`;
     }
 
     const netHours = calculateNetWorkHours(start, end, pause);
@@ -600,7 +604,7 @@ async function loadConfigDefaults() {
             if (cfg.lunch_latest_start && document.getElementById('lunch-latest-start')) {
                 document.getElementById('lunch-latest-start').value = cfg.lunch_latest_start;
             }
-            if (cfg.lunch_duration_minutes && document.getElementById('lunch-duration')) {
+            if (cfg.lunch_duration_minutes !== undefined && cfg.lunch_duration_minutes !== null && document.getElementById('lunch-duration')) {
                 document.getElementById('lunch-duration').value = cfg.lunch_duration_minutes;
             }
             updateTimeSummaryAndCalculations();
@@ -678,7 +682,8 @@ async function performAnalysis() {
         const workEnd = document.getElementById('work-end')?.value || '18:00';
         const lunchEarliest = document.getElementById('lunch-earliest')?.value || '12:00';
         const lunchLatestStart = document.getElementById('lunch-latest-start')?.value || '14:00';
-        const lunchDuration = document.getElementById('lunch-duration')?.value || '60';
+        const lunchDurationInput = document.getElementById('lunch-duration');
+        const lunchDuration = (lunchDurationInput && lunchDurationInput.value !== '') ? lunchDurationInput.value : '60';
         const netWorkHours = calculateNetWorkHours(workStart, workEnd, lunchDuration);
 
         const formData = new FormData();
@@ -762,15 +767,18 @@ function renderScenario(data) {
     // 2. Aggiorna header agenda
     const subtitle = document.getElementById('table-company-subtitle');
     const droppedCount = (kpis.total_clients || 0) - (kpis.geocoded_clients || 0);
+    const lunchDurationInput = document.getElementById('lunch-duration');
     const timeInfo = data.time_params || {
         work_start: document.getElementById('work-start')?.value || '09:00',
         work_end: document.getElementById('work-end')?.value || '18:00',
-        lunch_duration_minutes: document.getElementById('lunch-duration')?.value || 60
+        lunch_duration_minutes: (lunchDurationInput && lunchDurationInput.value !== '') ? lunchDurationInput.value : 60
     };
+    const durMin = parseInt(timeInfo.lunch_duration_minutes, 10);
+    const pauseLabel = (!isNaN(durMin) && durMin === 0) ? 'nessuna pausa' : `pausa ${timeInfo.lunch_duration_minutes}m`;
     subtitle.innerHTML = `
         <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
         <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
-        <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, pausa ${timeInfo.lunch_duration_minutes}m)</div>
+        <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
         <div>${droppedCount} visite senza coordinate valide</div>
     `;
 
