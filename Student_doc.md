@@ -65,6 +65,21 @@ The Frontend shows the results through a map, key indicators and a visit agenda.
 
 23. As a User, I want clear error messages when the uploaded file cannot be processed, so that I can understand what went wrong.
 
+## NON-FUNCTIONAL REQUIREMENTS
+
+1. The application should be easy to use and understandable without specific technical knowledge.
+
+2. The application should process the expected ERP dataset.
+
+3. The application should be reusable with future ERP files having the same logical structure.
+
+4. The application should be deployable on another computer using Docker and Docker Compose.
+
+5. The application should provide clear error messages when the uploaded file cannot be processed.
+
+6. The application should use real geographic coordinates for customer locations.
+
+
 ## LOFI MOCKUPS
 
 ### Mockup 1 - Upload and Scenario Setup

@@ -2069,5 +2069,33 @@
     "lat": 41.8827866,
     "lon": 13.1079156,
     "display_name": "Via, Arcinazzo Romano, Roma Capitale, Lazio, 00028, Italia"
+  },
+  "VIA LUIGI LODI 50, ROMA, ROMA, ITALY": {
+    "lat": 41.9108351,
+    "lon": 12.543539,
+    "display_name": "Via Luigi Lodi, Municipio Roma IV, Roma, Roma Capitale, Lazio, 00157, Italia",
+    "house_number": null,
+    "house_number_exact": false
+  },
+  "VIA TIBURTINA 155, ROMA, ROMA, ITALY": {
+    "lat": 41.9454942,
+    "lon": 12.6654367,
+    "display_name": "Via Tiburtina, Collina del Sole, Setteville, Guidonia Montecelio, Roma Capitale, Lazio, 00131, Italia",
+    "house_number": null,
+    "house_number_exact": false
+  },
+  "VIALE AMSTERDAM 12 FROSINONE, ITALY": {
+    "lat": 44.0305038,
+    "lon": 12.6145583,
+    "display_name": "Viale Amsterdam, Rimini, Emilia-Romagna, 47924, Italia",
+    "house_number": null,
+    "house_number_exact": false
+  },
+  "VIA AMSTERDAM FROSINONE, ITALY": {
+    "lat": 41.6479885,
+    "lon": 13.3307015,
+    "display_name": "Via Amsterdam, Cavoni, Frosinone, Lazio, 03100, Italia",
+    "house_number": null,
+    "house_number_exact": true
   }
 }
