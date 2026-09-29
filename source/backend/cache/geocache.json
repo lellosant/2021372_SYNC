@@ -2017,7 +2017,10 @@
   },
   "VIA DEL CORSO 120, ROMA, ITALY": {
     "lat": 41.9054361,
-    "lon": 12.4786204
+    "lon": 12.4786204,
+    "display_name": "120, Via del Corso, Campo Marzio, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "house_number": "120",
+    "house_number_exact": true
   },
   "VIA ROMA 18 ROMA, ITALY": {
     "lat": 45.614421,
@@ -2095,6 +2098,55 @@
     "lat": 41.6479885,
     "lon": 13.3307015,
     "display_name": "Via Amsterdam, Cavoni, Frosinone, Lazio, 03100, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA DEL CORSO 184, ROMA, ITALY": {
+    "lat": 41.9022416,
+    "lon": 12.4800471,
+    "display_name": "184, Via del Corso, Colonna, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "house_number": "184",
+    "house_number_exact": true
+  },
+  "VIA DEL CORSO N. 184, ROMA, ITALY": {
+    "lat": 41.9022416,
+    "lon": 12.4800471,
+    "display_name": "184, Via del Corso, Colonna, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "house_number": "184",
+    "house_number_exact": true
+  },
+  "PIAZZA DEL COLOSSEO 1, ROMA, ITALY": {
+    "lat": 41.8916349,
+    "lon": 12.4927622,
+    "display_name": "1, Piazza del Colosseo, Monti, Municipio Roma I, Roma, Roma Capitale, Lazio, 00184, Italia",
+    "house_number": "1",
+    "house_number_exact": true
+  },
+  "PIAZZA DI SPAGNA, ROMA, ITALY": {
+    "lat": 41.9066038,
+    "lon": 12.4816206,
+    "display_name": "Piazza di Spagna, Campo Marzio, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "ROMA, ROMA, ITALY": {
+    "lat": 41.8933203,
+    "lon": 12.4829321,
+    "display_name": "Roma, Roma Capitale, Lazio, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "NAPOLI, NAPOLI, ITALY": {
+    "lat": 40.8358846,
+    "lon": 14.2487679,
+    "display_name": "Napoli, Campania, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "PIAZZA DEL DUOMO, MILANO, ITALY": {
+    "lat": 45.4644439,
+    "lon": 9.1885456,
+    "display_name": "Piazza del Duomo, Duomo, Cerchia dei Navigli, Municipio 1, Milano, Rodano, Milano, Lombardia, 20121, Italia",
     "house_number": null,
     "house_number_exact": true
   }

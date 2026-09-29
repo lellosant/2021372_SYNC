@@ -1,36 +1,38 @@
 \begin{frame}{Optimization Problem}
+\small
+Finding the exact global optimum is \textbf{NP-hard} (Team Orienteering with Time Windows).\\
+An exhaustive search is computationally intractable, requiring \textbf{heuristic optimization}.
+
+\vspace{0.15cm}
 \begin{columns}[T,onlytextwidth]
 \begin{column}{0.48\textwidth}
 \begin{block}{INPUTS}
-\begin{itemize}
-    \item Customers
-    \item Revenue
-    \item Location
-    \item Available days
-    \item Visit duration
-    \item Starting point
+\footnotesize
+\begin{itemize}\setlength{\itemsep}{1pt}
+    \item ERP Customers \& Revenues
+    \item Starting Depot location
+    \item Available business days ($N$)
+    \item Target visit duration (2h--4h)
+    \item OSRM travel duration matrix
 \end{itemize}
 \end{block}
 \end{column}
 
 \begin{column}{0.48\textwidth}
 \begin{block}{CONSTRAINTS}
-\begin{itemize}
-    \item Working days
-    \item Working hours
-    \item Holidays
-    \item Lunch break
-    \item Visit time
-    \item Driving time
+\footnotesize
+\begin{itemize}\setlength{\itemsep}{1pt}
+    \item \textbf{Calendar}: Mon--Fri (skip holidays)
+    \item \textbf{Work budget}: max 8h/day (09--18)
+    \item \textbf{Lunch slot}: flexible 1h window
+    \item \textbf{Uniqueness}: at most 1 visit/client
+    \item \textbf{Transfers}: multi-day trips for remote clients
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
 
-\vspace{0.6cm}
-\textbf{GOAL}\\
-Find a feasible visit plan that covers as much revenue as possible.
-
-\vspace{0.6cm}
-\centering \footnotesize \textit{Testing every possible route would take too long, so we use a heuristic algorithm.}
+\vspace{0.95cm}
+\small
+\textbf{Objective}: \textbf{Maximize total recovered revenue} while guaranteeing feasibility.
 \end{frame}

@@ -1,4 +1,4 @@
-\begin{frame}[fragile]{Testing \& Automated Verification}
+\frametitle{Testing \& Automated Verification}
 \begin{block}{Test Suite Execution (14 Unit Tests)}
 \texttt{\$ pytest -q}\\
 \texttt{..............} \hfill \texttt{[100\%]}\\
@@ -29,4 +29,3 @@
 
 \vspace{0.25cm}
 \centering \scriptsize \textit{Automated tests guarantee algorithm correctness and dataset integrity.}
-\end{frame}

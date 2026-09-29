@@ -4,8 +4,8 @@ import argparse
 
 # Configurazione percorsi di import
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "source", "backend"))
-SOURCE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "source"))
+BACKEND_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "backend"))
+SOURCE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
 
 for p in [BACKEND_DIR, SOURCE_DIR]:
     if p not in sys.path:
