@@ -117,11 +117,50 @@ def _next_business_day(day: datetime.date) -> datetime.date:
 def get_day_weight(day) -> float:
     import datetime
     weight = 1.0
-    # Pre-festivo se il giorno dopo, o il secondo giorno dopo, non è lavorativo (fino a coprire i venerdì)
-    next_day = day + datetime.timedelta(days=1)
-    if not is_business_day(next_day):
-        weight += 0.3
-    # Fine estate
-    if (day.month == 8 and day.day >= 20) or (day.month == 9 and day.day <= 15):
-        weight += 0.3
-    return weight
+    
+    # Calcola i giorni di distanza dal prossimo giorno non lavorativo (festa o weekend)
+    distance = 1
+    while is_business_day(day + datetime.timedelta(days=distance)):
+        distance += 1
+        # Fallback di sicurezza
+        if distance > 7:
+            break
+            
+    # Incremento progressivo: più è vicino, più il peso aumenta
+    # distance=1 (vigilia) -> +0.4
+    # distance=2 -> +0.3
+    # distance=3 -> +0.2
+    # distance=4 -> +0.1
+    # distance>=5 -> nessuna aggiunta per il fine settimana
+    if distance < 5:
+        weight += 0.5 - (0.1 * distance)
+        
+    # Fine estate (parametrico con valori di default in caso di errore)
+    try:
+        from backend.planning.config import (
+            SUMMER_END_START_MONTH, SUMMER_END_START_DAY,
+            SUMMER_END_END_MONTH, SUMMER_END_END_DAY
+        )
+        
+        # Protezione addizionale nel caso in cui i valori letti siano None
+        s_month = SUMMER_END_START_MONTH if SUMMER_END_START_MONTH is not None else 8
+        s_day = SUMMER_END_START_DAY if SUMMER_END_START_DAY is not None else 20
+        e_month = SUMMER_END_END_MONTH if SUMMER_END_END_MONTH is not None else 9
+        e_day = SUMMER_END_END_DAY if SUMMER_END_END_DAY is not None else 15
+    except ImportError:
+        s_month, s_day = 8, 20
+        e_month, e_day = 9, 15
+    
+    current_md = day.month * 100 + day.day
+    start_md = s_month * 100 + s_day
+    end_md = e_month * 100 + e_day
+    
+    if start_md <= end_md:
+        if start_md <= current_md <= end_md:
+            weight += 0.3
+    else:
+        # A cavallo di capodanno
+        if current_md >= start_md or current_md <= end_md:
+            weight += 0.3
+
+    return round(weight, 2)

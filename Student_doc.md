@@ -1,21 +1,11 @@
-# SPECIFICS OF THE DEPLOYED SYSTEM
+# SYSTEM DESCRIPTION:
 
-# SYSTEM OVERVIEW
+Sales Visit Optimizer (GeoAnalytics Planner) is a web application designed for geographic customer analysis and commercial visit planning. The system processes customer datasets exported from a company ERP, containing customer locations, delivery points, sales agents, and revenue figures across federation companies.
 
-Sales Visit Optimizer is a web application for geographic customer analysis and sales visit planning.
+The application allows sales managers and business analysts to upload new datasets, select a target company, configure campaign parameters (start date, available business days, expected visit duration, daily working hours, flexible lunch breaks, agent starting location, and multi-day remote trips), and visualize an optimized visit agenda alongside an interactive map and commercial KPIs. The optimization engine maximizes recovered revenue within working-day constraints (Monday-Friday, excluding Italian national holidays).
 
-The system is composed of two main parts:
+# USER STORIES:
 
-- a Backend API developed in Python with FastAPI;
-- a Frontend developed with HTML, CSS and JavaScript and served by Nginx.
-
-The application is deployed using Docker and Docker Compose.
-
-The user uploads an ERP dataset and selects the parameters of the visit campaign.
-The Backend processes the dataset, geocodes customer addresses and creates a suggested visit plan.
-The Frontend shows the results through a map, some main indicators and a visit agenda.
-
-# USER STORIES
 1) As a Business Analyst, I want to upload an Excel file, so that I can work with the latest data extracted from the ERP.
 
 2) As a Business Analyst, I want the system to detect the companies contained in the uploaded file, so that I do not have to configure them manually.
@@ -62,192 +52,142 @@ The Frontend shows the results through a map, some main indicators and a visit a
 
 23) As a User, I want clear error messages when the uploaded file cannot be processed, so that I can understand what went wrong.
 
+## NON-FUNCTIONAL REQUIREMENTS
 
+1. The application should be easy to use and understandable without specific technical knowledge.
 
-# LOFI MOCKUPS
+2. The application should process the expected ERP dataset.
 
-## Mockup 1 - Upload and Scenario Setup
+3. The application should be reusable with future ERP files having the same logical structure.
+
+4. The application should be deployable on another computer using Docker and Docker Compose.
+
+5. The application should provide clear error messages when the uploaded file cannot be processed.
+
+6. The application should use real geographic coordinates for customer locations.
+
+## LOFI MOCKUPS
+
+### Mockup 1 - Upload and Scenario Setup
 
 This mockup represents the initial configuration page.
+
 It is related mainly to user stories 1, 2, 5, 10, 11 and 12.
 
 ![Upload and Scenario Setup](booklets/mockup_01_setup.png)
 
-## Mockup 2 - Results, Map and KPIs
+### Mockup 2 - Results, Map and KPIs
 
-This mockup represents the result page with the customer map and the main indicators.
+This mockup represents the results page with the customer map and the main indicators.
+
 It is related mainly to user stories 5, 6, 7, 18, 19, 20, 21 and 22.
 
 ![Results, Map and KPIs](booklets/mockup_02_results.png)
 
-## Mockup 3 - Suggested Visit Plan
+### Mockup 3 - Suggested Visit Plan
 
 This mockup represents the suggested visit agenda.
+
 It is related mainly to user stories 16, 17, 18, 19, 21 and 22.
 
 ![Suggested Visit Plan](booklets/mockup_03_agenda.png)
 
-# CONTAINERS
+# CONTAINERS:
 
+## CONTAINER_NAME: backend
 
-## CONTAINER_NAME: Backend
+### DESCRIPTION: 
+The backend container manages dataset ingestion, delivery point deduplication, geocoding, business calendar evaluation, travel duration calculations, and heuristic visit route optimization.
 
-### DESCRIPTION:
+### USER STORIES:
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
 
-The Backend container manages the main application logic.
-
-It reads and processes the uploaded dataset, detects the available companies, groups duplicated ERP rows referring to the same delivery point, geocodes customer addresses and creates the data used for the visit plan.
-
-It also calculates the values returned to the Frontend, such as the number of visits, the number of customers with valid coordinates and the recoverable revenue.
-
-### RELATED USER STORIES:
-
-1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23
-
-### PORTS:
-
+### PORTS: 
 8000:8000
 
-### PERSISTENCE EVALUATION:
+### DESCRIPTION:
+The backend container provides the RESTful API services consumed by the frontend web client. It handles file parsing, coordinate caching, working calendar validation (excluding weekends and Italian national holidays), flexible lunch break scheduling, multi-day remote travel planning, and scenario result caching.
 
-The Backend does not use a relational database.
+### PERSISTENCE EVALUATION
+The service does not employ a relational database. Data persistence is managed via JSON-based filesystem caches mounted through Docker volumes:
+- `/app/cache/geocache.json`: Stores geocoded coordinates, address normalization, and civic number matches to avoid redundant external geocoding requests.
+- `/app/cache/scenarios/`: Persists pre-computed What-If optimization runs keyed by dataset hash and simulation parameters.
 
-The application does not need to permanently store the uploaded ERP dataset.
-Some technical data may be stored locally to avoid repeating operations that have already been completed.
-
-### EXTERNAL SERVICES CONNECTIONS:
-
-The Backend connects to:
-
-- Nominatim / OpenStreetMap for customer address geocoding;
-- OSRM for road travel time calculations between customer locations.
-
-If the routing service is not available, the application can use an approximate geographic distance as a fallback.
+### EXTERNAL SERVICES CONNECTIONS
+- OpenStreetMap / Nominatim API for forward address geocoding (with rate limiting and fallback mechanisms).
+- Optional local Photon service container (`http://photon:2322/api`) configured via Docker Compose profile.
+- OSRM (Open Source Routing Machine) public routing API for driving duration calculation, with an internal Haversine formula calculation as an automatic offline fallback.
 
 ### MICROSERVICES:
 
 #### MICROSERVICE: visits-api
-
 - TYPE: backend
-- DESCRIPTION: Manages dataset processing, geocoding, analytics and visit planning.
+- DESCRIPTION: REST API providing dataset processing, address geocoding, planner configuration discovery, travel time computation, and ALNS-based agenda optimization.
 - PORTS: 8000
+- TECHNOLOGICAL SPECIFICATION:
+Developed in Python 3.11 using FastAPI and Uvicorn. Data manipulation and analytics are powered by Pandas and NumPy. Containerized via Docker with volume bindings for configuration files (`feste.config`, `planner.config`) and persistent cache directories (`/app/cache`).
+- SERVICE ARCHITECTURE: 
+  - `main.py`: FastAPI application entrypoint, CORS configuration, API route definitions, and scenario caching.
+  - `data_processor.py`: Reads Excel/CSV files, deduplicates delivery points, orchestrates geocoding, and parses civic numbers.
+  - `optimizer.py`: Bridge interface routing optimization requests into the `planning` engine.
+  - `planning/facade.py`: Orchestrator of the full optimization pipeline.
+  - `planning/calendar.py`: Working-day generator (Monday-Friday) reading holidays from `feste.config`.
+  - `planning/feasibility.py`: Daily timeline simulation, work hour constraints, and flexible lunch break slot insertion.
+  - `planning/clustering.py`: Geographic clustering and daily route partitioning.
+  - `planning/routing.py`: TSP sequencing (Nearest Neighbor / 2-Opt) using OSRM and Haversine fallback.
+  - `planning/alns.py`: Adaptive Large Neighborhood Search metaheuristic maximizing recovered revenue.
+  - `planning/trasferte.py`: Detection and scheduling of multi-day remote customer trips with overnight hotel stays.
+  - `planning/config.py`: Dynamic loader for `planner.config` working hour parameters.
+  - `planning/serializer.py`: Formats schedule records and summary KPIs for client consumption.
 
-### TECHNOLOGICAL SPECIFICATION:
+- ENDPOINTS:
 
-The Backend is developed in Python.
+	| HTTP METHOD | URL | Description | User Stories |
+	| ----------- | --- | ----------- | ------------ |
+	| POST | `/api/upload` | Ingests Excel/CSV file, detects federation companies, groups duplicate delivery points, and returns available companies | 1, 2, 3, 4, 23 |
+	| GET | `/api/geocode` | Geocodes a street address with civic number parsing and local JSON cache lookup | 8, 9 |
+	| GET | `/api/config` | Retrieves default work schedule, lunch window, and visit duration parameters from planner.config | 10, 11, 12, 13, 14 |
+	| GET | `/api/travel-time` | Computes driving duration and distance between two addresses and checks travel thresholds | 15, 16 |
+	| POST | `/api/analyze` | Executes scenario optimization considering working days, lunch breaks, and remote trips, returning KPIs, map coordinates, and visit agenda | 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 |
+	| GET | `/docs` | Exposes interactive Swagger/OpenAPI documentation for testing and verification | 23 |
 
-The main technologies are:
+## CONTAINER_NAME: frontend
 
-- FastAPI: used to expose the REST API;
-- pandas: used to read, clean, group and analyze the ERP dataset;
-- Uvicorn: used to run the FastAPI application;
-- Nominatim / OpenStreetMap: used for geocoding;
-- OSRM: used to calculate travel times.
+### DESCRIPTION: 
+The frontend container hosts the client-side user interface of Sales Visit Optimizer, serving static web assets through an Nginx web server.
 
-FastAPI also provides automatic API documentation through Swagger at:
+### USER STORIES:
+1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
 
-`http://localhost:8000/docs`
-
-### SERVICE ARCHITECTURE:
-
-The main Backend files are:
-
-- `main.py`: exposes the API endpoints and manages the application flow;
-- `data_processor.py`: reads and normalizes the uploaded file, groups delivery points and manages geocoding;
-- `optimizer.py`: creates the suggested visit plan according to the selected parameters.
-
-### ENDPOINTS:
-
-| HTTP METHOD | URL | Description | Related User Stories |
-| ----------- | --- | ----------- | -------------------- |
-| POST | /api/extract-companies | Reads the uploaded file and returns the companies detected in the dataset | 1, 2, 3 |
-| POST | /api/analyze | Processes the dataset and returns map points, indicators and the suggested visit plan | 4-23 |
-| GET | /docs | Opens the automatic Swagger API documentation | - |
-
-
-## CONTAINER_NAME: Frontend
-
-### DESCRIPTION:
-
-The Frontend container provides the user interface of Sales Visit Optimizer.
-
-The user can upload the ERP file, select a company, choose the starting date, the number of working days and the expected duration of each visit.
-
-The Frontend displays the customer map, the main indicators and the suggested visit agenda.
-
-### RELATED USER STORIES:
-
-1, 5, 6, 7, 9, 10, 11, 12, 17, 18, 19, 20, 21, 22, 23
-
-### PORTS:
-
+### PORTS: 
 8080:80
 
-### PERSISTENCE EVALUATION:
+### DESCRIPTION:
+Nginx web server hosting the Single Page Application, providing scenario configuration forms, interactive Leaflet mapping, commercial KPI cards, and agenda timelines. It acts as a reverse proxy for `/api/` requests forwarding to the backend container.
 
-The Frontend does not use a database.
+### PERSISTENCE EVALUATION
+Stateless web client. Dataset selections and scenario parameters are maintained in client memory during the browser session.
 
-The uploaded ERP file is sent to the Backend for processing.
-
-### EXTERNAL SERVICES CONNECTIONS:
-
-The Frontend uses Leaflet to display the interactive map.
-
-The map uses OpenStreetMap tiles.
+### EXTERNAL SERVICES CONNECTIONS
+- OpenStreetMap and CartoDB tile servers for Leaflet basemaps.
+- Leaflet.js CDN for interactive mapping scripts and styles.
 
 ### MICROSERVICES:
 
 #### MICROSERVICE: web-interface
-
 - TYPE: frontend
-- DESCRIPTION: Provides the graphical user interface of the application.
-- PORTS: 80 inside the container, exposed as port 8080 on the host.
+- DESCRIPTION: Responsive Single Page Application providing scenario setup, geospatial visualization, and visit schedule inspection.
+- PORTS: 80 inside container, exposed as port 8080 on the host.
+- TECHNOLOGICAL SPECIFICATION:
+HTML5, Vanilla CSS3 (custom glassmorphism dark theme design system), Vanilla JavaScript (ES6+), Leaflet.js library, served by Nginx on Alpine Linux.
+- SERVICE ARCHITECTURE: 
+  - `index.html`: Web page layout containing the parameter sidebar, summary KPI cards, Leaflet map viewport, and agenda schedule table.
+  - `style.css`: Theme styles, responsive grid, glassmorphism UI tokens, and interactive widgets.
+  - `script.js`: DOM event handling, REST API communication, Leaflet marker management, and dynamic KPI/table updates.
+  - `nginx.conf`: Nginx web server configuration with `/api/` reverse-proxy routing to `http://backend:8000/api/`.
 
-### TECHNOLOGICAL SPECIFICATION:
+- PAGES:
 
-The Frontend is developed using:
-
-- HTML5;
-- CSS3;
-- JavaScript;
-- Leaflet.js for the interactive map;
-- Nginx to serve the web application.
-
-### SERVICE ARCHITECTURE:
-
-The main Frontend files are:
-
-- `index.html`: contains the main page structure;
-- `style.css`: contains the graphical style;
-- `script.js`: manages user actions, API calls, map updates and result visualization.
-
-### PAGES:
-
-| Name | Description | Related Service | Related User Stories |
-| ---- | ----------- | --------------- | -------------------- |
-| index.html | Main page used to upload the dataset, set the scenario parameters, view the map, indicators and visit agenda | visits-api | 1, 5-7, 9-12, 17-23 |
-
-
-# INFRASTRUCTURE
-
-The application is deployed using Docker and Docker Compose.
-
-Two containers are started:
-
-- `backend`: FastAPI application exposed on port 8000;
-- `frontend`: Nginx web server exposed on port 8080.
-
-The project can be started from the `source` directory with:
-
-```bash
-docker compose up --build
-```
-
-After startup:
-
-- Web Application: `http://localhost:8080`
-- Swagger API Documentation: `http://localhost:8000/docs`
-
-Configuration values are stored in the `.env` file.
-
-The Docker configuration allows the application to be rebuilt and deployed on another machine without manually installing all the required dependencies.
+	| Name | Description | Related Microservice | User Stories |
+	| ---- | ----------- | -------------------- | ------------ |
+	| `index.html` | Interactive dashboard for uploading ERP datasets, setting scenario parameters (days, visit duration, work/lunch hours, remote trips, start address), viewing the customer map, checking KPIs, and browsing the chronological visit agenda | visits-api | 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 |

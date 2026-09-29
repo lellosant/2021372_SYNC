@@ -12,7 +12,20 @@ import urllib.request
 # Configurazione geocodifica
 # ---------------------------------------------------------
 
-NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+NOMINATIM_URL = os.getenv(
+    "NOMINATIM_URL",
+    "https://nominatim.openstreetmap.org/search"
+)
+
+PHOTON_URL = os.getenv(
+    "PHOTON_URL",
+    "http://photon:2322/api"
+)
+
+USE_LOCAL_PHOTON = os.getenv(
+    "USE_LOCAL_PHOTON",
+    "false"
+).lower() == "true"
 
 GEOCACHE_FILE = os.getenv(
     "GEOCACHE_FILE",
@@ -22,7 +35,7 @@ GEOCACHE_FILE = os.getenv(
 GEOCODING_DELAY_SECONDS = float(
     os.getenv(
         "GEOCODING_DELAY_SECONDS",
-        "1.1"
+        "0.0" if os.getenv("PHOTON_URL") else "1.1"
     )
 )
 
@@ -30,6 +43,78 @@ USER_AGENT = os.getenv(
     "NOMINATIM_USER_AGENT",
     "sales-visit-optimizer-hackathon/1.0"
 )
+
+
+def query_photon(plan_val, plan_type, base_url=None):
+    """Interroga un'istanza di Photon (locale o pubblica) e mappa il GeoJSON nello schema atteso dallo scoring."""
+    target_url = base_url or PHOTON_URL
+    if not target_url:
+        return []
+
+    if plan_type == "structured" and isinstance(plan_val, dict):
+        q = f"{plan_val.get('street', '')} {plan_val.get('city', '')} {plan_val.get('country', '')}".strip()
+    else:
+        q = str(plan_val)
+
+    params = {"q": q, "limit": 5, "lang": "it"}
+    url = f"{target_url}?{urllib.parse.urlencode(params)}"
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=3) as response:
+        payload = json.load(response)
+        features = payload.get("features", [])
+        if not features:
+            return []
+
+        results = []
+        for feat in features:
+            props = feat.get("properties", {})
+            geom = feat.get("geometry", {})
+            coords = geom.get("coordinates", [0, 0])
+            lon, lat = coords[0], coords[1]
+            parts = [
+                props.get("name") or props.get("street") or "",
+                props.get("housenumber") or "",
+                props.get("city") or "",
+                props.get("country") or ""
+            ]
+            disp = ", ".join(p for p in parts if p)
+            results.append({
+                "lat": lat,
+                "lon": lon,
+                "type": props.get("osm_value") or props.get("osm_key") or "",
+                "display_name": disp,
+                "address": {
+                    "house_number": props.get("housenumber"),
+                    "road": props.get("street") or props.get("name"),
+                    "city": props.get("city")
+                }
+            })
+        return results
+
+
+def query_nominatim(plan_val, plan_type):
+    """Interroga Nominatim pubblico con query strutturata o testuale."""
+    if plan_type == "structured":
+        params = dict(plan_val)
+    else:
+        params = {"q": plan_val}
+
+    params.update({
+        "format": "jsonv2",
+        "limit": 5,
+        "countrycodes": "it",
+        "addressdetails": 1
+    })
+
+    url = f"{NOMINATIM_URL}?{urllib.parse.urlencode(params)}"
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": USER_AGENT
+        }
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        return json.load(response)
 
 
 # ---------------------------------------------------------
@@ -323,68 +408,71 @@ def geocode_address(
 
     best_item = None
     best_score = -1
+    used_photon = False
 
     for plan_type, plan_val in query_plans:
-        if plan_type == "structured":
-            params = dict(plan_val)
-        else:
-            params = {"q": plan_val}
+        results = None
+        # 1. Prova prima con Photon locale
+        if USE_LOCAL_PHOTON and PHOTON_URL:
+            try:
+                results = query_photon(plan_val, plan_type, base_url=PHOTON_URL)
+                if results:
+                    used_photon = True
+            except Exception:
+                results = None
 
-        params.update({
-            "format": "jsonv2",
-            "limit": 5,
-            "countrycodes": "it",
-            "addressdetails": 1
-        })
+        # 2. Se Photon locale non risponde ancora, usa Photon pubblico (veloce, nessun delay artificiale)
+        if results is None:
+            try:
+                results = query_photon(plan_val, plan_type, base_url="https://photon.komoot.io/api")
+                if results:
+                    used_photon = True
+            except Exception:
+                results = None
 
-        url = f"{NOMINATIM_URL}?{urllib.parse.urlencode(params)}"
-        request = urllib.request.Request(
-            url,
-            headers={
-                "User-Agent": USER_AGENT
-            }
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=10) as response:
-                results = json.load(response)
-                if not results:
-                    continue
+        # 3. Fallback estremo su Nominatim pubblico
+        if results is None:
+            try:
+                results = query_nominatim(plan_val, plan_type)
+            except Exception:
+                continue
 
-                for r in results:
-                    score = 0
-                    addr_info = r.get("address", {})
-                    r_civic = addr_info.get("house_number")
-                    r_type = r.get("type", "")
-                    dn = r.get("display_name", "")
-
-                    # Priorità massima al numero civico esatto
-                    if civic:
-                        if r_civic and str(r_civic).strip() == str(civic).strip():
-                            score += 1000
-                        elif civic in dn.split(","):
-                            score += 500
-                        elif civic in dn:
-                            score += 300
-
-                    # Punteggio pertinenza città
-                    if effective_city and effective_city.lower() in dn.lower():
-                        score += 150
-                    elif "roma" in dn.lower() and (not effective_city or "roma" in effective_city.lower()):
-                        score += 50
-
-                    # Punteggio tipologia immobile/punto esatto
-                    if r_type in ["house", "building", "residential", "commercial", "retail", "shop", "office"]:
-                        score += 100
-
-                    if score > best_score:
-                        best_score = score
-                        best_item = r
-
-                # Se abbiamo trovato un civico esatto o quasi esatto, abbiamo la risposta migliore
-                if best_score >= 1000 or (civic and best_score >= 500):
-                    break
-        except Exception:
+        if not results:
             continue
+
+        for r in results:
+            score = 0
+            addr_info = r.get("address", {})
+            r_civic = addr_info.get("house_number")
+            r_type = r.get("type", "")
+            dn = r.get("display_name", "")
+
+            # Priorità massima al numero civico esatto
+            if civic:
+                if r_civic and str(r_civic).strip() == str(civic).strip():
+                    score += 1000
+                elif civic in dn.split(","):
+                    score += 500
+                elif civic in dn:
+                    score += 300
+
+            # Punteggio pertinenza città
+            if effective_city and effective_city.lower() in dn.lower():
+                score += 150
+            elif "roma" in dn.lower() and (not effective_city or "roma" in effective_city.lower()):
+                score += 50
+
+            # Punteggio tipologia immobile/punto esatto
+            if r_type in ["house", "building", "residential", "commercial", "retail", "shop", "office"]:
+                score += 100
+
+            if score > best_score:
+                best_score = score
+                best_item = r
+
+        # Se abbiamo trovato un civico esatto o quasi esatto, abbiamo la risposta migliore
+        if best_score >= 1000 or (civic and best_score >= 500):
+            break
 
     if best_item:
         lat = float(best_item["lat"])
@@ -405,8 +493,9 @@ def geocode_address(
     # Salvataggio progressivo della cache
     save_geocache(cache)
 
-    # Pausa per rispettare il servizio pubblico Nominatim
-    time.sleep(GEOCODING_DELAY_SECONDS)
+    # Pausa solo per Nominatim pubblico per rispettare i ToS
+    if not used_photon and GEOCODING_DELAY_SECONDS > 0:
+        time.sleep(GEOCODING_DELAY_SECONDS)
 
     return lat, lon
 
