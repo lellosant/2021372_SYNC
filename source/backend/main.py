@@ -16,6 +16,7 @@ from data_processor import (
     save_geocache
 )
 from optimizer import optimize_visits
+from planning.config import _load_planner_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -101,16 +102,17 @@ async def geocode_endpoint(address: str, city: str = ""):
 
 @app.get("/api/config")
 async def get_config():
-    """Restituisce le configurazioni predefinite di orari e parametri da .env"""
+    """Restituisce le configurazioni predefinite di orari e parametri da planner.config"""
+    cfg = _load_planner_config()
     return {
-        "work_start": os.getenv("WORK_START", "09:00").strip('"\''),
-        "work_end": os.getenv("WORK_END", "18:00").strip('"\''),
-        "lunch_earliest": os.getenv("LUNCH_EARLIEST", "12:00").strip('"\''),
-        "lunch_latest_start": os.getenv("LUNCH_LATEST_START", "14:00").strip('"\''),
-        "lunch_duration_minutes": int(os.getenv("LUNCH_DURATION_MINUTES", "60")),
-        "default_visit_hours": float(os.getenv("DEFAULT_VISIT_HOURS", "3.5")),
-        "max_work_hours_per_day": float(os.getenv("MAX_WORK_HOURS_PER_DAY", "8.0")),
-        "work_end_grace_minutes": int(os.getenv("WORK_END_GRACE_MINUTES", "15"))
+        "work_start": cfg["WORK_START"],
+        "work_end": cfg["WORK_END"],
+        "lunch_earliest": cfg["LUNCH_EARLIEST"],
+        "lunch_latest_start": cfg["LUNCH_LATEST_START"],
+        "lunch_duration_minutes": cfg["LUNCH_DURATION_MINUTES"],
+        "default_visit_hours": cfg["DEFAULT_VISIT_HOURS"],
+        "max_work_hours_per_day": cfg["MAX_WORK_HOURS_PER_DAY"],
+        "work_end_grace_minutes": cfg["WORK_END_GRACE_MINUTES"]
     }
 
 
@@ -149,15 +151,17 @@ async def analyze_data(
         except Exception:
             target_company = companies.split(',')[0].strip()
 
-    # Normalizzazione parametri orari lavorativi e pausa pranzo
-    eff_work_start = work_start.strip() if work_start and work_start.strip() else os.getenv("WORK_START", "09:00").strip('"\'')
-    eff_work_end = work_end.strip() if work_end and work_end.strip() else os.getenv("WORK_END", "18:00").strip('"\'')
-    eff_lunch_earliest = lunch_earliest.strip() if lunch_earliest and lunch_earliest.strip() else os.getenv("LUNCH_EARLIEST", "12:00").strip('"\'')
-    eff_lunch_latest_start = lunch_latest_start.strip() if lunch_latest_start and lunch_latest_start.strip() else os.getenv("LUNCH_LATEST_START", "14:00").strip('"\'')
+    # Normalizzazione parametri orari lavorativi e pausa pranzo da planner.config
+    cfg = _load_planner_config()
+    eff_work_start = work_start.strip() if work_start and work_start.strip() else cfg["WORK_START"]
+    eff_work_end = work_end.strip() if work_end and work_end.strip() else cfg["WORK_END"]
+    eff_lunch_earliest = lunch_earliest.strip() if lunch_earliest and lunch_earliest.strip() else cfg["LUNCH_EARLIEST"]
+    eff_lunch_latest_start = lunch_latest_start.strip() if lunch_latest_start and lunch_latest_start.strip() else cfg["LUNCH_LATEST_START"]
     try:
-        eff_lunch_duration = int(lunch_duration_minutes) if lunch_duration_minutes is not None and str(lunch_duration_minutes).strip() != "" else int(os.getenv("LUNCH_DURATION_MINUTES", "60"))
+        eff_lunch_duration = int(lunch_duration_minutes) if lunch_duration_minutes is not None and str(lunch_duration_minutes).strip() != "" else cfg["LUNCH_DURATION_MINUTES"]
     except (ValueError, TypeError):
-        eff_lunch_duration = 60
+        eff_lunch_duration = cfg["LUNCH_DURATION_MINUTES"]
+
 
     loc_suffix = f"_{start_address or ''}_{start_lat or ''}_{start_lon or ''}"
     time_suffix = f"_{eff_work_start}_{eff_work_end}_{eff_lunch_earliest}_{eff_lunch_latest_start}_{eff_lunch_duration}"

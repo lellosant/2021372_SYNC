@@ -8,6 +8,8 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/cache:/app/cache
+      - ./feste.config:/feste.config:ro
+      - ./planner.config:/planner.config:ro
 
   frontend:
     build: ./frontend
