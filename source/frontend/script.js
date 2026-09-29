@@ -501,10 +501,11 @@ document.getElementById('save-start-loc-btn').addEventListener('click', async ()
                 finalLon = geoData.lon;
                 latInput.value = finalLat;
                 lonInput.value = finalLon;
-                currentEditingOriginalAddress = address;
                 msg.className = 'card-msg success';
-                const foundDesc = geoData.display_name ? ` (${geoData.display_name.split(',').slice(0, 2).join(',')})` : '';
-                msg.textContent = `✓ Acquisita${foundDesc}: ${finalLat.toFixed(5)}, ${finalLon.toFixed(5)}`;
+                const civInfo = geoData.house_number ? ` (Civico ${geoData.house_number}${geoData.house_number_exact ? ' ✓' : ''})` : '';
+                const foundDesc = geoData.display_name ? ` - ${geoData.display_name.split(',').slice(0, 2).join(',')}` : '';
+                msg.textContent = `✓ Acquisito${civInfo}: ${finalLat.toFixed(5)}, ${finalLon.toFixed(5)}${foundDesc}`;
+
             } else {
                 saveBtn.disabled = false;
                 saveBtn.textContent = 'Salva Punto di Partenza';

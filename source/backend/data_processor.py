@@ -214,6 +214,48 @@ def save_geocache(cache):
 # Geocodifica reale con Nominatim
 # ---------------------------------------------------------
 
+def parse_address_and_civic(address, city=""):
+    """
+    Estrae via, numero civico e città da una stringa indirizzo italiana.
+    Supporta formati come 'Via del Corso 184', 'Via del Corso, 184', 'Via del Corso n. 184',
+    'Via del Corso civico 184', 'Largo Corrado Ricci 40/43 A', 'Via Roma 10, Milano'.
+    """
+    address = (str(address) if pd.notnull(address) else "").strip()
+    city = (str(city) if pd.notnull(city) else "").strip()
+
+    # Se la città non è fornita, prova ad estrarla se separata da virgola
+    if "," in address:
+        parts = [p.strip() for p in address.split(",") if p.strip()]
+        if len(parts) >= 2:
+            # Se l'ultima parte è una città (testo senza numeri)
+            if not city and re.search(r"^[a-zA-Z\s\'-]+$", parts[-1]):
+                city = parts.pop()
+                address = ", ".join(parts)
+            # Oppure CAP + Città (es. '00186 Roma')
+            elif not city and re.search(r"^\d{5}\s+[a-zA-Z\s\'-]+$", parts[-1]):
+                city = re.sub(r"^\d{5}\s+", "", parts.pop())
+                address = ", ".join(parts)
+
+    civic = None
+    street = address
+
+    # Pattern 1: 'n. 12', 'n° 12', 'num. 12', 'civico 12'
+    m = re.search(r"(?i)\b(?:n\.?|n°|num\.?|numero|civico)\s*[:.]?\s*(\d+[a-zA-Z]?(?:[/-]\d+[a-zA-Z]?)?)", address)
+    if m:
+        first_num = re.match(r"^\d+", m.group(1))
+        civic = first_num.group(0) if first_num else m.group(1)
+        street = address[:m.start()].strip().rstrip(",").strip() + " " + address[m.end():].strip()
+        street = street.strip().rstrip(",").strip()
+    else:
+        # Pattern 2: numero civico (anche con lettere/barre) dopo spazio o virgola
+        m2 = re.search(r"(?i)(?:,\s*|\s+)(\d+)(?:[/\-a-zA-Z0-9\s]*)$", address)
+        if m2:
+            civic = m2.group(1)
+            street = address[:m2.start()].strip().rstrip(",").strip()
+
+    return street.strip(), civic, city.strip()
+
+
 def geocode_address(
     address,
     city,
@@ -234,11 +276,15 @@ def geocode_address(
     if not address and not city:
         return None, None
 
+    # Estrazione via, civico e città normalizzata
+    street, civic, detected_city = parse_address_and_civic(address, city)
+    effective_city = detected_city or city or ""
+
     query = ", ".join(
         part
         for part in [
             address,
-            city,
+            effective_city,
             "Italy"
         ]
         if part
@@ -246,7 +292,7 @@ def geocode_address(
 
     cache_key = query.upper()
 
-    # Se già geocodificato, usa la cache
+    # Se già geocodificato con successo, usa la cache
     if cache_key in cache:
         cached_value = cache[cache_key]
         if cached_value is None:
@@ -256,26 +302,42 @@ def geocode_address(
             cached_value["lon"]
         )
 
-    # Genera varianti di query per gestire abbreviazioni toponomastiche comuni
-    variants = [query]
-    sub_di = re.sub(r'(?i)\bvia\s+(san|santa|sant\')\b', r'via di \1', query)
-    if sub_di != query:
-        variants.append(sub_di)
-    sub_ariosto = re.sub(r'(?i)\bvia\s+ariosto\b', 'via ludovico ariosto', query)
-    if sub_ariosto != query:
-        variants.append(sub_ariosto)
+    # Costruzione delle query per Nominatim in ordine di priorità
+    # 1. Ricerca con civico strutturata ed esplicita
+    query_plans = []
+    if civic:
+        if effective_city:
+            query_plans.append(("structured", {"street": f"{civic} {street}", "city": effective_city, "country": "Italy"}))
+        query_plans.append(("q", f"{street} {civic}, {effective_city}, Italy".replace(", ,", ",").strip(", ")))
+        query_plans.append(("q", f"{civic} {street}, {effective_city}, Italy".replace(", ,", ",").strip(", ")))
 
-    best_match = None
-    fallback_match = None
+    # 2. Ricerca standard
+    if effective_city:
+        query_plans.append(("q", f"{street}, {effective_city}, Italy"))
+    query_plans.append(("q", f"{address}, {effective_city}, Italy".replace(", ,", ",").strip(", ")))
 
-    for v in variants:
-        params = urllib.parse.urlencode({
-            "q": v,
+    # Varianti toponomastiche comuni
+    sub_di = re.sub(r'(?i)\bvia\s+(san|santa|sant\')\b', r'via di \1', street)
+    if sub_di != street:
+        query_plans.append(("q", f"{sub_di} {civic or ''}, {effective_city}, Italy".replace(", ,", ",").strip(", ")))
+
+    best_item = None
+    best_score = -1
+
+    for plan_type, plan_val in query_plans:
+        if plan_type == "structured":
+            params = dict(plan_val)
+        else:
+            params = {"q": plan_val}
+
+        params.update({
             "format": "jsonv2",
             "limit": 5,
-            "countrycodes": "it"
+            "countrycodes": "it",
+            "addressdetails": 1
         })
-        url = f"{NOMINATIM_URL}?{params}"
+
+        url = f"{NOMINATIM_URL}?{urllib.parse.urlencode(params)}"
         request = urllib.request.Request(
             url,
             headers={
@@ -287,27 +349,53 @@ def geocode_address(
                 results = json.load(response)
                 if not results:
                     continue
-                if fallback_match is None:
-                    fallback_match = results[0]
-                # Se tra i risultati ce n'è uno nel comune/centro di Roma (es. Municipio Roma o Roma centro)
+
                 for r in results:
+                    score = 0
+                    addr_info = r.get("address", {})
+                    r_civic = addr_info.get("house_number")
+                    r_type = r.get("type", "")
                     dn = r.get("display_name", "")
-                    if "Municipio Roma" in dn or ", Roma, Roma Capitale" in dn:
-                        best_match = r
-                        break
-                if best_match:
+
+                    # Priorità massima al numero civico esatto
+                    if civic:
+                        if r_civic and str(r_civic).strip() == str(civic).strip():
+                            score += 1000
+                        elif civic in dn.split(","):
+                            score += 500
+                        elif civic in dn:
+                            score += 300
+
+                    # Punteggio pertinenza città
+                    if effective_city and effective_city.lower() in dn.lower():
+                        score += 150
+                    elif "roma" in dn.lower() and (not effective_city or "roma" in effective_city.lower()):
+                        score += 50
+
+                    # Punteggio tipologia immobile/punto esatto
+                    if r_type in ["house", "building", "residential", "commercial", "retail", "shop", "office"]:
+                        score += 100
+
+                    if score > best_score:
+                        best_score = score
+                        best_item = r
+
+                # Se abbiamo trovato un civico esatto o quasi esatto, abbiamo la risposta migliore
+                if best_score >= 1000 or (civic and best_score >= 500):
                     break
         except Exception:
             continue
 
-    chosen = best_match or fallback_match
-    if chosen:
-        lat = float(chosen["lat"])
-        lon = float(chosen["lon"])
+    if best_item:
+        lat = float(best_item["lat"])
+        lon = float(best_item["lon"])
+        matched_house_number = best_item.get("address", {}).get("house_number") or (civic if best_score >= 300 else None)
         cache[cache_key] = {
             "lat": lat,
             "lon": lon,
-            "display_name": chosen.get("display_name", "")
+            "display_name": best_item.get("display_name", ""),
+            "house_number": matched_house_number,
+            "house_number_exact": bool(best_item.get("address", {}).get("house_number") == civic)
         }
     else:
         lat = None
@@ -321,6 +409,7 @@ def geocode_address(
     time.sleep(GEOCODING_DELAY_SECONDS)
 
     return lat, lon
+
 
 
 # ---------------------------------------------------------

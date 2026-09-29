@@ -26,7 +26,11 @@ PLANNER_CACHE_VERSION = "v3_parametric_work_lunch"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 
-app = FastAPI(title="GeoAnalytics API")
+app = FastAPI(
+    title="GeoAnalytics API",
+    description="API per geocodifica, ottimizzazione percorsi, pianificazione delle visite commerciali e gestione trasferte remote.",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,7 +41,7 @@ app.add_middleware(
 )
 
 
-@app.post("/api/upload")
+@app.post("/api/upload", tags=["Upload"], summary="Caricamento ed estrazione dati", description="Carica un file Excel o CSV, estrae le aziende e geocodifica i clienti.")
 async def upload_file(file: UploadFile = File(...)):
     try:
         contents = await file.read()
@@ -70,24 +74,30 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/geocode")
+@app.get("/api/geocode", tags=["Geocoding"], summary="Geocodifica indirizzo", description="Geocodifica un indirizzo testuale utilizzando OpenStreetMap/Nominatim con cache locale.")
 async def geocode_endpoint(address: str, city: str = ""):
     try:
         geo_cache = load_geocache()
         lat, lon = geocode_address(address, city, geo_cache)
         save_geocache(geo_cache)
         if lat is not None and lon is not None:
-            cache_key = ", ".join(part for part in [address, city, "Italy"] if part).upper()
+            from data_processor import parse_address_and_civic
+            street, civic, detected_city = parse_address_and_civic(address, city)
+            effective_city = detected_city or city or ""
+            cache_key = ", ".join(part for part in [address, effective_city, "Italy"] if part).upper()
             cached_item = geo_cache.get(cache_key) or {}
             display_name = cached_item.get("display_name", "")
             return {
                 "success": True,
                 "address": address,
-                "city": city,
+                "city": effective_city,
                 "lat": lat,
                 "lon": lon,
+                "house_number": cached_item.get("house_number") or civic,
+                "house_number_exact": cached_item.get("house_number_exact", False),
                 "display_name": display_name
             }
+
         return {
             "success": False,
             "message": "Indirizzo non trovato su OpenStreetMap. Inserisci manualmente le coordinate GPS."
@@ -100,7 +110,7 @@ async def geocode_endpoint(address: str, city: str = ""):
         }
 
 
-@app.get("/api/config")
+@app.get("/api/config", tags=["Configurazione"], summary="Configurazioni di default del planner", description="Restituisce le configurazioni predefinite di orari di lavoro, pausa pranzo, durata visite e tolleranze da planner.config.")
 async def get_config():
     """Restituisce le configurazioni predefinite di orari e parametri da planner.config"""
     cfg = _load_planner_config()
@@ -116,7 +126,17 @@ async def get_config():
     }
 
 
-@app.post("/api/analyze")
+@app.get("/api/travel-time", tags=["Routing"], summary="Calcolo tempo di viaggio tra due indirizzi", description="Calcola il tempo di percorrenza tra due indirizzi con l'algoritmo del sistema (OSRM + fallback Haversine) e verifica se è qualificata come trasferta.")
+async def travel_time_endpoint(origin: str, destination: str):
+    try:
+        from test.test_travel_time import calculate_travel_time
+        res = calculate_travel_time(origin, destination)
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/analyze", tags=["Pianificazione"], summary="Ottimizzazione e pianificazione visite", description="Pianifica e ottimizza il calendario delle visite commerciali sui giorni lavorativi disponibili con supporto trasferte.")
 async def analyze_data(
     file: UploadFile = File(...),
     days: int = Form(30),
