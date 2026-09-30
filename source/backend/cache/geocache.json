@@ -2849,5 +2849,12 @@
     "display_name": "Via Tiburtina, Settecamini, Casal Monastero, Roma, Roma Capitale, Lazio, 00131, Italia",
     "house_number": null,
     "house_number_exact": false
+  },
+  "VIA DEL CORSO 120, ITALY": {
+    "lat": 41.9054361,
+    "lon": 12.4786204,
+    "display_name": "Via del Corso, 120, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
+    "house_number": "120",
+    "house_number_exact": true
   }
 }
