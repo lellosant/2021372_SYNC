@@ -2828,5 +2828,26 @@
     "display_name": "Via Eudossiana, 18, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
     "house_number": "18",
     "house_number_exact": true
+  },
+  "VIA ARIOSTO 24, ITALY": {
+    "lat": 44.8412711,
+    "lon": 11.6161022,
+    "display_name": "Via Ludovico Ariosto, 24, Giardino, Ferrara, Ferrara, Emilia-Romagna, Italia",
+    "house_number": "24",
+    "house_number_exact": true
+  },
+  "VIA ARIOSTO 24 ROMA, ITALY": {
+    "lat": 44.8412711,
+    "lon": 11.6161022,
+    "display_name": "Via Ludovico Ariosto, 24, Giardino, Ferrara, Ferrara, Emilia-Romagna, Italia",
+    "house_number": "24",
+    "house_number_exact": true
+  },
+  "VIA TIBURTINA 155 ROMA, ITALY": {
+    "lat": 41.9340037,
+    "lon": 12.6055172,
+    "display_name": "Via Tiburtina, Settecamini, Casal Monastero, Roma, Roma Capitale, Lazio, 00131, Italia",
+    "house_number": null,
+    "house_number_exact": false
   }
 }
