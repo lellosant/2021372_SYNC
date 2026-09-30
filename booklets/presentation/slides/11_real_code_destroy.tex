@@ -1,7 +1,7 @@
 \begin{frame}[fragile]{Real Optimizer Code - Destroy}
 \begin{columns}[T,onlytextwidth]
 \begin{column}{0.48\textwidth}
-\begin{block}{\texttt{alns.py}}
+\begin{block}{\texttt{alns.py} (Random Destroy)}
 \scriptsize
 \begin{verbatim}
 num_remove = max(1, int(len(
@@ -21,20 +21,23 @@ for idx in sorted(indices_to_remove,
 \end{column}
 
 \begin{column}{0.48\textwidth}
-\vspace{0.4cm}
+\vspace{0.15cm}
 \footnotesize
 \begin{enumerate}
-    \item \textbf{Decide how many visits to remove.}
-    \vspace{0.4cm}
-    \item \textbf{Randomly choose the visits.}
-    \vspace{0.4cm}
-    \item \textbf{Remove them from the current route.}
+    \item \textbf{Decide removal quota} (10--20\% of day's visits).
+    \vspace{0.2cm}
+    \item \textbf{Choose visits} via random sampling.
+    \vspace{0.2cm}
+    \item \textbf{Remove visits} to open available capacity.
 \end{enumerate}
+
+\vspace{0.25cm}
+\textit{\textbf{Dual strategy:} Alternates with \textbf{cluster destroy} to reshape entire geographic zones.}
 \end{column}
 \end{columns}
 
-\vspace{0.4cm}
+\vspace{0.3cm}
 \footnotesize
 \textbf{Why?}\\
-Removing visits gives the algorithm space to rebuild part of the route differently.
+\textbf{Escapes local optima} by freeing time slots to explore more profitable visit combinations.
 \end{frame}

@@ -28,7 +28,7 @@ import contextlib
 logger = logging.getLogger(__name__)
 
 SCENARIO_CACHE_DIR = "/app/cache/scenarios" if os.path.exists("/app") else os.path.join(os.path.dirname(__file__), "cache", "scenarios")
-PLANNER_CACHE_VERSION = "v5_day_weights_swap_alns"
+PLANNER_CACHE_VERSION = "v1"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 _processed_dataset_cache = {}

@@ -1,15 +1,12 @@
 \begin{frame}{Conclusions}
-\centering
-\vspace{0.4cm}
-\Large \textbf{WHAT WE LEARNED}
-
-\vspace{0.8cm}
+\vspace{0.3cm}
 \normalsize
 \begin{itemize}
-    \item Real business data need cleaning before optimization.
-    \item Geographic accuracy strongly affects route quality.
-    \item Route planning must balance revenue, visit time and driving time.
-    \item Heuristic methods can find useful solutions without testing every possible route.
-    \item Docker makes the application easier to reproduce and deploy.
+    \setlength\itemsep{0.28cm}
+    \item \textbf{Data Robustness:} Preprocessing and geocaching are critical to handle messy real-world addresses.
+    \item \textbf{Spatial Intelligence:} K-Means clustering prevents route scatter, ensuring compact and efficient itineraries.
+    \item \textbf{Metaheuristic Efficiency:} ALNS solves an NP-hard problem, maximizing revenue in seconds without brute-force.
+    \item \textbf{Operational Realism:} Strictly enforces practical business constraints (work hours, lunch breaks, multi-day trips).
+    \item \textbf{Production Readiness:} Dockerized microservices ensure fast, reliable, and reproducible deployment.
 \end{itemize}
 \end{frame}

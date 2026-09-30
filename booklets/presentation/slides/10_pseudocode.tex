@@ -1,23 +1,24 @@
 \begin{frame}[fragile]{Simplified Algorithm}
 \textit{Simplified logic — not the actual source code}
 
-\vspace{0.4cm}
+\vspace{0.15cm}
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.5\textwidth}
+\begin{column}{0.51\textwidth}
 \begin{block}{}
 \scriptsize
 \begin{verbatim}
-best = initial_plan
+best = current = initial_plan
 
 for each iteration:
-    partial = destroy(current_plan)
-    candidate = repair(partial)
+    candidate = repair(destroy(current))
 
-    if candidate is feasible:
-        current_plan = candidate
+    if candidate is better than current:
+        current = candidate
+        if current is better than best:
+            best = current
 
-        if candidate is better than best:
-            best = candidate
+    elif accept_with_probability(p):
+        current = candidate
 
 return best
 \end{verbatim}
@@ -28,19 +29,19 @@ return best
 \vspace{0.2cm}
 \footnotesize
 \textbf{DESTROY}\\
-Remove some visits.
+Remove some visits (random/cluster).
 
 \vspace{0.3cm}
 \textbf{REPAIR}\\
-Try to insert them again in better positions.
+Reinsert visits in optimal positions.
 
 \vspace{0.3cm}
-\textbf{FEASIBLE}\\
-All time and calendar constraints are respected.
+\textbf{ACCEPT}\\
+Keep improving plans or explore with probability $p$.
 
 \vspace{0.3cm}
 \textbf{BEST}\\
-Keep the best plan found so far.
+Track the best plan found so far.
 \end{column}
 \end{columns}
 \end{frame}
