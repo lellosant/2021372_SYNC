@@ -34,7 +34,7 @@
     <main>
         <aside class="sidebar">
             <h2 data-i18n="sidebar_title">Parametri di Ottimizzazione</h2>
-            <form id="analyze-form">
+            <form id="analyze-form" novalidate>
                 <div class="form-group">
                     <label for="dataset" data-i18n="label_dataset">Carica Dataset (Excel/CSV)</label>
                     <div class="custom-file-wrapper">
@@ -134,7 +134,7 @@
                         <div class="time-grid-2">
                             <div class="time-field" style="grid-column: span 2;">
                                 <label for="giorni-trasferta" data-i18n="label_giorni_trasferta">Massimo di giornate per trasferta</label>
-                                <input type="number" id="giorni-trasferta" value="3" min="2" max="30">
+                                <input type="number" id="giorni-trasferta" value="3" min="1" max="365">
                             </div>
                         </div>
                     </div>
@@ -299,7 +299,7 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=19"></script>
+    <script src="script.js?v=22"></script>
 </body>
 
 </html>

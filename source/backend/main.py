@@ -22,18 +22,53 @@ from optimizer import optimize_visits
 from planning.config import _load_planner_config
 
 logging.basicConfig(level=logging.INFO)
+import atexit
+import contextlib
+
 logger = logging.getLogger(__name__)
 
-SCENARIO_CACHE_DIR = "/app/cache/scenarios"
+SCENARIO_CACHE_DIR = "/app/cache/scenarios" if os.path.exists("/app") else os.path.join(os.path.dirname(__file__), "cache", "scenarios")
 PLANNER_CACHE_VERSION = "v5_day_weights_swap_alns"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
 _processed_dataset_cache = {}
 
+
+def clean_scenarios_cache():
+    """Svuota la cache su disco e in memoria degli scenari."""
+    global _scenario_memory_cache
+    _scenario_memory_cache.clear()
+    try:
+        if os.path.exists(SCENARIO_CACHE_DIR):
+            for fname in os.listdir(SCENARIO_CACHE_DIR):
+                fpath = os.path.join(SCENARIO_CACHE_DIR, fname)
+                if os.path.isfile(fpath) and fname.endswith(".json"):
+                    try:
+                        os.remove(fpath)
+                    except OSError:
+                        pass
+            logger.info("Cache scenari svuotata con successo.")
+    except Exception as e:
+        logger.warning(f"Errore durante la pulizia della cache scenari: {e}")
+
+
+# Registra pulizia all'uscita del processo
+atexit.register(clean_scenarios_cache)
+
+
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Pulizia sia all'avvio che allo spegnimento
+    clean_scenarios_cache()
+    yield
+    clean_scenarios_cache()
+
+
 app = FastAPI(
     title="GeoAnalytics API",
     description="API per geocodifica, ottimizzazione percorsi, pianificazione delle visite commerciali e gestione trasferte remote.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -49,7 +84,7 @@ app.add_middleware(
 async def upload_file(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        content_hash = hashlib.md5(contents).hexdigest()
+        content_hash = hashlib.sha256(contents).hexdigest()[:16]
         df, companies = await asyncio.to_thread(process_data, contents)
         _processed_dataset_cache[content_hash] = (df.copy(), list(companies))
         
@@ -205,6 +240,10 @@ async def analyze_data(
     if cache_key in _scenario_memory_cache:
         logger.info(f"Scenario cache HIT (memoria): {cache_key}")
         data = dict(_scenario_memory_cache[cache_key])
+        if "days" not in data or data["days"] is None:
+            data["days"] = days
+        if "start_date" not in data:
+            data["start_date"] = start_date
         data["from_cache"] = True
         return data
 
@@ -214,6 +253,10 @@ async def analyze_data(
         try:
             with open(cache_path, "r", encoding="utf-8") as f:
                 cached_data = json.load(f)
+                if "days" not in cached_data or cached_data["days"] is None:
+                    cached_data["days"] = days
+                if "start_date" not in cached_data:
+                    cached_data["start_date"] = start_date
                 cached_data["from_cache"] = True
                 _scenario_memory_cache[cache_key] = cached_data
                 logger.info(f"Scenario cache HIT (disco): {cache_key}")
@@ -340,6 +383,8 @@ async def analyze_data(
         "from_cache": False,
         "target_company": target_company,
         "available_companies": available_companies,
+        "days": days,
+        "start_date": start_date,
         "kpis": {
             "company_potential": company_potential,
             "recovered_revenue": recovered_revenue,

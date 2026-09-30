@@ -941,7 +941,10 @@ function syncMaxGiorniTrasferta() {
     const daysVal = parseInt(daysEl.value, 10);
     if (!isNaN(daysVal) && daysVal >= 1) {
         trasfertaEl.max = daysVal;
-        if (parseInt(trasfertaEl.value, 10) > daysVal) {
+        let curr = parseInt(trasfertaEl.value, 10);
+        if (isNaN(curr) || curr < 1) {
+            trasfertaEl.value = Math.min(3, daysVal);
+        } else if (curr > daysVal) {
             trasfertaEl.value = daysVal;
         }
     }
@@ -972,10 +975,24 @@ function syncMaxGiorniTrasferta() {
 });
 syncMaxGiorniTrasferta();
 
-document.getElementById('analyze-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    performAnalysis();
-});
+const analyzeForm = document.getElementById('analyze-form');
+if (analyzeForm) {
+    analyzeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        performAnalysis();
+    });
+}
+
+const submitBtnEl = document.getElementById('submit-btn');
+if (submitBtnEl) {
+    submitBtnEl.addEventListener('click', (e) => {
+        // Se non è già in submit, avvia analisi
+        if (analyzeForm) {
+            e.preventDefault();
+            performAnalysis();
+        }
+    });
+}
 
 let progressInterval = null;
 let currentProgressMode = 'geocoding';
@@ -1187,16 +1204,18 @@ function renderScenario(data) {
         ((!isNaN(durMin) && durMin === 0) ? 'no break' : `${timeInfo.lunch_duration_minutes}m break`) :
         ((!isNaN(durMin) && durMin === 0) ? 'nessuna pausa' : `pausa ${timeInfo.lunch_duration_minutes}m`);
 
+    const daysCount = data.days || document.getElementById('days')?.value || 30;
+
     if (isEn) {
         subtitle.innerHTML = `
-            <div>Plan for: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
+            <div>Plan for: <strong style="color:${getCompanyColor(comp)}">${comp}</strong> (${daysCount} work days)</div>
             <div>Recoverable Revenue: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
             <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} total visits (Hours: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
             <div>${droppedCount} visits without valid coordinates</div>
         `;
     } else {
         subtitle.innerHTML = `
-            <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
+            <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong> (${daysCount} giorni lavorativi)</div>
             <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
             <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
             <div>${droppedCount} visite senza coordinate valide</div>
@@ -1337,8 +1356,15 @@ function renderScenario(data) {
     if (startHouseMarker) allMarkers.push(startHouseMarker);
 
     if (allMarkers.length > 0) {
-        const group = new L.featureGroup(allMarkers);
-        map.fitBounds(group.getBounds().pad(0.12));
+        try {
+            const group = new L.featureGroup(allMarkers);
+            const bounds = group.getBounds();
+            if (bounds && bounds.isValid && bounds.isValid()) {
+                map.fitBounds(bounds.pad(0.12));
+            }
+        } catch (e) {
+            console.warn('Errore calcolo limiti mappa:', e);
+        }
     }
 
     document.getElementById('map-overlay').style.display = 'none';
