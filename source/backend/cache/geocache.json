@@ -35,7 +35,13 @@
     "lat": 41.7341788,
     "lon": 12.5845009
   },
-  "VIA DI TORRE VECCHIA 819, ROMA, ITALY": null,
+  "VIA DI TORRE VECCHIA 819, ROMA, ITALY": {
+    "lat": 41.8803781,
+    "lon": 12.6275485,
+    "display_name": "Via di Tor Angela Vecchia, Roma, Italia",
+    "house_number": "819",
+    "house_number_exact": false
+  },
   "VIA DURAZZO 24/E, ROMA, ITALY": {
     "lat": 41.9209891,
     "lon": 12.4581846
@@ -80,18 +86,42 @@
     "lat": 41.895079,
     "lon": 12.4406516
   },
-  "LARGO CORRADO RICCI 40/43 A, ROMA, ITALY": null,
+  "LARGO CORRADO RICCI 40/43 A, ROMA, ITALY": {
+    "lat": 41.8930533,
+    "lon": 12.488019,
+    "display_name": "Largo Corrado Ricci, 40, Roma, Italia",
+    "house_number": "40",
+    "house_number_exact": true
+  },
   "VIA DELLA PACE, 13, ROMA, ITALY": {
     "lat": 41.8997086,
     "lon": 12.4713655
   },
-  "VIA SANTA MARIA DELL'ANIMA 8, ROMA, ITALY": null,
-  "VIA SANTA MARIA DELL\\'ANIMA 14, ROMA, ITALY": null,
+  "VIA SANTA MARIA DELL'ANIMA 8, ROMA, ITALY": {
+    "lat": 41.8997011,
+    "lon": 12.4722892,
+    "display_name": "Via di Santa Maria dell'Anima, 8, Roma, Italia",
+    "house_number": "8",
+    "house_number_exact": true
+  },
+  "VIA SANTA MARIA DELL\\'ANIMA 14, ROMA, ITALY": {
+    "lat": 41.8993263,
+    "lon": 12.4723239,
+    "display_name": "Via di Santa Maria dell'Anima, 14, Roma, Italia",
+    "house_number": "14",
+    "house_number_exact": true
+  },
   "VIA DELLA CROCE 76 B, ROMA, ITALY": {
     "lat": 41.9063149,
     "lon": 12.4797627
   },
-  "PIAZZA ROBERTO ARDIGO' 27/29, ROMA, ITALY": null,
+  "PIAZZA ROBERTO ARDIGO' 27/29, ROMA, ITALY": {
+    "lat": 41.8419179,
+    "lon": 12.481554,
+    "display_name": "Antica Enoteca Manzoni, 27, Roma, Italia",
+    "house_number": "27",
+    "house_number_exact": true
+  },
   "VIA DELLA CROCE 76/B, ROMA, ITALY": {
     "lat": 41.9063149,
     "lon": 12.4797627
@@ -104,7 +134,13 @@
     "lat": 41.8905423,
     "lon": 12.466481
   },
-  "LARGO DELL' OLGIATA 15 ISOLA 78, ROMA, ITALY": null,
+  "LARGO DELL' OLGIATA 15 ISOLA 78, ROMA, ITALY": {
+    "lat": 42.0188432,
+    "lon": 12.3590844,
+    "display_name": "Largo dell'Olgiata, 15, Roma, Italia",
+    "house_number": "15",
+    "house_number_exact": true
+  },
   "VICOLO RISERVA CAMPETTI 9, ROMA, ITALY": {
     "lat": 42.0225621,
     "lon": 12.3884644
@@ -133,7 +169,13 @@
     "lat": 41.8979119,
     "lon": 12.4679334
   },
-  "LUNGO TEVERE ARNALDO DA BRESCIA SNC, ROMA, ITALY": null,
+  "LUNGO TEVERE ARNALDO DA BRESCIA SNC, ROMA, ITALY": {
+    "lat": 41.9100561,
+    "lon": 12.4734219,
+    "display_name": "Lungotevere Arnaldo da Brescia, Roma, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA DEGLI AUSONI 62-64, ROMA, ITALY": {
     "lat": 41.8974955,
     "lon": 12.5178014
@@ -150,7 +192,13 @@
     "lat": 41.8950556,
     "lon": 12.5008458
   },
-  "VIA R.CONFORTI 132-138, ROMA, ITALY": null,
+  "VIA R.CONFORTI 132-138, ROMA, ITALY": {
+    "lat": 41.8949025,
+    "lon": 12.4081996,
+    "display_name": "Via Raffaele Conforti, Roma, Italia",
+    "house_number": "132",
+    "house_number_exact": false
+  },
   "CIRCONVALLAZIONE GIANICOLENSE 60, ROMA, ITALY": {
     "lat": 41.8711644,
     "lon": 12.449968
@@ -175,14 +223,38 @@
     "lat": 41.912652,
     "lon": 12.4741128
   },
-  "VUA GERMANICO 136, ROMA, ITALY": null,
-  "VIA DEI SS. QUATTRO 92/93/94, ROMA, ITALY": null,
-  "VIALE GIORGIA DE LEONTINI, 265, ROMA, ITALY": null,
+  "VUA GERMANICO 136, ROMA, ITALY": {
+    "lat": 41.9081899,
+    "lon": 12.4592578,
+    "display_name": "Beef Bazaar, 136, Roma, Italia",
+    "house_number": "136",
+    "house_number_exact": true
+  },
+  "VIA DEI SS. QUATTRO 92/93/94, ROMA, ITALY": {
+    "lat": 41.8344403,
+    "lon": 12.6166204,
+    "display_name": "Torre dei SS. Quattro, Roma, Italia",
+    "house_number": "92",
+    "house_number_exact": false
+  },
+  "VIALE GIORGIA DE LEONTINI, 265, ROMA, ITALY": {
+    "lat": 41.7557582,
+    "lon": 12.3530922,
+    "display_name": "Viale Gorgia di Leontini, Roma, Italia",
+    "house_number": "265",
+    "house_number_exact": false
+  },
   "VIA DELLA BALDUINA 204, ROMA, ITALY": {
     "lat": 41.9225105,
     "lon": 12.4384932
   },
-  "VIALE DELLE MEDAGLIE D'ORO 419 A/B/C, ROMA, ITALY": null,
+  "VIALE DELLE MEDAGLIE D'ORO 419 A/B/C, ROMA, ITALY": {
+    "lat": 41.923284,
+    "lon": 12.4456842,
+    "display_name": "Vinoteca Belsito, 419a, Roma, Italia",
+    "house_number": "419a",
+    "house_number_exact": false
+  },
   "VIA ODERISI DA GUBBIO 57/A, ROMA, ITALY": {
     "lat": 41.8665853,
     "lon": 12.4660493
@@ -199,7 +271,6 @@
     "lat": 41.8166319,
     "lon": 12.3409369
   },
-  "VIA G.PACINI 31, ROMA, ITALY": null,
   "VIA LIVIO ANDRONICO 2, ROMA, ITALY": {
     "lat": 41.9114392,
     "lon": 12.4397007
@@ -240,12 +311,24 @@
     "lat": 41.756012,
     "lon": 12.3698939
   },
-  "VIA F. DENZA 35, ROMA, ITALY": null,
+  "VIA F. DENZA 35, ROMA, ITALY": {
+    "lat": 44.761506,
+    "lon": 10.4499351,
+    "display_name": "Via Roma, 35, Sant'Ilario d'Enza, Italia",
+    "house_number": "35",
+    "house_number_exact": true
+  },
   "VIA NEMORENSE 55/57, ROMA, ITALY": {
     "lat": 41.9248064,
     "lon": 12.5084438
   },
-  "PIAZZA DEI CARACCI 6-7, ROMA, ITALY": null,
+  "PIAZZA DEI CARACCI 6-7, ROMA, ITALY": {
+    "lat": 41.9299874,
+    "lon": 12.4684583,
+    "display_name": "Piazza dei Carracci, Roma, Italia",
+    "house_number": "6",
+    "house_number_exact": false
+  },
   "VIA BOCCEA 173, ROMA, ITALY": {
     "lat": 41.9026568,
     "lon": 12.4231113
@@ -262,7 +345,13 @@
     "lat": 41.8820867,
     "lon": 12.4746691
   },
-  "VIA CAMPAGNESE KM 0.500, MORLUPO, ITALY": null,
+  "VIA CAMPAGNESE KM 0.500, MORLUPO, ITALY": {
+    "lat": 41.9472159,
+    "lon": 12.4759788,
+    "display_name": "Via Morlupo, Roma, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA DEGLI ORSEOLO 33, ROMA, ITALY": {
     "lat": 41.8500763,
     "lon": 12.419682
@@ -279,7 +368,13 @@
     "lat": 41.9073464,
     "lon": 12.4632011
   },
-  "VIA CASSIA 1821 B--C, ROMA, ITALY": null,
+  "VIA CASSIA 1821 B--C, ROMA, ITALY": {
+    "lat": 42.0702945,
+    "lon": 12.372584,
+    "display_name": "Via Cassia, Roma, Italia",
+    "house_number": "1821",
+    "house_number_exact": false
+  },
   "VIA DELLA MARRANA 29, ROMA, ITALY": {
     "lat": 41.8778209,
     "lon": 12.530614
@@ -288,7 +383,13 @@
     "lat": 41.7317218,
     "lon": 12.3162793
   },
-  "VIA TOR DEI CONTI 25, ROMA, ITALY": null,
+  "VIA TOR DEI CONTI 25, ROMA, ITALY": {
+    "lat": 41.8939309,
+    "lon": 12.4878404,
+    "display_name": "Hotel Forum, 25, Roma, Italia",
+    "house_number": "25",
+    "house_number_exact": true
+  },
   "VIA SANDRO SANDRI 78, ROMA, ITALY": {
     "lat": 41.9041102,
     "lon": 12.549614
@@ -313,7 +414,13 @@
     "lat": 41.9037673,
     "lon": 12.4765774
   },
-  "STRADA DI MACCHIATONDA SNC, CAPALBIO, ITALY": null,
+  "STRADA DI MACCHIATONDA SNC, CAPALBIO, ITALY": {
+    "lat": 42.4019624,
+    "lon": 11.3463418,
+    "display_name": "Forte di Macchiatonda, Capalbio, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA CIPRO 8-E, ROMA, ITALY": {
     "lat": 41.9080644,
     "lon": 12.4475693
@@ -330,7 +437,13 @@
     "lat": 41.8495971,
     "lon": 12.579654
   },
-  "VIA CIMINA SNC, MONTEROSI, ITALY": null,
+  "VIA CIMINA SNC, MONTEROSI, ITALY": {
+    "lat": 42.2016152,
+    "lon": 12.305307,
+    "display_name": "Via Cimina, Monterosi, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA MARIANNA DIONIGI 4, ROMA, ITALY": {
     "lat": 41.9058395,
     "lon": 12.4724184
@@ -347,8 +460,20 @@
     "lat": 45.4774619,
     "lon": 9.1880257
   },
-  "PIAZZA DELLE COPPELLE 54-55-56, ROMA, ITALY": null,
-  "VIA CARLE DEL GRECO 91/93, ROMA, ITALY": null,
+  "PIAZZA DELLE COPPELLE 54-55-56, ROMA, ITALY": {
+    "lat": 41.9009267,
+    "lon": 12.4761217,
+    "display_name": "Osteria delle Coppelle, 54, Roma, Italia",
+    "house_number": "54",
+    "house_number_exact": true
+  },
+  "VIA CARLE DEL GRECO 91/93, ROMA, ITALY": {
+    "lat": 41.7344458,
+    "lon": 12.2908371,
+    "display_name": "Griglieria gastronomia - Proietti carni, 91, Roma, Italia",
+    "house_number": "91",
+    "house_number_exact": true
+  },
   "VIA GIACOMO ANDREASSI 30, ROMA, ITALY": {
     "lat": 42.0022095,
     "lon": 12.3939385
@@ -377,7 +502,13 @@
     "lat": 41.8794558,
     "lon": 12.4775778
   },
-  "VIA DI MONTECATINI 12, ROMA, ITALY": null,
+  "VIA DI MONTECATINI 12, ROMA, ITALY": {
+    "lat": 41.8997693,
+    "lon": 12.4805813,
+    "display_name": "Ristorante Il Falchetto, 12, Roma, Italia",
+    "house_number": "12",
+    "house_number_exact": true
+  },
   "VIA COLA DI RIENZO 212, ROMA, ITALY": {
     "lat": 41.9072063,
     "lon": 12.4625351
@@ -406,9 +537,20 @@
     "lat": 41.8541026,
     "lon": 12.4793471
   },
-  "VIA ALDO MANUNZIO 66B, ROMA, ITALY": null,
-  "V. FULCERI PAOLUCCI DE' CALBOLI 40, ROMA, ITALY": null,
-  "VIA DE' PENITENZIERI, 16/A, ROMA, ITALY": null,
+  "VIA ALDO MANUNZIO 66B, ROMA, ITALY": {
+    "lat": 41.877705,
+    "lon": 12.4740166,
+    "display_name": "Food box 66, 66, Roma, Italia",
+    "house_number": "66",
+    "house_number_exact": true
+  },
+  "VIA DE' PENITENZIERI, 16/A, ROMA, ITALY": {
+    "lat": 41.9004571,
+    "lon": 12.4714988,
+    "display_name": "Via dei Coronari, 16, Roma, Italia",
+    "house_number": "16",
+    "house_number_exact": true
+  },
   "VIA DI VILLA BONELLI 12, ROMA, ITALY": {
     "lat": 41.8505662,
     "lon": 12.4585159
@@ -461,7 +603,13 @@
     "lat": 36.7660101,
     "lon": 14.6314058
   },
-  "VIA F. DE GRENET 26, ROMA, ITALY": null,
+  "VIA F. DE GRENET 26, ROMA, ITALY": {
+    "lat": 41.7840934,
+    "lon": 12.4365245,
+    "display_name": "Via Filippo de Grenet, Roma, Italia",
+    "house_number": "26",
+    "house_number_exact": false
+  },
   "VIA CASILINA 494, ROMA, ITALY": {
     "lat": 41.8643195,
     "lon": 12.655131
@@ -510,7 +658,13 @@
     "lat": 41.823226,
     "lon": 12.3868253
   },
-  "PÈIAZZA PIETRO THOUAR 39, ROMA, ITALY": null,
+  "PÈIAZZA PIETRO THOUAR 39, ROMA, ITALY": {
+    "lat": 41.9430634,
+    "lon": 12.4208247,
+    "display_name": "Piazza Pietro Thouar, Roma, Italia",
+    "house_number": "39",
+    "house_number_exact": false
+  },
   "VIA DELLA STAZIONE DI CESANO 559, ROMA, ITALY": {
     "lat": 42.0768049,
     "lon": 12.3389495
@@ -555,7 +709,13 @@
     "lat": 41.8782705,
     "lon": 12.4657779
   },
-  "VIA RAF VALLONE 19/37, ROMA, ITALY": null,
+  "VIA RAF VALLONE 19/37, ROMA, ITALY": {
+    "lat": 41.8342469,
+    "lon": 12.5973808,
+    "display_name": "Viale Raf Vallone, 19, Roma, Italia",
+    "house_number": "19",
+    "house_number_exact": true
+  },
   "LARGO LAMBERTO LORIA, 6, ROMA, ITALY": {
     "lat": 41.8618629,
     "lon": 12.4988739
@@ -568,7 +728,13 @@
     "lat": 41.9453965,
     "lon": 12.6039518
   },
-  "VIA DOI SANT'ALESSANDRO, 380, ROMA, ITALY": null,
+  "VIA DOI SANT'ALESSANDRO, 380, ROMA, ITALY": {
+    "lat": 45.8854888,
+    "lon": 10.863936,
+    "display_name": "Necropoli di epoca romana e altomedievale, Riva del Garda, Italia",
+    "house_number": "380",
+    "house_number_exact": false
+  },
   "VIA DELLA SETA 27, ROMA, ITALY": {
     "lat": 41.8077278,
     "lon": 12.4338867
@@ -609,7 +775,13 @@
     "lat": 41.9014947,
     "lon": 12.4955946
   },
-  "VIA G. TREVIS 15, ROMA, ITALY": null,
+  "VIA G. TREVIS 15, ROMA, ITALY": {
+    "lat": 45.6617024,
+    "lon": 12.2455233,
+    "display_name": "Via Roma, 15, Treviso, Italia",
+    "house_number": "15",
+    "house_number_exact": true
+  },
   "VIA SAN REMO 14, ROMA, ITALY": {
     "lat": 41.8819739,
     "lon": 12.5209482
@@ -642,14 +814,38 @@
     "lat": 41.9254871,
     "lon": 12.4662459
   },
-  "VIA F.LLI BONNET 13, ROMA, ITALY": null,
-  "VIA R. MALATESTA 64, ROMA, ITALY": null,
-  "VIA DELLA STAZIONE 1 C/O RTS, VITORCHIANO, ITALY": null,
+  "VIA F.LLI BONNET 13, ROMA, ITALY": {
+    "lat": 41.9142701,
+    "lon": 12.4597931,
+    "display_name": "Via Fratelli Rosselli, 13, Roma, Italia",
+    "house_number": "13",
+    "house_number_exact": true
+  },
+  "VIA R. MALATESTA 64, ROMA, ITALY": {
+    "lat": 41.8876678,
+    "lon": 12.5358898,
+    "display_name": "Via Roberto Malatesta, Roma, Italia",
+    "house_number": "64",
+    "house_number_exact": false
+  },
+  "VIA DELLA STAZIONE 1 C/O RTS, VITORCHIANO, ITALY": {
+    "lat": 42.4536336,
+    "lon": 12.1709413,
+    "display_name": "Provinciale Vitorchianese civ. 10, Vitorchiano, Italia",
+    "house_number": "1",
+    "house_number_exact": false
+  },
   "VIA DOMENICO TARDINI 3, ROMA, ITALY": {
     "lat": 41.9051443,
     "lon": 12.4253437
   },
-  "VIA DI CASAL DEL MARMO 181 A/B, ROMA, ITALY": null,
+  "VIA DI CASAL DEL MARMO 181 A/B, ROMA, ITALY": {
+    "lat": 41.9588455,
+    "lon": 12.4055144,
+    "display_name": "Via di Casal del Marmo, 181, Roma, Italia",
+    "house_number": "181",
+    "house_number_exact": true
+  },
   "VIA SAMBUCA PISTOIESE 56, ROMA, ITALY": {
     "lat": 41.9701623,
     "lon": 12.5022244
@@ -702,7 +898,13 @@
     "lat": 41.9016504,
     "lon": 12.4370923
   },
-  "VIA SIMMONE MARTINI 6, ROMA, ITALY": null,
+  "VIA SIMMONE MARTINI 6, ROMA, ITALY": {
+    "lat": 41.8275332,
+    "lon": 12.4878739,
+    "display_name": "Via Simone Martini, Roma, Italia",
+    "house_number": "6",
+    "house_number_exact": false
+  },
   "VIA DELLE TERME DI TRAIANO 4A, ROMA, ITALY": {
     "lat": 41.8928103,
     "lon": 12.4982915
@@ -731,13 +933,31 @@
     "lat": 41.9400069,
     "lon": 12.5359912
   },
-  "VIA DEGLI AGROSTEMMI 208 - SANTA PALOMBA, POMEZIA, ITALY": null,
-  "VIA DELLE MONACHELLE SNC, POMEZIA, ITALY": null,
+  "VIA DEGLI AGROSTEMMI 208 - SANTA PALOMBA, POMEZIA, ITALY": {
+    "lat": 41.6395993,
+    "lon": 12.5212162,
+    "display_name": "Via degli Olmi, Pomezia, Italia",
+    "house_number": "208",
+    "house_number_exact": false
+  },
+  "VIA DELLE MONACHELLE SNC, POMEZIA, ITALY": {
+    "lat": 41.6929418,
+    "lon": 12.54162,
+    "display_name": "Via delle Monachelle, Pomezia, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA DEGLI AGROSTEMMI, ROMA, ITALY": {
     "lat": 41.7158977,
     "lon": 12.5812353
   },
-  "VIA FELICE BELOTTI 2, ROMA, ITALY": null,
+  "VIA FELICE BELOTTI 2, ROMA, ITALY": {
+    "lat": 41.8571103,
+    "lon": 12.4398402,
+    "display_name": "Via Felice Bellotti, Roma, Italia",
+    "house_number": "2",
+    "house_number_exact": false
+  },
   "VIA TRIONFALE 13921, ROMA, ITALY": {
     "lat": 41.9827599,
     "lon": 12.4074199
@@ -762,13 +982,31 @@
     "lat": 41.8981169,
     "lon": 12.4678882
   },
-  "PZZA INDIPENDENZA 9, ROMA, ITALY": null,
+  "PZZA INDIPENDENZA 9, ROMA, ITALY": {
+    "lat": 41.9042079,
+    "lon": 12.5030194,
+    "display_name": "Florian's cafè, 9, Roma, Italia",
+    "house_number": "9",
+    "house_number_exact": true
+  },
   "VICOLO DELLA CANCELLERIA 13, ROMA, ITALY": {
     "lat": 41.8975064,
     "lon": 12.471369
   },
-  "PIAZZA CAMPO DE FIORI 22, ROMA, ITALY": null,
-  "FORO DI TRAIANO 1 B, ROMA, ITALY": null,
+  "PIAZZA CAMPO DE FIORI 22, ROMA, ITALY": {
+    "lat": 41.8957908,
+    "lon": 12.4715406,
+    "display_name": "Campo de' Fiori, 22, Roma, Italia",
+    "house_number": "22",
+    "house_number_exact": true
+  },
+  "FORO DI TRAIANO 1 B, ROMA, ITALY": {
+    "lat": 41.8951295,
+    "lon": 12.4852963,
+    "display_name": "Foro di Traiano, Roma, Italia",
+    "house_number": "1",
+    "house_number_exact": false
+  },
   "VIA GUIDO NATI, 50, VELLETRI, ITALY": {
     "lat": 41.6880188,
     "lon": 12.7797803
@@ -785,12 +1023,24 @@
     "lat": 41.909686,
     "lon": 12.4783829
   },
-  "VIA BRACCIANESE 939/941(KM11+500), ROMA, ITALY": null,
+  "VIA BRACCIANESE 939/941(KM11+500), ROMA, ITALY": {
+    "lat": 42.0364087,
+    "lon": 12.3144245,
+    "display_name": "Via Claudia Braccianese, Roma, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA MAZZINI 67, PAGANI, ITALY": {
     "lat": 40.7399383,
     "lon": 14.6121353
   },
-  "VIA G. ANTONELLI, 2, ROMA, ITALY": null,
+  "VIA G. ANTONELLI, 2, ROMA, ITALY": {
+    "lat": 41.9293222,
+    "lon": 12.5151762,
+    "display_name": "Gatti e Antonelli, 211, Roma, Italia",
+    "house_number": "211",
+    "house_number_exact": false
+  },
   "VIALE PARIOLI 36/B, ROMA, ITALY": {
     "lat": 41.9236779,
     "lon": 12.4909936
@@ -811,7 +1061,13 @@
     "lat": 41.9053651,
     "lon": 12.4610814
   },
-  "PIAZZA CAMPO DE' FIORI 4, ROMA, ITALY": null,
+  "PIAZZA CAMPO DE' FIORI 4, ROMA, ITALY": {
+    "lat": 41.8989205,
+    "lon": 12.4849247,
+    "display_name": "Pontificia Università Gregoriana, 4, Roma, Italia",
+    "house_number": "4",
+    "house_number_exact": true
+  },
   "VIA TARANTO 56, ROMA, ITALY": {
     "lat": 41.8841729,
     "lon": 12.5165404
@@ -844,10 +1100,34 @@
     "lat": 41.8955148,
     "lon": 12.4730048
   },
-  "VIA SANTA MARIE DELLE GRAZIE 560, NOCERA SUPERIORE, ITALY": null,
-  "VIA SANTAMARIA DELLE GRAZIE 560, PAGANI, ITALY": null,
-  "VIA SACCO PASTORE, 14-16-18, ROMA, ITALY": null,
-  "VIA M. BOLDETTI 3, ROMA, ITALY": null,
+  "VIA SANTA MARIE DELLE GRAZIE 560, NOCERA SUPERIORE, ITALY": {
+    "lat": 40.7547679,
+    "lon": 14.6634059,
+    "display_name": "Via Santa Maria delle Grazie, Nocera Superiore, Italia",
+    "house_number": "560",
+    "house_number_exact": false
+  },
+  "VIA SANTAMARIA DELLE GRAZIE 560, PAGANI, ITALY": {
+    "lat": 44.5911851,
+    "lon": 11.0297359,
+    "display_name": "Pagani Automobili SPA, 5, San Cesario sul Panaro, Italia",
+    "house_number": "5",
+    "house_number_exact": false
+  },
+  "VIA SACCO PASTORE, 14-16-18, ROMA, ITALY": {
+    "lat": 41.9319012,
+    "lon": 12.5264471,
+    "display_name": "Via di Sacco Pastore, Roma, Italia",
+    "house_number": "14",
+    "house_number_exact": false
+  },
+  "VIA M. BOLDETTI 3, ROMA, ITALY": {
+    "lat": 41.8766505,
+    "lon": 12.4814272,
+    "display_name": "Porta San Paolo, 3, Roma, Italia",
+    "house_number": "3",
+    "house_number_exact": true
+  },
   "VIA DELLE SUSINE 97/100, ROMA, ITALY": {
     "lat": 41.8838034,
     "lon": 12.5806785
@@ -908,7 +1188,13 @@
     "lat": 41.8837747,
     "lon": 12.498796
   },
-  "VIA SAN ERASMO 16, ROMA, ITALY": null,
+  "VIA SAN ERASMO 16, ROMA, ITALY": {
+    "lat": 41.8837747,
+    "lon": 12.498796,
+    "display_name": "Via di Sant'Erasmo, Roma, Italia",
+    "house_number": "16",
+    "house_number_exact": false
+  },
   "VIA GALLIA 18 20, ROMA, ITALY": {
     "lat": 41.8808609,
     "lon": 12.5049387
@@ -957,13 +1243,31 @@
     "lat": 41.9011947,
     "lon": 12.4716325
   },
-  "VIA P.VERRI 11, ROMA, ITALY": null,
-  "VIA STEFANO D'ARRIGO, ROMA, ITALY": null,
+  "VIA P.VERRI 11, ROMA, ITALY": {
+    "lat": 41.8896028,
+    "lon": 12.5010184,
+    "display_name": "Via Pietro Verri, Roma, Italia",
+    "house_number": "11",
+    "house_number_exact": false
+  },
+  "VIA STEFANO D'ARRIGO, ROMA, ITALY": {
+    "lat": 41.9443683,
+    "lon": 12.6270105,
+    "display_name": "Viale Stefano d'Arrigo, Roma, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "PIAZZA DELLE COPPELLE 44, ROMA, ITALY": {
     "lat": 41.9005776,
     "lon": 12.4758656
   },
-  "VIA GIOVANNI VITELLESCHI 20 E 24, ROMA, ITALY": null,
+  "VIA GIOVANNI VITELLESCHI 20 E 24, ROMA, ITALY": {
+    "lat": 41.904536,
+    "lon": 12.4624671,
+    "display_name": "Le Comptoir, 20, Roma, Italia",
+    "house_number": "20",
+    "house_number_exact": true
+  },
   "VIA VEIO 4, ROMA, ITALY": {
     "lat": 41.884593,
     "lon": 12.5103197
@@ -980,8 +1284,20 @@
     "lat": 41.8878614,
     "lon": 12.4765713
   },
-  "VIA DELL PACE 28, ROMA, ITALY": null,
-  "VIA GIANFILIPPO USELLINI N.341, ROMA, ITALY": null,
+  "VIA DELL PACE 28, ROMA, ITALY": {
+    "lat": 41.8991505,
+    "lon": 12.4712155,
+    "display_name": "L'Emporio alla Pace, 28, Roma, Italia",
+    "house_number": "28",
+    "house_number_exact": true
+  },
+  "VIA GIANFILIPPO USELLINI N.341, ROMA, ITALY": {
+    "lat": 41.7708255,
+    "lon": 12.3757751,
+    "display_name": "Via Gianfilippo Usellini, Roma, Italia",
+    "house_number": "341",
+    "house_number_exact": false
+  },
   "VIA SANTA MARIA AUSILIATRICE 84, ROMA, ITALY": {
     "lat": 41.8083546,
     "lon": 12.6741674
@@ -1018,7 +1334,13 @@
     "lat": 41.8786516,
     "lon": 12.4775952
   },
-  "VIA LUSSINPICCOLO 102, ROMA, ITALY": null,
+  "VIA LUSSINPICCOLO 102, ROMA, ITALY": {
+    "lat": 45.0705355,
+    "lon": 7.6845979,
+    "display_name": "Via Roma, Torino, Italia",
+    "house_number": "102",
+    "house_number_exact": false
+  },
   "VIA PALMIRO TOGLIATTI 2, MONTE ROBERTO, ITALY": {
     "lat": 43.488748,
     "lon": 13.1625787
@@ -1043,7 +1365,13 @@
     "lat": 41.861869,
     "lon": 12.6211334
   },
-  "CIRC. GIANICOLENSE, 249, ROMA, ITALY": null,
+  "CIRC. GIANICOLENSE, 249, ROMA, ITALY": {
+    "lat": 41.8764985,
+    "lon": 12.4436551,
+    "display_name": "Le Bon Bock, 249, Roma, Italia",
+    "house_number": "249",
+    "house_number_exact": true
+  },
   "VIA ARTURO MERCANTI 46, ROMA, ITALY": {
     "lat": 41.8224423,
     "lon": 12.394832
@@ -1084,7 +1412,13 @@
     "lat": 41.7304926,
     "lon": 12.2787755
   },
-  "VIA IRMO LOC. SARDONE SNC, PONTECAGNANO FAIANO, ITALY": null,
+  "VIA IRMO LOC. SARDONE SNC, PONTECAGNANO FAIANO, ITALY": {
+    "lat": 40.6401877,
+    "lon": 14.8728509,
+    "display_name": "Pontecagnano, Pontecagnano Faiano, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA VIGNA STELLUTI 180, ROMA, ITALY": {
     "lat": 41.9494922,
     "lon": 12.4674475
@@ -1097,7 +1431,13 @@
     "lat": 42.1425421,
     "lon": 12.3509934
   },
-  "VIA DELLA GIUSTINANA 764, ROMA, ITALY": null,
+  "VIA DELLA GIUSTINANA 764, ROMA, ITALY": {
+    "lat": 42.0073565,
+    "lon": 12.4748456,
+    "display_name": "Via della Giustiniana, Roma, Italia",
+    "house_number": "764",
+    "house_number_exact": false
+  },
   "VIA GALLIA 204, ROMA, ITALY": {
     "lat": 41.8803485,
     "lon": 12.5071052
@@ -1118,7 +1458,13 @@
     "lat": 41.8976779,
     "lon": 12.4544524
   },
-  "VOA TORRIONE MICARA 7, FRASCATI, ITALY": null,
+  "VOA TORRIONE MICARA 7, FRASCATI, ITALY": {
+    "lat": 41.8064263,
+    "lon": 12.6560841,
+    "display_name": "Via del Torrione Micara, Frascati, Italia",
+    "house_number": "7",
+    "house_number_exact": false
+  },
   "VIA TORRIONE MICARA 7, FRASCATI, ITALY": {
     "lat": 41.8064263,
     "lon": 12.6560841
@@ -1127,9 +1473,27 @@
     "lat": 41.7698936,
     "lon": 12.322118
   },
-  "VIA DELLA MAGGIONA 29/A ANG.VIA, POMEZIA, ITALY": null,
-  "VIA DELLA MAGGIONA 29/A ANG.VIA DI, POMEZIA, ITALY": null,
-  "VIA DOMENICO FONTATA 16, ROMA, ITALY": null,
+  "VIA DELLA MAGGIONA 29/A ANG.VIA, POMEZIA, ITALY": {
+    "lat": 41.6321551,
+    "lon": 12.500392,
+    "display_name": "Via Mar della Cina, Pomezia, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA DELLA MAGGIONA 29/A ANG.VIA DI, POMEZIA, ITALY": {
+    "lat": 41.6321551,
+    "lon": 12.500392,
+    "display_name": "Via Mar della Cina, Pomezia, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA DOMENICO FONTATA 16, ROMA, ITALY": {
+    "lat": 41.8878358,
+    "lon": 12.5072266,
+    "display_name": "Via Domenico Fontana, Roma, Italia",
+    "house_number": "16",
+    "house_number_exact": false
+  },
   "VIALE TRASTEVERE  84, ROMA, ITALY": {
     "lat": 41.8833242,
     "lon": 12.4689183
@@ -1146,7 +1510,13 @@
     "lat": 41.8910433,
     "lon": 12.4708203
   },
-  "VIA DEI SANTISSIMI QUATTRO 41, ROMA, ITALY": null,
+  "VIA DEI SANTISSIMI QUATTRO 41, ROMA, ITALY": {
+    "lat": 41.8894049,
+    "lon": 12.4945529,
+    "display_name": "Via dei Santi Quattro, Roma, Italia",
+    "house_number": "41",
+    "house_number_exact": false
+  },
   "V DI SAN BASILIO 41, ROMA, ITALY": {
     "lat": 41.9056745,
     "lon": 12.4907877
@@ -1159,7 +1529,13 @@
     "lat": 41.887722,
     "lon": 12.4771406
   },
-  "PIAZZA S. SONNINO 29, ROMA, ITALY": null,
+  "PIAZZA S. SONNINO 29, ROMA, ITALY": {
+    "lat": 41.9027609,
+    "lon": 12.4814758,
+    "display_name": "Piazza di San Silvestro, 29, Roma, Italia",
+    "house_number": "29",
+    "house_number_exact": true
+  },
   "VIA DELLE COLONNELLE 5, ROMA, ITALY": {
     "lat": 41.8999066,
     "lon": 12.477218
@@ -1168,7 +1544,13 @@
     "lat": 41.8794028,
     "lon": 12.4777998
   },
-  "VIA CASILIA 1862 A/B, ROMA, ITALY": null,
+  "VIA CASILIA 1862 A/B, ROMA, ITALY": {
+    "lat": 41.8624731,
+    "lon": 12.6874199,
+    "display_name": "Margiò, 1862, Roma, Italia",
+    "house_number": "1862",
+    "house_number_exact": true
+  },
   "VIA GIOVANNI PIERLUIGI DA PALESTRINA 57, ROMA, ITALY": {
     "lat": 41.9062969,
     "lon": 12.4713609
@@ -1177,7 +1559,13 @@
     "lat": 41.8999807,
     "lon": 12.4649706
   },
-  "VIA P.BLASERNA 19 1° PIANO, ROMA, ITALY": null,
+  "VIA P.BLASERNA 19 1° PIANO, ROMA, ITALY": {
+    "lat": 41.8660136,
+    "lon": 12.4715598,
+    "display_name": "Via Pietro Blaserna, Roma, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "VIA DEL PIANETA GIOVE, 82, ROMA, ITALY": {
     "lat": 41.8165119,
     "lon": 12.4455928
@@ -1214,7 +1602,13 @@
     "lat": 41.901735,
     "lon": 12.4749768
   },
-  "PIAZZA SCIPIONE BORGHESE  5, ROMA, ITALY": null,
+  "PIAZZA SCIPIONE BORGHESE  5, ROMA, ITALY": {
+    "lat": 41.9141133,
+    "lon": 12.4921053,
+    "display_name": "Galleria Borghese, 5, Roma, Italia",
+    "house_number": "5",
+    "house_number_exact": true
+  },
   "VIA DEL PELLEGRINO 129, ROMA, ITALY": {
     "lat": 41.897387,
     "lon": 12.4682484
@@ -1223,12 +1617,24 @@
     "lat": 41.9012524,
     "lon": 12.4205845
   },
-  "VIA SAN GIOVANNI IN LATERANO 59/A, ROMA, ITALY": null,
+  "VIA SAN GIOVANNI IN LATERANO 59/A, ROMA, ITALY": {
+    "lat": 41.8889275,
+    "lon": 12.4983734,
+    "display_name": "Ristorante Isidoro, 59a, Roma, Italia",
+    "house_number": "59a",
+    "house_number_exact": false
+  },
   "VIA CADUTI DI SUPERGA 17, PAGANI, ITALY": {
     "lat": 40.7428241,
     "lon": 14.6241432
   },
-  "VIA VAL SANTERNO 55,57,59 ANGOLO, ROMA, ITALY": null,
+  "VIA VAL SANTERNO 55,57,59 ANGOLO, ROMA, ITALY": {
+    "lat": 41.9406258,
+    "lon": 12.5251116,
+    "display_name": "Via Val Santerno, Roma, Italia",
+    "house_number": "59",
+    "house_number_exact": false
+  },
   "VIA SPALATO 35/37/39, ROMA, ITALY": {
     "lat": 41.9230845,
     "lon": 12.5152446
@@ -1257,7 +1663,13 @@
     "lat": 41.8579453,
     "lon": 12.5597312
   },
-  "LARGO FLAVIO DOMIZIANO 15,16,18, ROMA, ITALY": null,
+  "LARGO FLAVIO DOMIZIANO 15,16,18, ROMA, ITALY": {
+    "lat": 41.8519334,
+    "lon": 12.4848407,
+    "display_name": "Largo Flavio Domiziano, Roma, Italia",
+    "house_number": "18",
+    "house_number_exact": false
+  },
   "VIA BONCOMPAGNI 11, ROMA, ITALY": {
     "lat": 41.9076745,
     "lon": 12.4909947
@@ -1282,7 +1694,13 @@
     "lat": 41.9008477,
     "lon": 12.4760601
   },
-  "VIA BORGO DI SOPRA 21, ROMA, ITALY": null,
+  "VIA BORGO DI SOPRA 21, ROMA, ITALY": {
+    "lat": 46.3320803,
+    "lon": 13.1391871,
+    "display_name": "Via Roma, 21, Venzone, Italia",
+    "house_number": "21",
+    "house_number_exact": true
+  },
   "VIA UGO OJETTI 10/20, ROMA, ITALY": {
     "lat": 41.9504283,
     "lon": 12.558765
@@ -1291,7 +1709,13 @@
     "lat": 41.9035123,
     "lon": 12.6153719
   },
-  "PIAZZA MENEMIO AGRIPPA, 9, ROMA, ITALY": null,
+  "PIAZZA MENEMIO AGRIPPA, 9, ROMA, ITALY": {
+    "lat": 41.9350324,
+    "lon": 12.5356437,
+    "display_name": "Enoteca Pallotti, 9, Roma, Italia",
+    "house_number": "9",
+    "house_number_exact": true
+  },
   "VIA NOMENTANA 643, ROMA, ITALY": {
     "lat": 41.9353183,
     "lon": 12.5363095
@@ -1304,7 +1728,13 @@
     "lat": 41.8798912,
     "lon": 12.5018075
   },
-  "PIAZZA DELLE COPPELLETTE 47, ROMA, ITALY": null,
+  "PIAZZA DELLE COPPELLETTE 47, ROMA, ITALY": {
+    "lat": 41.9594505,
+    "lon": 12.5244474,
+    "display_name": "Piazza dell'Ateneo Salesiano, 47, Roma, Italia",
+    "house_number": "47",
+    "house_number_exact": true
+  },
   "VIA PAVIA 28/A, ROMA, ITALY": {
     "lat": 41.9079839,
     "lon": 12.5167839
@@ -1321,7 +1751,13 @@
     "lat": 41.9196057,
     "lon": 12.5122613
   },
-  "VIA AURELIA 483/495 C/O MERCATO IRNERIO, ROMA, ITALY": null,
+  "VIA AURELIA 483/495 C/O MERCATO IRNERIO, ROMA, ITALY": {
+    "lat": 41.8977949,
+    "lon": 12.4249551,
+    "display_name": "Pad Thai Kung - Aurelia, 483, Roma, Italia",
+    "house_number": "483",
+    "house_number_exact": true
+  },
   "VIALE DI TRASTEVERE 131, ROMA, ITALY": {
     "lat": 41.8847407,
     "lon": 12.4705622
@@ -1330,7 +1766,13 @@
     "lat": 41.8690194,
     "lon": 12.3597804
   },
-  "VICOLO SCANDENBERG 112-113, ROMA, ITALY": null,
+  "VICOLO SCANDENBERG 112-113, ROMA, ITALY": {
+    "lat": 41.9009004,
+    "lon": 12.484951,
+    "display_name": "Piccolo Arancio, 112, Roma, Italia",
+    "house_number": "112",
+    "house_number_exact": true
+  },
   "PIAZZA DE' RICCI 144, ROMA, ITALY": {
     "lat": 41.8967194,
     "lon": 12.4685353
@@ -1343,7 +1785,13 @@
     "lat": 41.9019512,
     "lon": 12.422298
   },
-  "VIA G. PIERLGUIGI  DA PALESTRINA 66, ROMA, ITALY": null,
+  "VIA G. PIERLGUIGI  DA PALESTRINA 66, ROMA, ITALY": {
+    "lat": 41.9062969,
+    "lon": 12.4713609,
+    "display_name": "Via Giovanni Pierluigi da Palestrina, Roma, Italia",
+    "house_number": "66",
+    "house_number_exact": false
+  },
   "VIA FELICE BELLOTTI 2, ROMA, ITALY": {
     "lat": 41.8571103,
     "lon": 12.4398402
@@ -1384,7 +1832,13 @@
     "lat": 41.8964453,
     "lon": 12.499269
   },
-  "VIA G. CHIABRERA 61, ROMA, ITALY": null,
+  "VIA G. CHIABRERA 61, ROMA, ITALY": {
+    "lat": 41.8548234,
+    "lon": 12.4796556,
+    "display_name": "Enoteca Quattrochiacchiere, 61, Roma, Italia",
+    "house_number": "61",
+    "house_number_exact": true
+  },
   "VIA FILIPPO CIVININI 70, ROMA, ITALY": {
     "lat": 41.9248864,
     "lon": 12.4813437
@@ -1501,7 +1955,13 @@
     "lat": 41.899901,
     "lon": 12.4827102
   },
-  "VIA M. DEL RIPOSO 124, ROMA, ITALY": null,
+  "VIA M. DEL RIPOSO 124, ROMA, ITALY": {
+    "lat": 41.8973028,
+    "lon": 12.4349849,
+    "display_name": "Chiesa di Santa Maria del Riposo, Roma, Italia",
+    "house_number": "124",
+    "house_number_exact": false
+  },
   "VIA RIMINI 13-17, ROMA, ITALY": {
     "lat": 41.8844913,
     "lon": 12.5122489
@@ -1522,8 +1982,20 @@
     "lat": 41.8893884,
     "lon": 12.4764365
   },
-  "VIA VARRONE 8 ANGOLO VIA CRESCENZIO, ROMA, ITALY": null,
-  "VIA VARRONE 8 ANGOLO VIA CRESCENZIO 84, ROMA, ITALY": null,
+  "VIA VARRONE 8 ANGOLO VIA CRESCENZIO, ROMA, ITALY": {
+    "lat": 41.9063668,
+    "lon": 12.4602367,
+    "display_name": "Via Varrone, Roma, Italia",
+    "house_number": "8",
+    "house_number_exact": false
+  },
+  "VIA VARRONE 8 ANGOLO VIA CRESCENZIO 84, ROMA, ITALY": {
+    "lat": 41.9063668,
+    "lon": 12.4602367,
+    "display_name": "Via Varrone, Roma, Italia",
+    "house_number": "8",
+    "house_number_exact": false
+  },
   "VIA DELLA VITE 28, ROMA, ITALY": {
     "lat": 41.9035994,
     "lon": 12.4807407
@@ -1552,7 +2024,13 @@
     "lat": 41.9043763,
     "lon": 12.4899317
   },
-  "VIA GIANLEONARDO CERUSO 22, ROMA, ITALY": null,
+  "VIA GIANLEONARDO CERUSO 22, ROMA, ITALY": {
+    "lat": 41.8530927,
+    "lon": 12.5016547,
+    "display_name": "Via Gian Leonardo Ceruso, Roma, Italia",
+    "house_number": "22",
+    "house_number_exact": false
+  },
   "VIA DEL TEATRO VALLE 54 D, ROMA, ITALY": {
     "lat": 41.8976227,
     "lon": 12.4750845
@@ -1573,17 +2051,35 @@
     "lat": 41.907616,
     "lon": 12.4866822
   },
-  "PIAZZA DEL POPOLO 4 5 5A, ROMA, ITALY": null,
+  "PIAZZA DEL POPOLO 4 5 5A, ROMA, ITALY": {
+    "lat": 43.9138057,
+    "lon": 12.6456655,
+    "display_name": "Piazza del Popolo, 4, Morciano di Romagna, Italia",
+    "house_number": "4",
+    "house_number_exact": true
+  },
   "VIA BUONARROTI 46, ROMA, ITALY": {
     "lat": 41.8940856,
     "lon": 12.5028315
   },
-  "PIAZZA TOR SAN MICHELE 6/7 - LOC OS, ROMA, ITALY": null,
+  "PIAZZA TOR SAN MICHELE 6/7 - LOC OS, ROMA, ITALY": {
+    "lat": 41.7309514,
+    "lon": 12.2754483,
+    "display_name": "Piazza di Tor San Michele, Roma, Italia",
+    "house_number": "6",
+    "house_number_exact": false
+  },
   "VIA DEGLI OLIVI 54, ROMA, ITALY": {
     "lat": 41.886786,
     "lon": 12.5668737
   },
-  "VIA SANTISSIMI QUATTRO  NR 41, ROMA, ITALY": null,
+  "VIA SANTISSIMI QUATTRO  NR 41, ROMA, ITALY": {
+    "lat": 41.8894049,
+    "lon": 12.4945529,
+    "display_name": "Via dei Santi Quattro, Roma, Italia",
+    "house_number": "41",
+    "house_number_exact": false
+  },
   "VIALE AVENTINO 32-34 C, ROMA, ITALY": {
     "lat": 41.8828441,
     "lon": 12.48696
@@ -1628,7 +2124,13 @@
     "lat": 45.450619,
     "lon": 9.1678922
   },
-  "VIA CANALE DELLA LINGUA 192, ROMA, ITALY": null,
+  "VIA CANALE DELLA LINGUA 192, ROMA, ITALY": {
+    "lat": 41.735179,
+    "lon": 12.3470392,
+    "display_name": "Via del Canale della Lingua, Roma, Italia",
+    "house_number": "192",
+    "house_number_exact": false
+  },
   "VIA DEI BANCHI VECCHI 14, ROMA, ITALY": {
     "lat": 41.8977958,
     "lon": 12.4673444
@@ -1681,7 +2183,13 @@
     "lat": 41.7303429,
     "lon": 12.2745654
   },
-  "VIA A. DE VITI DE MARCO 36/38, ROMA, ITALY": null,
+  "VIA A. DE VITI DE MARCO 36/38, ROMA, ITALY": {
+    "lat": 41.9494486,
+    "lon": 12.4697967,
+    "display_name": "Via Antonio de Viti de Marco, Roma, Italia",
+    "house_number": "36",
+    "house_number_exact": false
+  },
   "VIA PERALBA 2 A, ROMA, ITALY": {
     "lat": 41.9383212,
     "lon": 12.5342043
@@ -1710,8 +2218,20 @@
     "lat": 41.7180904,
     "lon": 12.3067775
   },
-  "VIA TIBERINA 20 LOC. BIVIO DI CAPANEL, CAPENA, ITALY": null,
-  "VIA TIBERINA, 20, LOC. BIVIO DI CAPANEL, CAPENA, ITALY": null,
+  "VIA TIBERINA 20 LOC. BIVIO DI CAPANEL, CAPENA, ITALY": {
+    "lat": 42.1212046,
+    "lon": 12.5909524,
+    "display_name": "Via Tiberina, Capena, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA TIBERINA, 20, LOC. BIVIO DI CAPANEL, CAPENA, ITALY": {
+    "lat": 42.1212046,
+    "lon": 12.5909524,
+    "display_name": "Via Tiberina, Capena, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
   "CORSO DI FRANCIA 207, ROMA, ITALY": {
     "lat": 41.9447779,
     "lon": 12.4693987
@@ -1748,7 +2268,13 @@
     "lat": 41.8323447,
     "lon": 12.4639859
   },
-  "VIA DELL'OCEANO INDIANO  180, ROMA, ITALY": null,
+  "VIA DELL'OCEANO INDIANO  180, ROMA, ITALY": {
+    "lat": 41.8221902,
+    "lon": 12.4449585,
+    "display_name": "Super Elite, 180, Roma, Italia",
+    "house_number": "180",
+    "house_number_exact": true
+  },
   "VIA DI CASTEL DI LEVA 273, ROMA, ITALY": {
     "lat": 41.7853876,
     "lon": 12.5226104
@@ -1761,8 +2287,20 @@
     "lat": 41.7330863,
     "lon": 12.2882746
   },
-  "VIA MAGNA GRECIA 9, ROMA, ITALY": null,
-  "VIA MAGNA GRECIA, 97, ROMA, ITALY": null,
+  "VIA MAGNA GRECIA 9, ROMA, ITALY": {
+    "lat": 41.884276,
+    "lon": 12.5093635,
+    "display_name": "Magna Grecia-San Giovanni (MA-MC), Roma, Italia",
+    "house_number": "9",
+    "house_number_exact": false
+  },
+  "VIA MAGNA GRECIA, 97, ROMA, ITALY": {
+    "lat": 41.884276,
+    "lon": 12.5093635,
+    "display_name": "Magna Grecia-San Giovanni (MA-MC), Roma, Italia",
+    "house_number": "97",
+    "house_number_exact": false
+  },
   "VIA TIBURTINA 106/114, ROMA, ITALY": {
     "lat": 41.9334059,
     "lon": 12.6012113
@@ -1831,9 +2369,27 @@
     "lat": 41.8761504,
     "lon": 12.3489249
   },
-  "VIA GIACOMO DEBENDETTI  6, ROMA, ITALY": null,
-  "VIA G. BRANCA 77, ROMA, ITALY": null,
-  "VIA ARISTIDE LENORI 78, ROMA, ITALY": null,
+  "VIA GIACOMO DEBENDETTI  6, ROMA, ITALY": {
+    "lat": 41.8192704,
+    "lon": 12.4797815,
+    "display_name": "Via Giacomo Debenedetti, Roma, Italia",
+    "house_number": "6",
+    "house_number_exact": false
+  },
+  "VIA G. BRANCA 77, ROMA, ITALY": {
+    "lat": 44.5541984,
+    "lon": 11.4343849,
+    "display_name": "Via Roma, 77, Granarolo dell'Emilia, Italia",
+    "house_number": "77",
+    "house_number_exact": true
+  },
+  "VIA ARISTIDE LENORI 78, ROMA, ITALY": {
+    "lat": 41.7385318,
+    "lon": 12.2694323,
+    "display_name": "Via Aristide Carabelli, 78, Roma, Italia",
+    "house_number": "78",
+    "house_number_exact": true
+  },
   "VIA ARISTIDE LEONORI 78, ROMA, ITALY": {
     "lat": 41.8496789,
     "lon": 12.4875419
@@ -1858,7 +2414,13 @@
     "lat": 41.8629945,
     "lon": 12.4782032
   },
-  "VIA AURELIA 483 C/O MERCATO IRNERIO ., ROMA, ITALY": null,
+  "VIA AURELIA 483 C/O MERCATO IRNERIO ., ROMA, ITALY": {
+    "lat": 41.8977949,
+    "lon": 12.4249551,
+    "display_name": "Pad Thai Kung - Aurelia, 483, Roma, Italia",
+    "house_number": "483",
+    "house_number_exact": false
+  },
   "PIAZZA DEI PONZIANI 7, ROMA, ITALY": {
     "lat": 41.8884952,
     "lon": 12.4776744
@@ -1875,7 +2437,6 @@
     "lat": 41.6305694,
     "lon": 12.4735024
   },
-  "S.S. TIBURTINA KM 20, USCITA SETTECAMINI, GUIDONIA MONTECELIO, ITALY": null,
   "VIA LUIGI LUCIANI 23/25, ROMA, ITALY": {
     "lat": 41.9218142,
     "lon": 12.4807395
@@ -1892,7 +2453,13 @@
     "lat": 41.8867107,
     "lon": 12.5085192
   },
-  "VIA DELLA SERENISSIMA 10/12, ROMA, ITALY": null,
+  "VIA DELLA SERENISSIMA 10/12, ROMA, ITALY": {
+    "lat": 41.9005669,
+    "lon": 12.5617207,
+    "display_name": "Galleria Serenissima, Roma, Italia",
+    "house_number": "10",
+    "house_number_exact": false
+  },
   "VIALE DELLA SERENISSIMA 10/12, ROMA, ITALY": {
     "lat": 41.9011906,
     "lon": 12.5574176
@@ -1905,12 +2472,24 @@
     "lat": 41.8914619,
     "lon": 12.4699126
   },
-  "CORSO LODI 1/ ANG PIAZZA MEDAGLIE D, MILANO, ITALY": null,
+  "CORSO LODI 1/ ANG PIAZZA MEDAGLIE D, MILANO, ITALY": {
+    "lat": 45.4517764,
+    "lon": 9.2033408,
+    "display_name": "Corso Lodi, 1, Milano, Italia",
+    "house_number": "1",
+    "house_number_exact": true
+  },
   "PIAZZA DEI QUIRITI 4/5, ROMA, ITALY": {
     "lat": 41.9094116,
     "lon": 12.4639905
   },
-  "VIA ANNI A FAUSTIAN 64, ROMA, ITALY": null,
+  "VIA ANNI A FAUSTIAN 64, ROMA, ITALY": {
+    "lat": 41.878328,
+    "lon": 12.4833325,
+    "display_name": "Via Annia Faustina, Roma, Italia",
+    "house_number": "64",
+    "house_number_exact": false
+  },
   "VIA AURELIA 426, ROMA, ITALY": {
     "lat": 41.9151643,
     "lon": 12.2014662
@@ -1935,7 +2514,13 @@
     "lat": 41.8914929,
     "lon": 12.4680141
   },
-  "VIA PIANORE 6, APIRO, ITALY": null,
+  "VIA PIANORE 6, APIRO, ITALY": {
+    "lat": 41.983494,
+    "lon": 12.5128238,
+    "display_name": "Via Apiro, Roma, Italia",
+    "house_number": "6",
+    "house_number_exact": false
+  },
   "VIA NOCCIOLETI 16, RONCIGLIONE, ITALY": {
     "lat": 42.3011948,
     "lon": 12.1791347
@@ -1976,7 +2561,13 @@
     "lat": 41.7308702,
     "lon": 13.0077245
   },
-  "VIA MARIO DEI FIORI 42, ROMA, ITALY": null,
+  "VIA MARIO DEI FIORI 42, ROMA, ITALY": {
+    "lat": 41.9049409,
+    "lon": 12.4816491,
+    "display_name": "Via Mario de' Fiori, Roma, Italia",
+    "house_number": "42",
+    "house_number_exact": false
+  },
   "VIA DEL VIMINALE 26, ROMA, ITALY": {
     "lat": 41.9003964,
     "lon": 12.4962023
@@ -1993,8 +2584,20 @@
     "lat": 42.0953716,
     "lon": 11.789342
   },
-  "PIAZZA CESAREO CONSOLE, 8, ROMA, ITALY": null,
-  "VIA CODIGORO N 4/6, ROMA, ITALY": null,
+  "PIAZZA CESAREO CONSOLE, 8, ROMA, ITALY": {
+    "lat": 41.8713258,
+    "lon": 12.5267782,
+    "display_name": "Piazza Cesare Cantù, 8, Roma, Italia",
+    "house_number": "8",
+    "house_number_exact": true
+  },
+  "VIA CODIGORO N 4/6, ROMA, ITALY": {
+    "lat": 44.8319941,
+    "lon": 12.1055781,
+    "display_name": "Via Roma, 4, Codigoro, Italia",
+    "house_number": "4",
+    "house_number_exact": true
+  },
   "VIA DI AFFOGALASINO 34, ROMA, ITALY": {
     "lat": 41.8627907,
     "lon": 12.4336036
@@ -2018,7 +2621,7 @@
   "VIA DEL CORSO 120, ROMA, ITALY": {
     "lat": 41.9054361,
     "lon": 12.4786204,
-    "display_name": "120, Via del Corso, Campo Marzio, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "display_name": "Via del Corso, 120, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
     "house_number": "120",
     "house_number_exact": true
   },
@@ -2030,7 +2633,6 @@
     "lat": 41.8082563,
     "lon": 12.5763646
   },
-  "VIA PASQUALE LEOMBARDO CIAMPINO, ITALY": null,
   "VIA PASQUALE LOMBARDO CIAMPINO, ITALY": {
     "lat": 41.7898612,
     "lon": 12.620074
@@ -2104,14 +2706,14 @@
   "VIA DEL CORSO 184, ROMA, ITALY": {
     "lat": 41.9022416,
     "lon": 12.4800471,
-    "display_name": "184, Via del Corso, Colonna, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "display_name": "Via del Corso, 184, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
     "house_number": "184",
     "house_number_exact": true
   },
   "VIA DEL CORSO N. 184, ROMA, ITALY": {
     "lat": 41.9022416,
     "lon": 12.4800471,
-    "display_name": "184, Via del Corso, Colonna, Municipio Roma I, Roma, Roma Capitale, Lazio, 00187, Italia",
+    "display_name": "Via del Corso, 184, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
     "house_number": "184",
     "house_number_exact": true
   },
@@ -2149,5 +2751,61 @@
     "display_name": "Piazza del Duomo, Duomo, Cerchia dei Navigli, Municipio 1, Milano, Rodano, Milano, Lombardia, 20121, Italia",
     "house_number": null,
     "house_number_exact": true
+  },
+  "VIA V. ARIOSTO, 25 ROMA, ITALY": {
+    "lat": 41.8909555,
+    "lon": 12.5036374,
+    "display_name": "Dipartimento di Informatica e Sistemistica \"Antonio Ruberti\", 25, Via Ludovico Ariosto, Esquilino, Municipio Roma I, Roma, Roma Capitale, Lazio, 00185, Italia",
+    "house_number": "25",
+    "house_number_exact": true
+  },
+  "VIA AURELIA 483 C/O MERCATO IRNERIO, ROMA, ITALY": {
+    "lat": 41.8977949,
+    "lon": 12.4249551,
+    "display_name": "Pad Thai Kung - Aurelia, 483, Roma, Italia",
+    "house_number": "483",
+    "house_number_exact": true
+  },
+  "VIA PASQUALE LEOMBARDO, CIAMPINO, ITALY": {
+    "lat": 41.7932212,
+    "lon": 12.6154476,
+    "display_name": "Via Pasquale Edo, Ciampino, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA FULCIERI PAULUCCI DE' CALBOLI 40, ROMA, ITALY": {
+    "lat": 41.9162426,
+    "lon": 12.4612278,
+    "display_name": "Via Fulcieri Paulucci de' Calboli, 40, Roma, Italia",
+    "house_number": "40",
+    "house_number_exact": true
+  },
+  "VIA PASQUALE LOMBARDO, CIAMPINO, ITALY": {
+    "lat": 41.7898612,
+    "lon": 12.620074,
+    "display_name": "Via Pasquale Lombardo, Ciampino, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "V. FULCERI PAOLUCCI DE' CALBOLI 40, ROMA, ITALY": {
+    "lat": 41.9162426,
+    "lon": 12.4612278,
+    "display_name": "Via Fulcieri Paulucci de' Calboli, 40, Della Vittoria, Roma, Roma Capitale, Lazio, Italia",
+    "house_number": "40",
+    "house_number_exact": true
+  },
+  "S.S. TIBURTINA KM 20, USCITA SETTECAMINI, GUIDONIA MONTECELIO, ITALY": {
+    "lat": 41.9454942,
+    "lon": 12.6654367,
+    "display_name": "Via Tiburtina, Collina del Sole, Setteville, Roma Capitale, Lazio, Italia",
+    "house_number": null,
+    "house_number_exact": true
+  },
+  "VIA G.PACINI 31, ROMA, ITALY": {
+    "lat": 41.9176779,
+    "lon": 12.4965883,
+    "display_name": "Via Giovanni Pacini, Pinciano, Municipio Roma II, Roma, Roma Capitale, Lazio, 00198, Italia",
+    "house_number": "31",
+    "house_number_exact": false
   }
 }

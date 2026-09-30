@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import logging
@@ -13,7 +14,9 @@ from data_processor import (
     process_data,
     geocode_address,
     load_geocache,
-    save_geocache
+    save_geocache,
+    get_progress_status,
+    set_progress_status
 )
 from optimizer import optimize_visits
 from planning.config import _load_planner_config
@@ -25,6 +28,7 @@ SCENARIO_CACHE_DIR = "/app/cache/scenarios"
 PLANNER_CACHE_VERSION = "v5_day_weights_swap_alns"
 os.makedirs(SCENARIO_CACHE_DIR, exist_ok=True)
 _scenario_memory_cache = {}
+_processed_dataset_cache = {}
 
 app = FastAPI(
     title="GeoAnalytics API",
@@ -45,7 +49,9 @@ app.add_middleware(
 async def upload_file(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        df, companies = process_data(contents)
+        content_hash = hashlib.md5(contents).hexdigest()
+        df, companies = await asyncio.to_thread(process_data, contents)
+        _processed_dataset_cache[content_hash] = (df.copy(), list(companies))
         
         company_clients = {}
         for comp in companies:
@@ -72,6 +78,14 @@ async def upload_file(file: UploadFile = File(...)):
         logger.error(f"Errore in /api/upload: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        set_progress_status(False, "idle")
+
+
+@app.get("/api/progress", tags=["Progress"], summary="Stato avanzamento geocodifica e calcolo")
+def api_progress_endpoint():
+    """Restituisce lo stato attuale della geocodifica e dell'ottimizzazione in tempo reale."""
+    return get_progress_status()
 
 
 @app.get("/api/geocode", tags=["Geocoding"], summary="Geocodifica indirizzo", description="Geocodifica un indirizzo testuale utilizzando OpenStreetMap/Nominatim con cache locale.")
@@ -207,15 +221,25 @@ async def analyze_data(
         except Exception as e:
             logger.warning(f"Errore lettura cache disco: {e}")
 
-    # 3. Elaborazione del dataset
+    # 3. Elaborazione del dataset (riuso del dataset già geocodificato in memoria se disponibile)
     try:
-        df, available_companies = process_data(contents)
+        if content_hash in _processed_dataset_cache:
+            logger.info(f"Dataset pre-geocodificato riusato dalla memoria per hash {content_hash}")
+            cached_df, cached_companies = _processed_dataset_cache[content_hash]
+            df = cached_df.copy()
+            available_companies = list(cached_companies)
+            set_progress_status(True, "optimizing", len(df), len(df), "Ottimizzazione visite in corso...", len(df), 0)
+        else:
+            df, available_companies = await asyncio.to_thread(process_data, contents)
+            _processed_dataset_cache[content_hash] = (df.copy(), list(available_companies))
     except Exception as e:
+        set_progress_status(False, "idle")
         logger.error(f"Errore nel process_data: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Errore elaborazione dati: {e}")
 
     if not available_companies:
+        set_progress_status(False, "idle")
         return {
             "error": "Nessun gruppo aziendale valido identificato nel file.",
             "available_companies": []
@@ -238,7 +262,8 @@ async def analyze_data(
         geocoded_clients = 0
 
     try:
-        schedule_df = optimize_visits(
+        schedule_df = await asyncio.to_thread(
+            optimize_visits,
             df,
             days,
             hours_per_visit,
@@ -252,8 +277,10 @@ async def analyze_data(
             work_end=eff_work_end,
             lunch_earliest=eff_lunch_earliest,
             lunch_latest_start=eff_lunch_latest_start,
-            lunch_duration_minutes=eff_lunch_duration
-        , enable_trasferte=enable_trasferte, max_giorni_trasferta=max_giorni_trasferta)
+            lunch_duration_minutes=eff_lunch_duration,
+            enable_trasferte=enable_trasferte,
+            max_giorni_trasferta=max_giorni_trasferta
+        )
     except Exception as e:
         logger.error(f"Errore in optimize_visits per {target_company}: {e}")
         logger.error(traceback.format_exc())
@@ -356,6 +383,8 @@ async def analyze_data(
             json.dump(response_payload, f, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"Errore scrittura cache disco: {e}")
+    finally:
+        set_progress_status(False, "idle")
 
     return response_payload
 

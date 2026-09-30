@@ -22,10 +22,15 @@ body {
 }
 
 header {
-    padding: 1.5rem 2.5rem;
+    padding: 1.25rem 2.5rem;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1000;
 }
 header h1 {
     font-size: 1.6rem;
@@ -33,6 +38,71 @@ header h1 {
     background: linear-gradient(135deg, #60a5fa, #34d399);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.lang-selector-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 0.35rem 0.85rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lang-selector-wrapper:hover,
+.lang-selector-wrapper:focus-within {
+    border-color: rgba(96, 165, 250, 0.6);
+    background: rgba(30, 41, 59, 0.95);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.lang-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4));
+    user-select: none;
+}
+
+.lang-dropdown {
+    background: transparent;
+    border: none;
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    outline: none;
+    padding: 0.25rem 0.25rem;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+}
+
+.lang-dropdown:focus {
+    outline: none;
+}
+
+.lang-dropdown option {
+    background: #0f172a;
+    color: #f8fafc;
+    font-weight: 600;
+    padding: 10px 14px;
 }
 
 main {
@@ -58,7 +128,7 @@ main {
 
 .form-group { margin-bottom: 1.5rem; }
 label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-input[type="file"], input[type="number"], input[type="date"], input[type="text"], input[type="time"] {
+input[type="number"], input[type="date"], input[type="text"], input[type="time"] {
     width: 100%;
     padding: 0.85rem;
     border-radius: 10px;
@@ -69,7 +139,7 @@ input[type="file"], input[type="number"], input[type="date"], input[type="text"]
     outline: none;
     transition: border-color 0.3s;
 }
-input[type="file"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="text"]:focus, input[type="time"]:focus { border-color: var(--primary); }
+input[type="number"]:focus, input[type="date"]:focus, input[type="text"]:focus, input[type="time"]:focus { border-color: var(--primary); }
 
 input[type="date"], input[type="time"] {
     color-scheme: dark;
@@ -85,24 +155,84 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     opacity: 1;
 }
 
-input[type="file"]::file-selector-button {
+.custom-file-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.4rem 0.6rem;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.custom-file-wrapper:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.custom-file-wrapper:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+}
+
+.custom-file-wrapper input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+}
+
+.custom-file-btn {
     background: linear-gradient(135deg, var(--primary), #2563eb);
     color: white;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
-    margin-right: 1rem;
-    cursor: pointer;
+    margin-right: 0.85rem;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 0.85rem;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    flex-shrink: 0;
 }
 
-input[type="file"]::file-selector-button:hover {
+.custom-file-wrapper:hover .custom-file-btn {
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+}
+
+.custom-file-name {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    pointer-events: none;
+    flex-grow: 1;
+}
+
+.custom-file-name.has-file {
+    color: #f1f5f9;
+    font-weight: 500;
 }
 
 .checkbox-group { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.8rem; }
@@ -261,9 +391,20 @@ select:focus { border-color: var(--primary); }
 .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
 .table-scroll { overflow-x: auto; max-height: 450px; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-th { position: sticky; top: 0; background: #1e293b; font-weight: 600; color: #94a3b8; font-size: 0.82rem; text-transform: uppercase; z-index: 10; }
+th, td { padding: 0.85rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
+th { position: sticky; top: 0; background: #1e293b; font-weight: 600; color: #94a3b8; font-size: 0.82rem; text-transform: uppercase; z-index: 10; white-space: nowrap; }
 tr:hover td { background: rgba(255,255,255,0.03); }
+
+#schedule-table td:nth-child(1),
+#schedule-table td:nth-child(2),
+#schedule-table td:nth-child(3),
+#schedule-table td:nth-child(7) {
+    white-space: nowrap;
+}
+#schedule-table td:nth-child(3) {
+    min-width: 120px;
+    letter-spacing: 0.02em;
+}
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -628,4 +769,95 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 .time-computed-info strong {
     color: #34d399;
+}
+
+/* Progress Overlay per Geocodifica e Ottimizzazione */
+.progress-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.progress-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 16px;
+    padding: 1.8rem 2rem;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(59, 130, 246, 0.2);
+    text-align: center;
+    color: white;
+}
+
+.progress-spinner-wrap {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-spinner {
+    position: absolute;
+    inset: 0;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.progress-icon {
+    font-size: 1.6rem;
+    animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.progress-card h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0.2rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #38bdf8, #60a5fa);
+    background-size: 200% 100%;
+    border-radius: 999px;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: gradientShimmer 2s linear infinite;
+}
+
+@keyframes gradientShimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }

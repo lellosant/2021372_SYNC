@@ -16,41 +16,58 @@
 
 <body>
     <header>
-        <h1>GeoAnalytics Planner</h1>
+        <div class="header-left">
+            <h1 data-i18n="app_title">GeoAnalytics Planner</h1>
+        </div>
+        <div class="header-right">
+            <div class="lang-selector-wrapper">
+                <span class="lang-icon" aria-hidden="true">🌐</span>
+                <label for="language-selector" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Lingua / Language</label>
+                <select id="language-selector" class="lang-dropdown" aria-label="Selettore lingua / Language selector">
+                    <option value="ITALIANO">ITALIANO</option>
+                    <option value="ENGLISH">ENGLISH</option>
+                </select>
+            </div>
+        </div>
     </header>
 
     <main>
         <aside class="sidebar">
-            <h2>Parametri di Ottimizzazione</h2>
+            <h2 data-i18n="sidebar_title">Parametri di Ottimizzazione</h2>
             <form id="analyze-form">
                 <div class="form-group">
-                    <label for="dataset">Carica Dataset (Excel/CSV)</label>
-                    <input type="file" id="dataset" accept=".xlsx, .xls, .csv" required>
+                    <label for="dataset" data-i18n="label_dataset">Carica Dataset (Excel/CSV)</label>
+                    <div class="custom-file-wrapper">
+                        <input type="file" id="dataset" accept=".xlsx, .xls, .csv" required>
+                        <div class="custom-file-btn" data-i18n="btn_choose_file">Scegli file</div>
+                        <span class="custom-file-name" id="dataset-name" data-i18n="no_file_chosen">Nessun file selezionato</span>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="start-date">Data inizio scenario</label>
+                    <label for="start-date" data-i18n="label_start_date">Data inizio scenario</label>
                     <input type="date" id="start-date" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="days">Giorni Lavorativi a Disposizione</label>
+                    <label for="days" data-i18n="label_days">Giorni Lavorativi a Disposizione</label>
                     <input type="number" id="days" value="30" min="1" max="365" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="hours">Ore Richieste per Visita</label>
+                    <label for="hours" data-i18n="label_hours">Ore Richieste per Visita</label>
                     <input type="number" id="hours" value="3.5" min="0.1" step="any" max="24" required>
                 </div>
 
                 <!-- Card Parametri Orari Lavoro e Pausa Pranzo -->
                 <div class="time-settings-card">
                     <div class="time-settings-header" id="toggle-time-settings"
-                        title="Clicca per aprire o chiudere i dettagli di orario e pausa">
+                        title="Clicca per aprire o chiudere i dettagli di orario e pausa"
+                        data-i18n-title="time_settings_tooltip">
                         <div class="time-settings-title-wrap">
                             <span class="time-settings-icon">⏱️</span>
                             <div>
-                                <span class="time-settings-label">Orari Lavoro & Pausa</span>
+                                <span class="time-settings-label" data-i18n="time_settings_label">Orari Lavoro & Pausa</span>
                                 <span id="time-settings-summary" class="time-settings-summary">09:00 - 18:00 • Pausa
                                     60m</span>
                             </div>
@@ -59,42 +76,40 @@
                     </div>
 
                     <div class="time-settings-body" id="time-settings-body">
-                        <div class="time-settings-section-title">Orario Giornaliero</div>
+                        <div class="time-settings-section-title" data-i18n="time_section_daily">Orario Giornaliero</div>
                         <div class="time-grid-2">
                             <div class="time-field">
-                                <label for="work-start">Inizio Lavoro</label>
+                                <label for="work-start" data-i18n="label_work_start">Inizio Lavoro</label>
                                 <input type="time" id="work-start" value="09:00" required>
                             </div>
                             <div class="time-field">
-                                <label for="work-end">Fine Lavoro</label>
+                                <label for="work-end" data-i18n="label_work_end">Fine Lavoro</label>
                                 <input type="time" id="work-end" value="18:00" required>
                             </div>
                         </div>
 
-                        <div class="time-settings-section-title" style="margin-top: 0.75rem;">Pausa Pranzo Flessibile
-                        </div>
+                        <div class="time-settings-section-title" style="margin-top: 0.75rem;" data-i18n="time_section_lunch">Pausa Pranzo Flessibile</div>
                         <div class="time-grid-2">
                             <div class="time-field">
-                                <label for="lunch-earliest">Inizio Da</label>
+                                <label for="lunch-earliest" data-i18n="label_lunch_earliest">Inizio Da</label>
                                 <input type="time" id="lunch-earliest" value="12:00" required>
                             </div>
                             <div class="time-field">
-                                <label for="lunch-latest-start">Inizio Entro</label>
+                                <label for="lunch-latest-start" data-i18n="label_lunch_latest_start">Inizio Entro</label>
                                 <input type="time" id="lunch-latest-start" value="14:00" required>
                             </div>
                         </div>
                         <div class="time-field" style="margin-top: 0.5rem;">
-                            <label for="lunch-duration">Durata Pausa (minuti)</label>
+                            <label for="lunch-duration" data-i18n="label_lunch_duration">Durata Pausa (minuti)</label>
                             <input type="number" id="lunch-duration" value="60" min="0" max="180" step="5" required>
                         </div>
 
                         <div class="time-computed-info" id="time-computed-info">
                             <span class="computed-dot"></span>
-                            <span>Ore lavorative nette: <strong id="computed-work-hours">8.0</strong> h / giorno</span>
+                            <span><span data-i18n="net_work_hours_label">Ore lavorative nette:</span> <strong id="computed-work-hours">8.0</strong> <span data-i18n="per_day">h / giorno</span></span>
                         </div>
                     </div>
                 </div>
-
 
                 <!-- Card Trasferte -->
                 <div class="time-settings-card" style="margin-top: 1rem;">
@@ -103,7 +118,7 @@
                             <span class="time-settings-icon">🧳</span>
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                <span class="time-settings-label">Pianifica Trasferte remote</span>
+                                <span class="time-settings-label" data-i18n="trasferte_label">Pianifica Trasferte remote</span>
                                 <input type="checkbox" id="enable-trasferte"
                                     style="width: 18px; height: 18px; cursor: pointer;">
                             </div>
@@ -112,43 +127,24 @@
 
                     <div class="time-settings-body" id="trasferte-body"
                         style="display: none; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
-                        <p
+                        <p id="trasferte-desc-text" data-i18n="trasferte_desc"
                             style="font-size: 0.8rem; color: #94a3b8; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">
                             Permette di raggiungere località remote dalla base dell'agente pianificandole in più giorni
                             per sostenere il viaggio di andata e ritorno per visitare il cliente lontano dalla sede</p>
                         <div class="time-grid-2">
                             <div class="time-field" style="grid-column: span 2;">
-                                <label for="giorni-trasferta">Massimo di giornate per trasferta</label>
-                                <input type="number" id="giorni-trasferta" value="3" min="2" max="14">
+                                <label for="giorni-trasferta" data-i18n="label_giorni_trasferta">Massimo di giornate per trasferta</label>
+                                <input type="number" id="giorni-trasferta" value="3" min="2" max="30">
                             </div>
                         </div>
                     </div>
                 </div>
 
-
-                <div class="time-settings-body" id="trasferte-body"
-                    style="display: none; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0; margin-bottom: 10px; line-height: 1.4;">
-                        Se abilitate, crea Hub logistici fittizi nelle aree ad alto potenziale più lontane dalla sede,
-                        evitando ritorni giornalieri.</p>
-                    <div class="time-grid-2">
-                        <div class="time-field">
-                            <label for="num-trasferte">Numero Hub</label>
-                            <input type="number" id="num-trasferte" value="1" min="1" max="10">
-                        </div>
-                        <div class="time-field">
-                            <label for="giorni-trasferta">Max gg/Hub</label>
-                            <input type="number" id="giorni-trasferta" value="3" min="1" max="14">
-                        </div>
-                    </div>
-                </div>
-                </div>
-
                 <div class="form-group company-form-group">
-                    <label for="company-select">Azienda</label>
+                    <label for="company-select" data-i18n="label_company">Azienda</label>
                     <div class="select-wrapper">
                         <select id="company-select" required>
-                            <option value="" disabled selected>Prima carica un file Excel/CSV...</option>
+                            <option value="" disabled selected data-i18n="company_select_default">Prima carica un file Excel/CSV...</option>
                         </select>
                     </div>
 
@@ -156,11 +152,11 @@
                     <div id="start-loc-badge" class="start-loc-badge" style="display: none;">
                         <span class="badge-pin">📍</span>
                         <div class="badge-content">
-                            <span class="badge-label">Partenza agente:</span>
+                            <span class="badge-label" data-i18n="agent_departure">Partenza agente:</span>
                             <span id="start-loc-badge-text" class="badge-text"></span>
                         </div>
                         <button type="button" id="badge-edit-btn" class="badge-action-btn"
-                            title="Modifica indirizzo">Modifica</button>
+                            title="Modifica indirizzo" data-i18n="btn_edit">Modifica</button>
                     </div>
 
                     <!-- Card per inserimento o modifica punto di partenza agente -->
@@ -169,32 +165,32 @@
                             <div class="card-title-wrap">
                                 <span class="card-icon">📍</span>
                                 <div>
-                                    <h4 class="card-heading">Punto di Partenza Agente</h4>
+                                    <h4 class="card-heading" data-i18n="card_start_title">Punto di Partenza Agente</h4>
                                     <span id="card-company-tag" class="card-company-tag">Azienda</span>
                                 </div>
                             </div>
                             <button type="button" id="close-start-loc-card" class="card-close-btn"
                                 title="Chiudi scheda">✕</button>
                         </div>
-                        <p class="card-desc">Indica la sede o l'indirizzo da cui parte l'agente per le visite di questa
+                        <p class="card-desc" data-i18n="card_start_desc">Indica la sede o l'indirizzo da cui parte l'agente per le visite di questa
                             azienda:</p>
 
                         <div class="card-field">
-                            <label for="start-address">Via / Indirizzo completo</label>
-                            <input type="text" id="start-address" placeholder="es. Via del Corso 120, Roma">
+                            <label for="start-address" data-i18n="label_start_address">Via / Indirizzo completo</label>
+                            <input type="text" id="start-address" placeholder="es. Via del Corso 120, Roma" data-i18n-placeholder="placeholder_start_address">
                         </div>
 
                         <div class="card-divider">
-                            <span>oppure coordinate GPS</span>
+                            <span data-i18n="or_coords">oppure coordinate GPS</span>
                         </div>
 
                         <div class="card-coords-grid">
                             <div class="card-field">
-                                <label for="start-lat">Latitudine</label>
+                                <label for="start-lat" data-i18n="label_start_lat">Latitudine</label>
                                 <input type="number" id="start-lat" step="any" placeholder="es. 41.9028">
                             </div>
                             <div class="card-field">
-                                <label for="start-lon">Longitudine</label>
+                                <label for="start-lon" data-i18n="label_start_lon">Longitudine</label>
                                 <input type="number" id="start-lon" step="any" placeholder="es. 12.4964">
                             </div>
                         </div>
@@ -203,13 +199,13 @@
 
                         <div class="card-footer">
                             <button type="button" id="save-start-loc-btn" class="btn-save-loc">
-                                <span>Salva Punto di Partenza</span>
+                                <span data-i18n="btn_save_start_loc">Salva Punto di Partenza</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" id="submit-btn">Avvia pianificazione</button>
+                <button type="submit" id="submit-btn" data-i18n="btn_submit">Avvia pianificazione</button>
             </form>
         </aside>
 
@@ -217,52 +213,68 @@
             <div class="kpi-container" id="kpi-container">
                 <div class="kpi-card featured">
                     <div class="kpi-header">
-                        <h3>Fatturato Recuperabile Totale</h3>
+                        <h3 data-i18n="kpi_recovered_title">Fatturato Recuperabile Totale</h3>
                         <span class="company-tag" id="kpi-company-badge">-</span>
                     </div>
                     <div class="kpi-value accent-glow" id="kpi-recovered-revenue">€ 0,00</div>
-                    <div class="kpi-subtitle">Valore stimato visite programmate</div>
+                    <div class="kpi-subtitle" data-i18n="kpi_recovered_sub">Valore stimato visite programmate</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <h3>Fatturato Potenziale Globale</h3>
+                        <h3 data-i18n="kpi_potential_title">Fatturato Potenziale Globale</h3>
                     </div>
                     <div class="kpi-value" id="kpi-potential-revenue">€ 0,00</div>
-                    <div class="kpi-subtitle">Portafoglio totale per <strong id="kpi-company-pot-name">-</strong></div>
+                    <div class="kpi-subtitle"><span data-i18n="kpi_potential_sub_prefix">Portafoglio totale per</span> <strong id="kpi-company-pot-name">-</strong></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <h3>Visite Pianificate</h3>
+                        <h3 data-i18n="kpi_visits_title">Visite Pianificate</h3>
                     </div>
                     <div class="kpi-value" id="kpi-visits">0</div>
-                    <div class="kpi-subtitle">Clienti inseriti nel calendario</div>
+                    <div class="kpi-subtitle" data-i18n="kpi_visits_sub">Clienti inseriti nel calendario</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <h3>Tasso di Recupero</h3>
+                        <h3 data-i18n="kpi_recovery_title">Tasso di Recupero</h3>
                     </div>
                     <div class="kpi-value" id="kpi-recovery-rate">0%</div>
-                    <div class="kpi-subtitle">Fatturato recuperato su potenziale</div>
+                    <div class="kpi-subtitle" data-i18n="kpi_recovery_sub">Fatturato recuperato su potenziale</div>
                 </div>
             </div>
 
             <div id="map-container">
                 <div id="map"></div>
-                <div class="overlay-msg" id="map-overlay">
+                <div class="overlay-msg" id="map-overlay" data-i18n="map_overlay_initial">
                     Mappa Interattiva: Carica il file e seleziona l'azienda da ottimizzare
                 </div>
+                
+                <!-- Overlay Progresso Geocodifica e Ottimizzazione (Design Minimale) -->
+                <div class="progress-overlay" id="progress-overlay" style="display: none;">
+                    <div class="progress-card" id="progress-card">
+                        <div class="progress-spinner-wrap">
+                            <div class="progress-spinner"></div>
+                            <span class="progress-icon" id="progress-icon">📍</span>
+                        </div>
+                        <h4 id="progress-title" data-i18n="progress_geocoding_title">Geocodifica Indirizzi in Corso</h4>
+                        
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="map-legend" id="map-legend" style="display: none;">
-                    <div class="legend-item"><span style="font-size: 14px;">🏠</span> Sede Agente</div>
-                    <div class="legend-item"><span class="legend-dot planned"></span> Visita Programmata</div>
-                    <div class="legend-item"><span class="legend-dot unplanned"></span> Altro Cliente Azienda</div>
+                    <div class="legend-item"><span style="font-size: 14px;">🏠</span> <span data-i18n="legend_depot">Sede Agente</span></div>
+                    <div class="legend-item"><span class="legend-dot planned"></span> <span data-i18n="legend_planned">Visita Programmata</span></div>
+                    <div class="legend-item"><span class="legend-dot unplanned"></span> <span data-i18n="legend_unplanned">Altro Cliente Azienda</span></div>
                 </div>
             </div>
 
             <div class="table-container" id="table-container" style="display: none;">
                 <div class="table-header-flex">
                     <div>
-                        <h3>Agenda Ottimizzata Consigliata</h3>
-                        <div class="table-subtitle" id="table-company-subtitle">Piano visite per l'azienda selezionata
+                        <h3 data-i18n="table_title">Agenda Ottimizzata Consigliata</h3>
+                        <div class="table-subtitle" id="table-company-subtitle" data-i18n="table_subtitle_default">Piano visite per l'azienda selezionata
                         </div>
                     </div>
                 </div>
@@ -270,14 +282,13 @@
                     <table id="schedule-table">
                         <thead>
                             <tr>
-                                <th>Data</th>
-                                <th>Giorno</th>
-                                <th>Orario</th>
-                                <th>Cliente / Ragione Sociale</th>
-                                <th>Gruppo</th>
-                                <th>Città</th>
-                                <th>Indirizzo</th>
-                                <th>Fatturato Stimato</th>
+                                <th data-i18n="th_date">Data</th>
+                                <th data-i18n="th_day">Giorno</th>
+                                <th data-i18n="th_time">Orario</th>
+                                <th data-i18n="th_client">Cliente / Ragione Sociale</th>
+                                <th data-i18n="th_city">Città</th>
+                                <th data-i18n="th_address">Indirizzo</th>
+                                <th data-i18n="th_revenue">Fatturato Stimato</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -288,7 +299,7 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=16"></script>
+    <script src="script.js?v=19"></script>
 </body>
 
 </html>

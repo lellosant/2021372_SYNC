@@ -17,6 +17,309 @@ let availableCompanies = [];
 let uploadedCompanyClients = {};
 let activeScenarioData = null;
 
+// ==========================================
+// INTERNAZIONALIZZAZIONE (i18n) / MULTILINGUA
+// ==========================================
+const TRANSLATIONS = {
+    ITALIANO: {
+        app_title: "GeoAnalytics Planner",
+        sidebar_title: "Parametri di Ottimizzazione",
+        label_dataset: "Carica Dataset (Excel/CSV)",
+        btn_choose_file: "Scegli file",
+        no_file_chosen: "Nessun file selezionato",
+        label_start_date: "Data inizio scenario",
+        label_days: "Giorni Lavorativi a Disposizione",
+        label_hours: "Ore Richieste per Visita",
+        time_settings_tooltip: "Clicca per aprire o chiudere i dettagli di orario e pausa",
+        time_settings_label: "Orari Lavoro & Pausa",
+        time_section_daily: "Orario Giornaliero",
+        label_work_start: "Inizio Lavoro",
+        label_work_end: "Fine Lavoro",
+        time_section_lunch: "Pausa Pranzo Flessibile",
+        label_lunch_earliest: "Inizio Da",
+        label_lunch_latest_start: "Inizio Entro",
+        label_lunch_duration: "Durata Pausa (minuti)",
+        net_work_hours_label: "Ore lavorative nette:",
+        per_day: "h / giorno",
+        trasferte_label: "Pianifica Trasferte remote",
+        trasferte_desc: "Permette di raggiungere località remote dalla base dell'agente pianificandole in più giorni per sostenere il viaggio di andata e ritorno per visitare il cliente lontano dalla sede",
+        label_giorni_trasferta: "Massimo di giornate per trasferta",
+        label_company: "Azienda",
+        company_select_default: "Prima carica un file Excel/CSV...",
+        no_groups_detected: "Nessun gruppo rilevato",
+        agent_departure: "Partenza agente:",
+        btn_edit: "Modifica",
+        card_start_title: "Punto di Partenza Agente",
+        card_start_desc: "Indica la sede o l'indirizzo da cui parte l'agente per le visite di questa azienda:",
+        label_start_address: "Via / Indirizzo completo",
+        placeholder_start_address: "es. Via del Corso 120, Roma",
+        or_coords: "oppure coordinate GPS",
+        label_start_lat: "Latitudine",
+        label_start_lon: "Longitudine",
+        btn_save_start_loc: "Salva Punto di Partenza",
+        btn_submit: "Avvia pianificazione",
+        btn_submit_loading: "Caricamento aziende...",
+        btn_submit_calculating: "Calcolo",
+        kpi_recovered_title: "Fatturato Recuperabile Totale",
+        kpi_recovered_sub: "Valore stimato visite programmate",
+        kpi_potential_title: "Fatturato Potenziale Globale",
+        kpi_potential_sub_prefix: "Portafoglio totale per",
+        kpi_visits_title: "Visite Pianificate",
+        kpi_visits_sub: "Clienti inseriti nel calendario",
+        kpi_recovery_title: "Tasso di Recupero",
+        kpi_recovery_sub: "Fatturato recuperato su potenziale",
+        map_overlay_initial: "Mappa Interattiva: Carica il file e seleziona l'azienda da ottimizzare",
+        map_overlay_optimizing: "Ottimizzazione visite in corso per",
+        legend_depot: "Sede Agente",
+        legend_planned: "Visita Programmata",
+        legend_unplanned: "Altro Cliente Azienda",
+        table_title: "Agenda Ottimizzata Consigliata",
+        table_subtitle_default: "Piano visite per l'azienda selezionata",
+        th_date: "Data",
+        th_day: "Giorno",
+        th_time: "Orario",
+        th_client: "Cliente / Ragione Sociale",
+        th_group: "Gruppo",
+        th_city: "Città",
+        th_address: "Indirizzo",
+        th_revenue: "Fatturato Stimato",
+        no_break: "Nessuna pausa",
+        no_break_lower: "nessuna pausa",
+        break_label: "Pausa",
+        break_label_lower: "pausa",
+        hq_title: "Sede Partenza Agente",
+        gps_coords: "Coordinate GPS:",
+        planned_visit: "Visita Programmata",
+        unplanned_client: "⚪ Cliente non pianificato nel periodo",
+        alert_select_file: "Seleziona prima un file Excel o CSV.",
+        alert_select_company: "Seleziona un'azienda da ottimizzare.",
+        alert_geocode_req_1: "Devi geocodificare un indirizzo di partenza valido (con coordinate) per",
+        alert_geocode_req_2: "prima di continuare. Salvati o ricontrolla la sede di partenza!",
+        alert_addr_or_coords: "Inserisci un indirizzo oppure entrambe le coordinate (Latitudine e Longitudine).",
+        searching_coords: "Ricerca nuove coordinate per",
+        geocoding_in_progress: "Geocodifica in corso... ⏳",
+        acquired: "✓ Acquisito",
+        civic: "Civico",
+        addr_not_found: "Indirizzo non trovato su OpenStreetMap. Inserisci manualmente le coordinate GPS.",
+        geocode_error: "Errore durante la geocodifica della via. Inserisci manualmente le coordinate.",
+        departure_set_for: "Punto di partenza impostato per",
+        departure_click_edit: "(clicca per modificare)",
+        set_departure_for: "Imposta punto di partenza per",
+        progress_geocoding_title: "Geocodifica Indirizzi in Corso",
+        progress_geocoding_desc: "Localizzazione dei punti visita e normalizzazione toponomastica...",
+        progress_optimizing_title: "Ottimizzazione Visite in Corso",
+        progress_optimizing_desc: "Algoritmo ALNS e pianificazione calendario...",
+        progress_initializing: "Inizializzazione...",
+        progress_solving_routes: "Calcolo tragitti e vincoli orari..."
+    },
+    ENGLISH: {
+        app_title: "GeoAnalytics Planner",
+        sidebar_title: "Optimization Parameters",
+        label_dataset: "Upload Dataset (Excel/CSV)",
+        btn_choose_file: "Choose file",
+        no_file_chosen: "No file chosen",
+        label_start_date: "Scenario Start Date",
+        label_days: "Available Business Days",
+        label_hours: "Required Hours per Visit",
+        time_settings_tooltip: "Click to expand or collapse time and break settings",
+        time_settings_label: "Working Hours & Break",
+        time_section_daily: "Daily Schedule",
+        label_work_start: "Work Start",
+        label_work_end: "Work End",
+        time_section_lunch: "Flexible Lunch Break",
+        label_lunch_earliest: "Earliest Start",
+        label_lunch_latest_start: "Latest Start",
+        label_lunch_duration: "Break Duration (minutes)",
+        net_work_hours_label: "Net working hours:",
+        per_day: "h / day",
+        trasferte_label: "Plan Remote Trips",
+        trasferte_desc: "Allows reaching remote locations from the agent base by planning multi-day trips for round trips to distant clients",
+        label_giorni_trasferta: "Max days per trip",
+        label_company: "Company",
+        company_select_default: "Upload an Excel/CSV file first...",
+        no_groups_detected: "No groups detected",
+        agent_departure: "Agent departure:",
+        btn_edit: "Edit",
+        card_start_title: "Agent Departure Point",
+        card_start_desc: "Specify the headquarters or address where the agent departs for visits of this company:",
+        label_start_address: "Street / Full address",
+        placeholder_start_address: "e.g. 10 Downing Street or Via del Corso 120, Rome",
+        or_coords: "or GPS coordinates",
+        label_start_lat: "Latitude",
+        label_start_lon: "Longitude",
+        btn_save_start_loc: "Save Departure Point",
+        btn_submit: "Start Planning",
+        btn_submit_loading: "Loading companies...",
+        btn_submit_calculating: "Calculating",
+        kpi_recovered_title: "Total Recoverable Revenue",
+        kpi_recovered_sub: "Estimated value of planned visits",
+        kpi_potential_title: "Global Potential Revenue",
+        kpi_potential_sub_prefix: "Total portfolio for",
+        kpi_visits_title: "Planned Visits",
+        kpi_visits_sub: "Clients scheduled in calendar",
+        kpi_recovery_title: "Recovery Rate",
+        kpi_recovery_sub: "Recovered revenue over potential",
+        map_overlay_initial: "Interactive Map: Upload file and select company to optimize",
+        map_overlay_optimizing: "Optimizing visits in progress for",
+        legend_depot: "Agent HQ",
+        legend_planned: "Planned Visit",
+        legend_unplanned: "Other Company Client",
+        table_title: "Recommended Optimized Agenda",
+        table_subtitle_default: "Visit plan for the selected company",
+        th_date: "Date",
+        th_day: "Day",
+        th_time: "Time",
+        th_client: "Client / Company Name",
+        th_group: "Group",
+        th_city: "City",
+        th_address: "Address",
+        th_revenue: "Estimated Revenue",
+        no_break: "No break",
+        no_break_lower: "no break",
+        break_label: "Break",
+        break_label_lower: "break",
+        hq_title: "Agent Departure HQ",
+        gps_coords: "GPS Coordinates:",
+        planned_visit: "Planned Visit",
+        unplanned_client: "⚪ Client not planned in this period",
+        alert_select_file: "Please select an Excel or CSV file first.",
+        alert_select_company: "Please select a company to optimize.",
+        alert_geocode_req_1: "You must geocode a valid starting address (with coordinates) for",
+        alert_geocode_req_2: "before continuing. Save or check the departure location!",
+        alert_addr_or_coords: "Please enter an address or both coordinates (Latitude and Longitude).",
+        searching_coords: "Searching new coordinates for",
+        geocoding_in_progress: "Geocoding in progress... ⏳",
+        acquired: "✓ Acquired",
+        civic: "Civic",
+        addr_not_found: "Address not found on OpenStreetMap. Please enter GPS coordinates manually.",
+        geocode_error: "Error during street geocoding. Please enter coordinates manually.",
+        departure_set_for: "Departure point set for",
+        departure_click_edit: "(click to edit)",
+        set_departure_for: "Set departure point for",
+        progress_geocoding_title: "Geocoding Addresses",
+        progress_geocoding_desc: "Localizing visit points and normalizing street names...",
+        progress_optimizing_title: "Route Optimization in Progress",
+        progress_optimizing_desc: "Running ALNS algorithm and schedule planning...",
+        progress_initializing: "Initializing...",
+        progress_solving_routes: "Solving routes & time windows..."
+    }
+};
+
+const DAY_TRANSLATIONS = {
+    'Lunedì': 'Monday',
+    'Martedì': 'Tuesday',
+    'Mercoledì': 'Wednesday',
+    'Giovedì': 'Thursday',
+    'Venerdì': 'Friday',
+    'Sabato': 'Saturday',
+    'Domenica': 'Sunday'
+};
+
+let currentLanguage = localStorage.getItem('geoanalytics_lang') || 'ITALIANO';
+if (currentLanguage !== 'ITALIANO' && currentLanguage !== 'ENGLISH') {
+    currentLanguage = 'ITALIANO';
+}
+
+function t(key) {
+    const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS.ITALIANO;
+    return dict[key] !== undefined ? dict[key] : (TRANSLATIONS.ITALIANO[key] || key);
+}
+
+function formatScheduleDay(dayStr, lang) {
+    if (!dayStr) return '';
+    if (lang !== 'ENGLISH') return dayStr;
+    let res = dayStr;
+    for (const [it, en] of Object.entries(DAY_TRANSLATIONS)) {
+        res = res.replace(it, en);
+    }
+    res = res.replace('Partenza trasferta', 'Trip departure')
+             .replace('partenza trasferta', 'trip departure')
+             .replace(/(\+\d+)gg/, '$1d');
+    return res;
+}
+
+function getCurrencyFormatter() {
+    return new Intl.NumberFormat(currentLanguage === 'ENGLISH' ? 'en-US' : 'it-IT', {
+        style: 'currency',
+        currency: 'EUR'
+    });
+}
+
+function updateFileInputDisplay() {
+    const fileInput = document.getElementById('dataset');
+    const nameSpan = document.getElementById('dataset-name');
+    if (!nameSpan) return;
+
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        nameSpan.textContent = fileInput.files[0].name;
+        nameSpan.classList.add('has-file');
+        nameSpan.removeAttribute('data-i18n');
+    } else {
+        nameSpan.classList.remove('has-file');
+        nameSpan.setAttribute('data-i18n', 'no_file_chosen');
+        nameSpan.textContent = t('no_file_chosen');
+    }
+}
+
+function applyTranslations() {
+    const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS.ITALIANO;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key] !== undefined) {
+            el.textContent = dict[key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key] !== undefined) {
+            el.placeholder = dict[key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        if (dict[key] !== undefined) {
+            el.title = dict[key];
+        }
+    });
+
+    const langSelect = document.getElementById('language-selector');
+    if (langSelect && langSelect.value !== currentLanguage) {
+        langSelect.value = currentLanguage;
+    }
+
+    document.documentElement.lang = (currentLanguage === 'ENGLISH') ? 'en' : 'it';
+
+    updateFileInputDisplay();
+
+    updateTimeSummaryAndCalculations();
+
+    const compSelect = document.getElementById('company-select');
+    if (compSelect && compSelect.value) {
+        updateStartLocationUI(compSelect.value);
+    }
+
+    if (activeScenarioData) {
+        renderScenario(activeScenarioData);
+    } else {
+        const selectedCompany = compSelect ? compSelect.value : null;
+        if (selectedCompany) {
+            renderCompanyClientsOnMap(selectedCompany, false);
+        }
+    }
+}
+
+function setLanguage(lang) {
+    if (lang !== 'ITALIANO' && lang !== 'ENGLISH') return;
+    currentLanguage = lang;
+    try {
+        localStorage.setItem('geoanalytics_lang', lang);
+    } catch (e) {}
+    applyTranslations();
+}
+
 // Palette colori per aziende/gruppi
 const PALETTE = [
     '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6', '#f97316'
@@ -119,18 +422,19 @@ function showStartHouseOnMap(company, address, lat, lon, zoomTo = false) {
         iconAnchor: [20, 20]
     });
 
+    const isEn = (currentLanguage === 'ENGLISH');
     const popupHtml = `
         <div style="font-family:'Inter',sans-serif; min-width:220px; padding:4px;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <span style="font-size:24px;">🏠</span>
                 <div>
-                    <h4 style="margin:0; color:#0f172a; font-size:1rem; font-weight:700;">Sede Partenza Agente</h4>
+                    <h4 style="margin:0; color:#0f172a; font-size:1rem; font-weight:700;">${isEn ? 'Agent Departure HQ' : 'Sede Partenza Agente'}</h4>
                     <span style="font-size:0.75rem; font-weight:700; color:white; padding:2px 8px; border-radius:4px; background:${getCompanyColor(company)};">${company}</span>
                 </div>
             </div>
             ${address ? `<div style="font-size:0.85rem; color:#334155; margin-bottom:6px; font-weight:500;">📍 ${address}</div>` : ''}
             <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:6px 10px; border-radius:8px; font-size:0.8rem; color:#64748b;">
-                Coordinate GPS: <strong style="color:#0f172a;">${latNum.toFixed(5)}, ${lonNum.toFixed(5)}</strong>
+                ${isEn ? 'GPS Coordinates:' : 'Coordinate GPS:'} <strong style="color:#0f172a;">${latNum.toFixed(5)}, ${lonNum.toFixed(5)}</strong>
             </div>
         </div>
     `;
@@ -160,7 +464,7 @@ function renderCompanyClientsOnMap(company, fit = true) {
     markersLayer.clearLayers();
 
     const color = getCompanyColor(company);
-    const formatter = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+    const formatter = getCurrencyFormatter();
 
     clients.forEach(client => {
         if (client.lat === null || client.lon === null || isNaN(client.lat) || isNaN(client.lon)) return;
@@ -263,10 +567,11 @@ function updateStartLocationUI(company) {
     }
 
     const loc = getAgentStartLocation(company);
+    const isEn = (currentLanguage === 'ENGLISH');
     if (loc) {
         if (editBtn) {
             editBtn.classList.add('has-location');
-            editBtn.title = `Punto di partenza impostato per ${company} (clicca per modificare)`;
+            editBtn.title = isEn ? `Departure point set for ${company} (click to edit)` : `Punto di partenza impostato per ${company} (clicca per modificare)`;
         }
         let desc = loc.address;
         if (loc.lat !== null && loc.lon !== null) {
@@ -279,7 +584,7 @@ function updateStartLocationUI(company) {
     } else {
         if (editBtn) {
             editBtn.classList.remove('has-location');
-            editBtn.title = `Imposta punto di partenza per ${company}`;
+            editBtn.title = isEn ? `Set departure point for ${company}` : `Imposta punto di partenza per ${company}`;
         }
         badge.style.display = 'none';
         openStartLocCard(company);
@@ -360,6 +665,7 @@ function getCacheKey(company) {
 
 // Listener cambio file Excel/CSV
 document.getElementById('dataset').addEventListener('change', async (e) => {
+    updateFileInputDisplay();
     const file = e.target.files[0];
     if (!file) return;
 
@@ -369,7 +675,9 @@ document.getElementById('dataset').addEventListener('change', async (e) => {
 
     const submitBtn = document.getElementById('submit-btn');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Caricamento aziende...';
+    submitBtn.textContent = (currentLanguage === 'ENGLISH') ? 'Loading companies...' : 'Caricamento aziende...';
+
+    startProgressPolling('geocoding');
 
     try {
         const response = await fetch(`${API_BASE}/api/upload`, {
@@ -391,8 +699,9 @@ document.getElementById('dataset').addEventListener('change', async (e) => {
     } catch (error) {
         alert(error.message);
     } finally {
+        stopProgressPolling();
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Avvia pianificazione';
+        submitBtn.textContent = (currentLanguage === 'ENGLISH') ? 'Start Planning' : 'Avvia pianificazione';
     }
 });
 
@@ -401,7 +710,7 @@ function populateCompanySelector(companies) {
     mainSelect.innerHTML = '';
 
     if (!companies || companies.length === 0) {
-        mainSelect.innerHTML = '<option value="" disabled selected>Nessun gruppo rilevato</option>';
+        mainSelect.innerHTML = `<option value="" disabled selected>${currentLanguage === 'ENGLISH' ? 'No groups detected' : 'Nessun gruppo rilevato'}</option>`;
         updateStartLocationUI(null);
         return;
     }
@@ -474,9 +783,12 @@ document.getElementById('save-start-loc-btn').addEventListener('click', async ()
     const hasLat = latVal.length > 0 && !isNaN(parseFloat(latVal));
     const hasLon = lonVal.length > 0 && !isNaN(parseFloat(lonVal));
 
+    const isEn = (currentLanguage === 'ENGLISH');
     if (!hasAddress && (!hasLat || !hasLon)) {
         msg.className = 'card-msg error';
-        msg.textContent = 'Inserisci un indirizzo oppure entrambe le coordinate (Latitudine e Longitudine).';
+        msg.textContent = isEn ?
+            'Please enter an address or both coordinates (Latitude and Longitude).' :
+            'Inserisci un indirizzo oppure entrambe le coordinate (Latitudine e Longitudine).';
         msg.style.display = 'block';
         return;
     }
@@ -489,10 +801,10 @@ document.getElementById('save-start-loc-btn').addEventListener('click', async ()
     // Se l'utente ha inserito la via e (è cambiata rispetto all'originale oppure mancano le coordinate), geocodifica sempre!
     if (hasAddress && (isAddressChanged || finalLat === null || finalLon === null)) {
         saveBtn.disabled = true;
-        saveBtn.textContent = 'Geocodifica in corso... ⏳';
+        saveBtn.textContent = isEn ? 'Geocoding in progress... ⏳' : 'Geocodifica in corso... ⏳';
         msg.className = 'card-msg';
         msg.style.display = 'block';
-        msg.textContent = `Ricerca nuove coordinate per "${address}"...`;
+        msg.textContent = isEn ? `Searching coordinates for "${address}"...` : `Ricerca nuove coordinate per "${address}"...`;
 
         try {
             const resp = await fetch(`${API_BASE}/api/geocode?address=${encodeURIComponent(address)}`);
@@ -503,26 +815,28 @@ document.getElementById('save-start-loc-btn').addEventListener('click', async ()
                 latInput.value = finalLat;
                 lonInput.value = finalLon;
                 msg.className = 'card-msg success';
-                const civInfo = geoData.house_number ? ` (Civico ${geoData.house_number}${geoData.house_number_exact ? ' ✓' : ''})` : '';
+                const civWord = isEn ? 'Civic' : 'Civico';
+                const civInfo = geoData.house_number ? ` (${civWord} ${geoData.house_number}${geoData.house_number_exact ? ' ✓' : ''})` : '';
                 const foundDesc = geoData.display_name ? ` - ${geoData.display_name.split(',').slice(0, 2).join(',')}` : '';
-                msg.textContent = `✓ Acquisito${civInfo}: ${finalLat.toFixed(5)}, ${finalLon.toFixed(5)}${foundDesc}`;
+                const acqWord = isEn ? '✓ Acquired' : '✓ Acquisito';
+                msg.textContent = `${acqWord}${civInfo}: ${finalLat.toFixed(5)}, ${finalLon.toFixed(5)}${foundDesc}`;
 
             } else {
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Salva Punto di Partenza';
+                saveBtn.textContent = isEn ? 'Save Departure Point' : 'Salva Punto di Partenza';
                 msg.className = 'card-msg error';
-                msg.textContent = geoData.message || 'Indirizzo non trovato su OpenStreetMap. Inserisci manualmente le coordinate GPS.';
+                msg.textContent = geoData.message || (isEn ? 'Address not found on OpenStreetMap. Please enter GPS coordinates manually.' : 'Indirizzo non trovato su OpenStreetMap. Inserisci manualmente le coordinate GPS.');
                 return;
             }
         } catch (err) {
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Salva Punto di Partenza';
+            saveBtn.textContent = isEn ? 'Save Departure Point' : 'Salva Punto di Partenza';
             msg.className = 'card-msg error';
-            msg.textContent = 'Errore durante la geocodifica della via. Inserisci manualmente le coordinate.';
+            msg.textContent = isEn ? 'Error during street geocoding. Please enter coordinates manually.' : 'Errore durante la geocodifica della via. Inserisci manualmente le coordinate.';
             return;
         } finally {
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Salva Punto di Partenza';
+            saveBtn.textContent = isEn ? 'Save Departure Point' : 'Salva Punto di Partenza';
         }
     }
 
@@ -563,7 +877,12 @@ function updateTimeSummaryAndCalculations() {
     const summaryEl = document.getElementById('time-settings-summary');
     if (summaryEl) {
         const pauseNum = parseInt(pause, 10);
-        const pauseLabel = (!isNaN(pauseNum) && pauseNum === 0) ? 'Nessuna pausa' : `Pausa ${pause}m`;
+        let pauseLabel;
+        if (currentLanguage === 'ENGLISH') {
+            pauseLabel = (!isNaN(pauseNum) && pauseNum === 0) ? 'No break' : `Break ${pause}m`;
+        } else {
+            pauseLabel = (!isNaN(pauseNum) && pauseNum === 0) ? 'Nessuna pausa' : `Pausa ${pause}m`;
+        }
         summaryEl.textContent = `${start} - ${end} • ${pauseLabel}`;
     }
 
@@ -615,11 +934,27 @@ async function loadConfigDefaults() {
 }
 loadConfigDefaults();
 
+function syncMaxGiorniTrasferta() {
+    const daysEl = document.getElementById('days');
+    const trasfertaEl = document.getElementById('giorni-trasferta');
+    if (!daysEl || !trasfertaEl) return;
+    const daysVal = parseInt(daysEl.value, 10);
+    if (!isNaN(daysVal) && daysVal >= 1) {
+        trasfertaEl.max = daysVal;
+        if (parseInt(trasfertaEl.value, 10) > daysVal) {
+            trasfertaEl.value = daysVal;
+        }
+    }
+}
+
 // Se l'utente modifica parametri già precedentemente calcolati in questa sessione, mostra dalla cache
 ['days', 'hours', 'start-date', 'work-start', 'work-end', 'lunch-earliest', 'lunch-latest-start', 'lunch-duration', 'enable-trasferte', 'giorni-trasferta'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('change', () => {
+        if (id === 'days') {
+            syncMaxGiorniTrasferta();
+        }
         updateTimeSummaryAndCalculations();
         const selectedCompany = document.getElementById('company-select').value;
         if (!selectedCompany) return;
@@ -629,35 +964,103 @@ loadConfigDefaults();
         }
     });
     el.addEventListener('input', () => {
+        if (id === 'days') {
+            syncMaxGiorniTrasferta();
+        }
         updateTimeSummaryAndCalculations();
     });
 });
+syncMaxGiorniTrasferta();
 
 document.getElementById('analyze-form').addEventListener('submit', (e) => {
     e.preventDefault();
     performAnalysis();
 });
 
+let progressInterval = null;
+let currentProgressMode = 'geocoding';
+
+function startProgressPolling(mode = 'geocoding') {
+    currentProgressMode = mode;
+    const overlay = document.getElementById('progress-overlay');
+    const barFill = document.getElementById('progress-bar-fill');
+    const title = document.getElementById('progress-title');
+    const icon = document.getElementById('progress-icon');
+
+    if (overlay) overlay.style.display = 'flex';
+
+    if (mode === 'optimizing') {
+        if (icon) icon.textContent = '⚡';
+        if (title) title.textContent = t('progress_optimizing_title');
+        if (barFill) barFill.style.width = '100%';
+    } else {
+        if (icon) icon.textContent = '📍';
+        if (title) title.textContent = t('progress_geocoding_title');
+        if (barFill) barFill.style.width = '0%';
+    }
+
+    if (progressInterval) clearInterval(progressInterval);
+
+    const poll = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/progress`);
+            if (!res.ok) return;
+            const p = await res.json();
+            if (!p.active) return;
+
+            if (currentProgressMode === 'optimizing' || p.stage === 'optimizing') {
+                if (title) title.textContent = t('progress_optimizing_title');
+                if (icon) icon.textContent = '⚡';
+                if (barFill) barFill.style.width = '100%';
+            } else if (p.stage === 'geocoding' && currentProgressMode !== 'optimizing') {
+                if (title) title.textContent = t('progress_geocoding_title');
+                if (icon) icon.textContent = '📍';
+                const total = p.total || 1;
+                const current = p.current || 0;
+                const pct = Math.min(100, Math.round((current / total) * 100));
+                if (barFill) barFill.style.width = `${pct}%`;
+            }
+        } catch (e) {
+            // Polling non-bloccante
+        }
+    };
+
+    poll();
+    progressInterval = setInterval(poll, 250);
+}
+
+function stopProgressPolling() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    const overlay = document.getElementById('progress-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
 async function performAnalysis() {
+    const isEn = (currentLanguage === 'ENGLISH');
     const fileInput = document.getElementById('dataset');
     if (fileInput.files.length === 0) {
-        alert('Seleziona prima un file Excel o CSV.');
+        alert(isEn ? 'Please select an Excel or CSV file first.' : 'Seleziona prima un file Excel o CSV.');
         return;
     }
 
     const companySelect = document.getElementById('company-select');
     const selectedCompany = companySelect.value;
     if (!selectedCompany) {
-        alert('Seleziona un\'azienda da ottimizzare.');
+        alert(isEn ? 'Please select a company to optimize.' : 'Seleziona un\'azienda da ottimizzare.');
         return;
     }
 
     const startLoc = getAgentStartLocation(selectedCompany);
-        if (!startLoc || startLoc.lat === null || startLoc.lon === null) {
+    if (!startLoc || startLoc.lat === null || startLoc.lon === null) {
         openStartLocCard(selectedCompany);
         const msg = document.getElementById('start-loc-msg');
         msg.className = 'card-msg error';
-        msg.textContent = `Devi geocodificare un indirizzo di partenza valido (con coordinate) per ${selectedCompany} prima di continuare. Salvati o ricontrolla la sede di partenza!`;
+        msg.textContent = isEn ?
+            `You must geocode a valid starting address (with coordinates) for ${selectedCompany} before continuing. Save or check the departure location!` :
+            `Devi geocodificare un indirizzo di partenza valido (con coordinate) per ${selectedCompany} prima di continuare. Salvati o ricontrolla la sede di partenza!`;
         msg.style.display = 'block';
         return;
     }
@@ -669,13 +1072,13 @@ async function performAnalysis() {
     }
 
     const btn = document.getElementById('submit-btn');
-    const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = `Calcolo ${selectedCompany}...`;
+    btn.textContent = isEn ? `Calculating ${selectedCompany}...` : `Calcolo ${selectedCompany}...`;
 
     const overlay = document.getElementById('map-overlay');
-    overlay.textContent = `Ottimizzazione visite in corso per ${selectedCompany}...`;
-    overlay.style.display = 'flex';
+    if (overlay) overlay.style.display = 'none';
+
+    startProgressPolling('optimizing');
 
     try {
         const workStart = document.getElementById('work-start')?.value || '09:00';
@@ -715,7 +1118,12 @@ async function performAnalysis() {
         
         if (document.getElementById('enable-trasferte')?.checked) {
             formData.append('enable_trasferte', 'true');
-            formData.append('max_giorni_trasferta', document.getElementById('giorni-trasferta').value);
+            const maxDaysVal = parseInt(document.getElementById('days').value, 10) || 30;
+            let trasfertaVal = parseInt(document.getElementById('giorni-trasferta').value, 10) || 3;
+            if (trasfertaVal > maxDaysVal) {
+                trasfertaVal = maxDaysVal;
+            }
+            formData.append('max_giorni_trasferta', trasfertaVal);
         }
 
         const response = await fetch(`${API_BASE}/api/analyze`, {
@@ -741,9 +1149,9 @@ async function performAnalysis() {
     } catch (error) {
         alert(error.message);
     } finally {
+        stopProgressPolling();
         btn.disabled = false;
-        btn.textContent = 'Avvia pianificazione';
-        if (overlay) overlay.style.display = 'none';
+        btn.textContent = isEn ? 'Start Planning' : 'Avvia pianificazione';
     }
 }
 
@@ -751,7 +1159,8 @@ function renderScenario(data) {
     activeScenarioData = data;
     const comp = data.target_company;
     const kpis = data.kpis || {};
-    const formatter = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+    const formatter = getCurrencyFormatter();
+    const isEn = (currentLanguage === 'ENGLISH');
 
     // 1. Aggiorna KPI Dashboard
     document.getElementById('kpi-company-badge').textContent = comp;
@@ -774,13 +1183,25 @@ function renderScenario(data) {
         lunch_duration_minutes: (lunchDurationInput && lunchDurationInput.value !== '') ? lunchDurationInput.value : 60
     };
     const durMin = parseInt(timeInfo.lunch_duration_minutes, 10);
-    const pauseLabel = (!isNaN(durMin) && durMin === 0) ? 'nessuna pausa' : `pausa ${timeInfo.lunch_duration_minutes}m`;
-    subtitle.innerHTML = `
-        <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
-        <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
-        <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
-        <div>${droppedCount} visite senza coordinate valide</div>
-    `;
+    const pauseLabel = isEn ?
+        ((!isNaN(durMin) && durMin === 0) ? 'no break' : `${timeInfo.lunch_duration_minutes}m break`) :
+        ((!isNaN(durMin) && durMin === 0) ? 'nessuna pausa' : `pausa ${timeInfo.lunch_duration_minutes}m`);
+
+    if (isEn) {
+        subtitle.innerHTML = `
+            <div>Plan for: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
+            <div>Recoverable Revenue: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
+            <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} total visits (Hours: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
+            <div>${droppedCount} visits without valid coordinates</div>
+        `;
+    } else {
+        subtitle.innerHTML = `
+            <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong></div>
+            <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
+            <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
+            <div>${droppedCount} visite senza coordinate valide</div>
+        `;
+    }
 
     // 3. Render Mappa
     markersLayer.clearLayers();
@@ -859,17 +1280,18 @@ function renderScenario(data) {
 
         let statusBadgeHtml = '';
         if (isPlanned) {
+            const formattedDay = formatScheduleDay(point.day, currentLanguage);
             statusBadgeHtml = `
                 <div style="background:#f1f5f9; padding:8px; border-radius:6px; margin-bottom:8px;">
-                    <strong style="color:#0f172a; display:block; margin-bottom:2px; font-size:0.8rem;">Visita Programmata</strong>
-                    <div style="color:#3b82f6; font-weight:600; font-size:0.9rem;">${point.date} (${point.day})</div>
+                    <strong style="color:#0f172a; display:block; margin-bottom:2px; font-size:0.8rem;">${isEn ? 'Planned Visit' : 'Visita Programmata'}</strong>
+                    <div style="color:#3b82f6; font-weight:600; font-size:0.9rem;">${point.date} (${formattedDay})</div>
                     <div style="color:#64748b; font-size:0.82rem;">${point.time}</div>
                 </div>
             `;
         } else {
             statusBadgeHtml = `
                 <div style="background:#f8fafc; border:1px dashed #cbd5e1; padding:6px 8px; border-radius:6px; margin-bottom:8px;">
-                    <span style="color:#64748b; font-size:0.8rem; font-weight:600;">⚪ Cliente non pianificato nel periodo</span>
+                    <span style="color:#64748b; font-size:0.8rem; font-weight:600;">${isEn ? '⚪ Client not planned in this period' : '⚪ Cliente non pianificato nel periodo'}</span>
                 </div>
             `;
         }
@@ -930,15 +1352,15 @@ function renderScenario(data) {
     schedule.forEach(row => {
         const tr = document.createElement('tr');
         const color = getCompanyColor(row['Gruppo'] || comp);
+        const dayFormatted = formatScheduleDay(row['Giorno'], currentLanguage);
         tr.innerHTML = `
-            <td style="font-weight:600;">${row['Data Visita']}</td>
-            <td><span style="background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;font-size:0.8rem;">${row['Giorno']}</span></td>
-            <td><span style="color:#38bdf8;font-weight:600;font-size:0.85rem;">${row['Orario']}</span></td>
+            <td style="font-weight:600; white-space:nowrap;">${row['Data Visita']}</td>
+            <td style="white-space:nowrap;"><span style="background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;font-size:0.8rem;">${dayFormatted}</span></td>
+            <td style="white-space:nowrap;"><span style="color:#38bdf8;font-weight:600;font-size:0.85rem;white-space:nowrap;display:inline-block;letter-spacing:0.02em;">${row['Orario']}</span></td>
             <td><strong>${row['Cliente']}</strong></td>
-            <td><span class="dot" style="background:${color}; margin-right:6px; vertical-align:middle;"></span>${row['Gruppo'] || comp}</td>
             <td>${row['Città']}</td>
             <td><small style="color:#94a3b8;">${row['Indirizzo']}</small></td>
-            <td style="color:var(--accent); font-weight:700;">${formatter.format(row['Fatturato Stimato'])}</td>
+            <td style="color:var(--accent); font-weight:700; white-space:nowrap;">${formatter.format(row['Fatturato Stimato'])}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -952,3 +1374,15 @@ if (enableTrasferte && trasferteBody) {
         trasferteBody.style.display = e.target.checked ? 'block' : 'none';
     });
 }
+
+// Inizializzazione Selettore Lingua
+const langSelectorEl = document.getElementById('language-selector');
+if (langSelectorEl) {
+    langSelectorEl.value = currentLanguage;
+    langSelectorEl.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+    });
+}
+
+// Applica le traduzioni iniziali
+applyTranslations();
