@@ -35,21 +35,25 @@ def _fallback_matrix(coords):
         for i, (lat1, lon1) in enumerate(coords)
     ]
 
-def build_travel_matrix(depot: Location, clients: List[Client]) -> List[List[float]]:
+def build_travel_matrix_with_status(depot: Location, clients: List[Client]):
     coords = [(depot.lat, depot.lon)] + [(c.latitude, c.longitude) for c in clients]
     if not coords:
-        return []
+        return [], False
         
     rounded = tuple((round(lat, 5), round(lon, 5)) for lat, lon in coords)
 
     with _matrix_cache_lock:
         if rounded in _matrix_cache:
-            return _matrix_cache[rounded]
+            return _matrix_cache[rounded], False
+
+    if len(coords) > 100:
+        return _fallback_matrix(coords), "too_large"
 
     coordinate_string = ";".join(f"{lon},{lat}" for lat, lon in rounded)
     query = urllib.parse.urlencode({"annotations": "duration"})
     url = f"{OSRM_BASE_URL}/table/v1/driving/{coordinate_string}?{query}"
 
+    is_fallback = False
     try:
         request = urllib.request.Request(
             url,
@@ -71,10 +75,17 @@ def build_travel_matrix(depot: Location, clients: List[Client]) -> List[List[flo
         ]
     except Exception:
         matrix = _fallback_matrix(coords)
+        is_fallback = True
 
     with _matrix_cache_lock:
-        if len(_matrix_cache) >= 16:
-            _matrix_cache.pop(next(iter(_matrix_cache)))
-        _matrix_cache[rounded] = matrix
+        if not is_fallback:
+            if len(_matrix_cache) >= 16:
+                _matrix_cache.pop(next(iter(_matrix_cache)))
+            _matrix_cache[rounded] = matrix
 
+    return matrix, is_fallback
+
+def build_travel_matrix(depot: Location, clients: List[Client]) -> List[List[float]]:
+    matrix, _ = build_travel_matrix_with_status(depot, clients)
     return matrix
+

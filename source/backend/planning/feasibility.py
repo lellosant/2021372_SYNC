@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Optional
 from .models import Client, LunchConfig, WorkdayConfig, PlanningDay, DayRoute, VisitSchedule
 from .trasferte import evaluate_transfer
 from .config import MIN_TRASFERTA_TRAVEL_MINUTES
@@ -14,10 +14,22 @@ def evaluate_day_route(
     work_end_grace_minutes: int,
     enable_trasferte: bool = False,
     max_giorni_trasferta: int = 1,
-    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES
+    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES,
+    agent_available_minutes: Optional[int] = None
 ) -> DayRoute:
     if enable_trasferte:
-        return evaluate_transfer(client_indices, clients, travel_matrix, day, workday, lunch, work_end_grace_minutes, max_giorni_trasferta, min_trasferta_minutes)
+        return evaluate_transfer(
+            client_indices,
+            clients,
+            travel_matrix,
+            day,
+            workday,
+            lunch,
+            work_end_grace_minutes,
+            max_giorni_trasferta,
+            min_trasferta_minutes=min_trasferta_minutes,
+            agent_available_minutes=agent_available_minutes
+        )
 
     current_minute = workday.start
     lunch_taken = False

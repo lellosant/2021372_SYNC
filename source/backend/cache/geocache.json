@@ -2807,5 +2807,26 @@
     "display_name": "Via Giovanni Pacini, Pinciano, Municipio Roma II, Roma, Roma Capitale, Lazio, 00198, Italia",
     "house_number": "31",
     "house_number_exact": false
+  },
+  "VIA ROMA 1, ROMA, ITALY": {
+    "lat": 41.856085,
+    "lon": 12.6344443,
+    "display_name": "Università degli Studi di Roma Tor Vergata – Facoltà di Medicina e Chirurgia, 1, Torre Gaia, Roma, Roma Capitale, Lazio, Italia",
+    "house_number": "1",
+    "house_number_exact": true
+  },
+  "VIA ROMA 2, ROMA, ITALY": {
+    "lat": 41.8525077,
+    "lon": 12.6247823,
+    "display_name": "Macroarea di Economia – Università di Roma Tor Vergata, 2, Torrenova, Roma, Roma Capitale, Lazio, Italia",
+    "house_number": "2",
+    "house_number_exact": true
+  },
+  "VIA EUDOSSIANA, 18, 00184 ROMA RM, ROMA RM, ITALY": {
+    "lat": 41.8931772,
+    "lon": 12.4929073,
+    "display_name": "Via Eudossiana, 18, Municipio Roma I, Roma, Roma Capitale, Lazio, Italia",
+    "house_number": "18",
+    "house_number_exact": true
   }
 }

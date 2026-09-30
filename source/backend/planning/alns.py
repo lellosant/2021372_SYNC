@@ -6,6 +6,7 @@ from .models import Client, PlanningSolution, WorkdayConfig, LunchConfig
 from .config import PLANNING_TIME_LIMIT_SECONDS, PLANNING_MAX_ITERATIONS, PLANNING_RANDOM_SEED
 from .construction import _find_best_insertion, _get_covered_days
 from .feasibility import evaluate_day_route
+from .trasferte import is_trasferta_trip
 
 def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
     new_solution = copy.deepcopy(solution)
@@ -67,6 +68,17 @@ def repair_greedy(solution: PlanningSolution, removed_clients: List[int], client
     unscheduled = [c.source_index for c in pool if c.id not in solution.scheduled_client_ids]
     candidates.extend(random.sample(unscheduled, min(5, len(unscheduled))))
     
+
+    def is_remote_client(i: int) -> bool:
+        if not enable_trasferte: return False
+        t1 = matrix[0][i+1]
+        t2 = clients[i].service_minutes
+        t3 = matrix[i+1][0]
+        if t1 == float('inf') or t3 == float('inf'): return False
+        return is_trasferta_trip(t1, t2, t3, workday.end - workday.start)
+        
+    candidates.sort(key=lambda i: (1 if is_remote_client(i) else 0, clients[i].revenue), reverse=True)
+
     for client_idx in candidates:
         if clients[client_idx].id in solution.scheduled_client_ids: continue
         client = clients[client_idx]

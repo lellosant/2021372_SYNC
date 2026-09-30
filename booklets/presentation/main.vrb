@@ -13,7 +13,7 @@
         \begin{itemize}\setlength{\itemsep}{2pt}
             \item \textbf{Working time}: 8h/day limit and flexible lunch window.
             \item \textbf{Calendar}: Skips weekends and national holidays.
-            \item \textbf{Transfers}: $>$120 min trip threshold and overnight stays.
+            \item \textbf{Transfers}: Parametric round-trip ($t_{\text{out}} + t_{\text{visit}} + t_{\text{in}} > T_{\text{work}}$).
         \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
@@ -28,4 +28,4 @@
 \end{columns}
 
 \vspace{0.25cm}
-\centering \scriptsize \textit{Automated tests guarantee algorithm correctness and dataset integrity.}
+%\centering \scriptsize \textit{Automated tests guarantee algorithm correctness and dataset integrity.}

@@ -2,6 +2,7 @@ import random
 from typing import List, Tuple, Set
 from .models import Client, PlanningDay, DayRoute, LunchConfig, WorkdayConfig, PlanningSolution
 from .feasibility import evaluate_day_route
+from .trasferte import is_trasferta_trip
 from .config import PLANNING_RANDOM_SEED
 
 def _get_covered_days(routes: List[DayRoute]) -> Set[int]:
@@ -90,11 +91,28 @@ def build_initial_solution(
         
     unassigned = list(range(len(pool)))
     
-    if strategy == "revenue-first" or strategy == "revenue-density-first":
-        unassigned.sort(key=lambda i: pool[i].revenue, reverse=True)
+    available_time = workday.end - workday.start
+    
+    def is_remote_client(i: int) -> bool:
+        if not enable_trasferte: return False
+        t1 = matrix[0][i+1]
+        t2 = pool[i].service_minutes
+        t3 = matrix[i+1][0]
+        if t1 == float('inf') or t3 == float('inf'): return False
+        return is_trasferta_trip(t1, t2, t3, available_time)
+
+    if strategy == "revenue-first":
+        unassigned.sort(key=lambda i: (1 if is_remote_client(i) else 0, pool[i].revenue), reverse=True)
+    elif strategy == "revenue-density-first":
+        def density_key(i: int):
+            rev = pool[i].revenue
+            cost = max(1, matrix[0][i+1] + pool[i].service_minutes + matrix[i+1][0])
+            return (1 if is_remote_client(i) else 0, rev / cost)
+        unassigned.sort(key=density_key, reverse=True)
     elif strategy == "randomized":
         random.seed(PLANNING_RANDOM_SEED)
-        unassigned.sort(key=lambda i: pool[i].revenue, reverse=True)
+        unassigned.sort(key=lambda i: (1 if is_remote_client(i) else 0, pool[i].revenue), reverse=True)
+        # shuffle among remotes vs locals to keep priorities but adds randomness in ALNS repair
         
     scheduled_ids = set()
     

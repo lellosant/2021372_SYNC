@@ -14,7 +14,7 @@ for p in [BACKEND_DIR, SOURCE_DIR]:
 from data_processor import geocode_address, load_geocache, save_geocache
 from planning.models import Location, Client
 from planning.routing import build_travel_matrix, _haversine_minutes
-from planning.config import MIN_TRASFERTA_TRAVEL_MINUTES
+from planning.trasferte import is_trasferta_trip
 
 
 def calculate_travel_time(
@@ -22,11 +22,17 @@ def calculate_travel_time(
     dest_address: str,
     origin_city: str = "",
     dest_city: str = "",
-    cache: dict = None
-) -> dict:
+    cache: dict = None,
+    service_minutes: int = 210,
+    agent_available_minutes: int = 480
+):
     """
-    Calcola il tempo di viaggio tra due indirizzi utilizzando l'algoritmo
-    del sistema (geocodifica OSM/Nominatim con cache + matrice OSRM con fallback Haversine).
+    Calcola il tempo di viaggio tra due indirizzi e verifica parametricamente se è considerata trasferta.
+    È considerato un viaggio se:
+      t1 = tempo per raggiungere il posto (andata)
+      t2 = tempo di durata della visita (service_minutes)
+      t3 = tempo per tornare (ritorno)
+      e t1 + t2 + t3 > tempo a disposizione dell'agente.
     """
     if cache is None:
         cache = load_geocache()
@@ -39,7 +45,6 @@ def calculate_travel_time(
     if lat2 is None or lon2 is None:
         raise ValueError(f"Impossibile geocodificare l'indirizzo di destinazione: '{dest_address} {dest_city}'")
 
-    # Salva in cache eventuali nuovi punti geocodificati
     save_geocache(cache)
 
     depot = Location(lat=lat1, lon=lon1)
@@ -52,32 +57,38 @@ def calculate_travel_time(
         latitude=lat2,
         longitude=lon2,
         revenue=0.0,
-        service_minutes=0,
+        service_minutes=service_minutes,
         cluster_id=None,
         source_index=0
     )
 
-    # Calcolo con l'algoritmo del sistema (OSRM + fallback)
     matrix = build_travel_matrix(depot, [client])
-    travel_minutes = matrix[0][1]
-    return_minutes = matrix[1][0]
+    t1 = matrix[0][1]
+    t2 = float(service_minutes)
+    t3 = matrix[1][0]
+    total_trip_minutes = t1 + t2 + t3
 
-    hours = int(travel_minutes // 60)
-    minutes = int(round(travel_minutes % 60))
+    is_trasferta = is_trasferta_trip(t1, t2, t3, agent_available_minutes)
+
+    hours = int(t1 // 60)
+    minutes = int(round(t1 % 60))
     time_str = f"{hours}h {minutes:02d}m" if hours > 0 else f"{minutes} min"
-
-    is_trasferta = travel_minutes >= MIN_TRASFERTA_TRAVEL_MINUTES
 
     return {
         "origin": f"{origin_address}, {origin_city}".strip(", "),
         "origin_coords": (lat1, lon1),
         "destination": f"{dest_address}, {dest_city}".strip(", "),
         "dest_coords": (lat2, lon2),
-        "travel_time_minutes": round(travel_minutes, 1),
-        "return_time_minutes": round(return_minutes, 1),
+        "travel_time_minutes": round(t1, 1),
+        "return_time_minutes": round(t3, 1),
         "travel_time_human": time_str,
+        "t1_travel_minutes": round(t1, 1),
+        "t2_service_minutes": round(t2, 1),
+        "t3_return_minutes": round(t3, 1),
+        "total_trip_minutes": round(total_trip_minutes, 1),
+        "agent_available_minutes": agent_available_minutes,
         "is_trasferta": is_trasferta,
-        "min_trasferta_threshold": MIN_TRASFERTA_TRAVEL_MINUTES,
+        "calculation_rule": "t1 + t2 + t3 > tempo a disposizione dell'agente",
     }
 
 
@@ -95,11 +106,11 @@ def test_short_trip_intra_city():
     )
     assert res["travel_time_minutes"] > 0
     assert res["travel_time_minutes"] < 60
-    assert not res["is_trasferta"], "Un tragitto cittadino breve non deve essere trasferta"
+    assert not res["is_trasferta"], "Un tragitto cittadino breve (t1+t2+t3 <= tempo agente) non deve essere trasferta"
 
 
 def test_medium_trip_trasferta():
-    """Tratta media: Roma -> Napoli (> 120 min)"""
+    """Tratta media: Roma -> Napoli (t1 + t2 + t3 > tempo agente)"""
     res = calculate_travel_time(
         origin_address="Roma",
         origin_city="Roma",
@@ -107,11 +118,11 @@ def test_medium_trip_trasferta():
         dest_city="Napoli"
     )
     assert res["travel_time_minutes"] > 60
-    assert res["is_trasferta"], f"Roma -> Napoli ({res['travel_time_minutes']} min) deve essere trasferta (> {res['min_trasferta_threshold']} min)"
+    assert res["is_trasferta"], f"Roma -> Napoli ({res['total_trip_minutes']} min) deve essere trasferta (> {res['agent_available_minutes']} min)"
 
 
 def test_long_trip_trasferta():
-    """Tratta lunga: Roma -> Milano (> 120 min)"""
+    """Tratta lunga: Roma -> Milano (t1 + t2 + t3 > tempo agente)"""
     res = calculate_travel_time(
         origin_address="Piazza del Colosseo 1",
         origin_city="Roma",
@@ -145,11 +156,15 @@ if __name__ == "__main__":
         print("  CALCOLO TEMPO DI VIAGGIO (ALGORITMO SISTEMA)")
         print("=" * 60)
         res = calculate_travel_time(args.origin, args.destination)
-        print(f" Partenza:      {res['origin']} {res['origin_coords']}")
-        print(f" Destinazione:  {res['destination']} {res['dest_coords']}")
-        print(f" Tempo andata:  {res['travel_time_human']} ({res['travel_time_minutes']} min)")
-        print(f" Tempo ritorno: {res['return_time_minutes']} min")
-        print(f" Trasferta:     {'SÌ (+1 gg / trasferta)' if res['is_trasferta'] else 'NO (entro soglia)'} (Soglia: {res['min_trasferta_threshold']} min)")
+        print(f" Partenza:           {res['origin']} {res['origin_coords']}")
+        print(f" Destinazione:       {res['destination']} {res['dest_coords']}")
+        print(f" Tempo andata (t1):  {res['travel_time_human']} ({res['travel_time_minutes']} min)")
+        print(f" Tempo visita (t2):  {res['t2_service_minutes']} min")
+        print(f" Tempo ritorno (t3): {res['t3_return_minutes']} min")
+        print(f" Totale t1+t2+t3:    {res['total_trip_minutes']} min")
+        print(f" Tempo disponibile:  {res['agent_available_minutes']} min")
+        print(f" Trasferta:          {'SÌ (+1 gg / trasferta)' if res['is_trasferta'] else 'NO (entro giornata)'}")
+        print(f" Regola:             {res['calculation_rule']}")
         print("=" * 60 + "\n")
     else:
         print("\n" + "=" * 60)
@@ -159,25 +174,25 @@ if __name__ == "__main__":
         # 1. Tratta urbana
         print("\n[1/3] Tratta urbana: Roma Colosseo -> Roma Piazza di Spagna")
         res1 = calculate_travel_time("Piazza del Colosseo 1", "Piazza di Spagna", "Roma", "Roma")
-        print(f"  -> Tempo: {res1['travel_time_human']} ({res1['travel_time_minutes']} min)")
+        print(f"  -> Andata (t1): {res1['travel_time_human']} ({res1['travel_time_minutes']} min), Totale: {res1['total_trip_minutes']} min")
         print(f"  -> Trasferta: {res1['is_trasferta']}")
         assert not res1["is_trasferta"]
 
         # 2. Tratta media
         print("\n[2/3] Tratta media: Roma -> Napoli")
         res2 = calculate_travel_time("Roma", "Napoli", "Roma", "Napoli")
-        print(f"  -> Tempo: {res2['travel_time_human']} ({res2['travel_time_minutes']} min)")
+        print(f"  -> Andata (t1): {res2['travel_time_human']} ({res2['travel_time_minutes']} min), Totale: {res2['total_trip_minutes']} min")
         print(f"  -> Trasferta: {res2['is_trasferta']}")
         assert res2["is_trasferta"]
 
         # 3. Tratta lunga
         print("\n[3/3] Tratta lunga: Roma -> Milano")
         res3 = calculate_travel_time("Piazza del Colosseo 1", "Piazza del Duomo", "Roma", "Milano")
-        print(f"  -> Tempo: {res3['travel_time_human']} ({res3['travel_time_minutes']} min)")
+        print(f"  -> Andata (t1): {res3['travel_time_human']} ({res3['travel_time_minutes']} min), Totale: {res3['total_trip_minutes']} min")
         print(f"  -> Trasferta: {res3['is_trasferta']}")
         assert res3["is_trasferta"]
 
-        # 4. Fallback test
+        # 4. Fallback accuracy
         test_haversine_fallback_accuracy()
 
         print("\n" + "=" * 60)

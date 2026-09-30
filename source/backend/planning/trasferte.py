@@ -1,7 +1,25 @@
 import math
-from typing import List
+from typing import List, Optional
 from .models import Client, LunchConfig, WorkdayConfig, PlanningDay, DayRoute, VisitSchedule
 from .config import MIN_TRASFERTA_TRAVEL_MINUTES
+
+
+def is_trasferta_trip(
+    t1: float,
+    t2: float,
+    t3: float,
+    available_time: float
+) -> bool:
+    """
+    Calcola se una destinazione è considerata un viaggio / trasferta:
+    è considerato un viaggio se:
+      t1 = tempo per raggiungere il posto (depot -> client)
+      t2 = tempo di durata della visita (service_minutes)
+      t3 = tempo per tornare (client -> depot)
+      e t1 + t2 + t3 > tempo a disposizione dell'agente.
+    """
+    return (t1 + t2 + t3) > available_time
+
 
 def evaluate_transfer(
     client_indices: List[int],
@@ -12,7 +30,8 @@ def evaluate_transfer(
     lunch: LunchConfig,
     work_end_grace_minutes: int,
     max_giorni_trasferta: int,
-    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES
+    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES,
+    agent_available_minutes: Optional[int] = None
 ) -> DayRoute:
     current_day = 1
     current_minute = workday.start
@@ -125,11 +144,24 @@ def evaluate_transfer(
                  return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [], 1)
 
     if current_day > 1:
-        # A multi-day transfer is only justified if at least one client is truly remote from the depot (> 120 min travel).
-        # If all clients are within 120 min of the depot, it should be scheduled as separate local days,
-        # not as a multi-day hotel stay / trasferta.
-        max_dist_from_depot = max(travel_matrix[0][i + 1] for i in client_indices) if client_indices else 0
-        if max_dist_from_depot <= min_trasferta_minutes:
+        # Una trasferta multi-giorno (+1gg) è giustificata solo se almeno un cliente
+        # costituisce effettivamente un viaggio (t1 + t2 + t3 > tempo a disposizione dell'agente).
+        # Se per tutti i clienti t1 + t2 + t3 <= tempo a disposizione, le visite devono
+        # essere pianificate come giornate locali separate e non come trasferta con pernottamento.
+        available_time = agent_available_minutes if agent_available_minutes is not None else (workday.end - workday.start)
+
+        has_remote_trip = False
+        if client_indices:
+            for idx in client_indices:
+                target_idx = idx + 1
+                t1 = travel_matrix[0][target_idx]
+                t2 = clients[idx].service_minutes
+                t3 = travel_matrix[target_idx][0]
+                if is_trasferta_trip(t1, t2, t3, available_time):
+                    has_remote_trip = True
+                    break
+
+        if not has_remote_trip:
             return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [], 1)
                  
     return DayRoute(day, client_ids, client_indices.copy(), True, revenue, travel_minutes, current_minute, visits, current_day)

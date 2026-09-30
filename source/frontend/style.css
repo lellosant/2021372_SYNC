@@ -22,7 +22,7 @@ body {
 }
 
 header {
-    padding: 1.25rem 2.5rem;
+    padding: 1rem 2rem;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -107,9 +107,9 @@ header h1 {
 
 main {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 2rem;
-    padding: 2.5rem;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+    padding: 2rem;
     flex: 1;
 }
 
@@ -256,7 +256,7 @@ button {
 button:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5); }
 button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; transform: none; }
 
-.content { display: flex; flex-direction: column; gap: 2rem; }
+.content { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
 
 .select-wrapper { position: relative; width: 100%; }
 select {
@@ -391,8 +391,8 @@ select:focus { border-color: var(--primary); }
 .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
 .table-scroll { overflow-x: auto; max-height: 450px; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.85rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
-th { position: sticky; top: 0; background: #1e293b; font-weight: 600; color: #94a3b8; font-size: 0.82rem; text-transform: uppercase; z-index: 10; white-space: nowrap; }
+th, td { padding: 0.6rem 0.4rem; text-align: left; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+th { position: sticky; top: 0; background: #1e293b; font-weight: 600; color: #94a3b8; font-size: 0.82rem; text-transform: uppercase; z-index: 10; white-space: normal; }
 tr:hover td { background: rgba(255,255,255,0.03); }
 
 #schedule-table td:nth-child(1),
@@ -402,7 +402,6 @@ tr:hover td { background: rgba(255,255,255,0.03); }
     white-space: nowrap;
 }
 #schedule-table td:nth-child(3) {
-    min-width: 120px;
     letter-spacing: 0.02em;
 }
 

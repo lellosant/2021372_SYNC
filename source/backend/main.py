@@ -175,11 +175,23 @@ async def get_config():
     }
 
 
-@app.get("/api/travel-time", tags=["Routing"], summary="Calcolo tempo di viaggio tra due indirizzi", description="Calcola il tempo di percorrenza tra due indirizzi con l'algoritmo del sistema (OSRM + fallback Haversine) e verifica se è qualificata come trasferta.")
-async def travel_time_endpoint(origin: str, destination: str):
+@app.get("/api/travel-time", tags=["Routing"], summary="Calcolo tempo di viaggio tra due indirizzi", description="Calcola il tempo di percorrenza tra due indirizzi con l'algoritmo del sistema (OSRM + fallback Haversine) e verifica parametricamente se è considerata trasferta (t1 + t2 + t3 > tempo agente).")
+async def travel_time_endpoint(
+    origin: str,
+    destination: str,
+    visit_hours: float = 3.5,
+    work_hours: float = 8.0
+):
     try:
         from test.test_travel_time import calculate_travel_time
-        res = calculate_travel_time(origin, destination)
+        service_minutes = int(round(visit_hours * 60))
+        agent_available_minutes = int(round(work_hours * 60))
+        res = calculate_travel_time(
+            origin,
+            destination,
+            service_minutes=service_minutes,
+            agent_available_minutes=agent_available_minutes
+        )
         return res
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -386,6 +398,8 @@ async def analyze_data(
         "days": days,
         "start_date": start_date,
         "kpis": {
+            "is_fallback": getattr(schedule_df, 'attrs', {}).get('is_fallback', False),
+            "total_days_spanned": getattr(schedule_df, 'attrs', {}).get('total_days_spanned', 0),
             "company_potential": company_potential,
             "recovered_revenue": recovered_revenue,
             "visits": visits_count,
@@ -422,14 +436,16 @@ async def analyze_data(
         }
     }
 
-    _scenario_memory_cache[cache_key] = response_payload
-    try:
-        with open(cache_path, "w", encoding="utf-8") as f:
-            json.dump(response_payload, f, ensure_ascii=False)
-    except Exception as e:
-        logger.warning(f"Errore scrittura cache disco: {e}")
-    finally:
-        set_progress_status(False, "idle")
+    # Salva in cache se andato a buon fine O se il fallback è intenzionale per via del limite
+    is_fallback = response_payload["kpis"].get("is_fallback", False)
+    if is_fallback in (False, "too_large"):
+        _scenario_memory_cache[cache_key] = response_payload
+        try:
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(response_payload, f, ensure_ascii=False)
+        except Exception as e:
+            logger.warning(f"Errore scrittura cache disco: {e}")
+    set_progress_status(False, "idle")
 
     return response_payload
 
@@ -437,4 +453,3 @@ async def analyze_data(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

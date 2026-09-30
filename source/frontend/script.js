@@ -161,7 +161,7 @@ const TRANSLATIONS = {
         kpi_recovery_sub: "Recovered revenue over potential",
         map_overlay_initial: "Interactive Map: Upload file and select company to optimize",
         map_overlay_optimizing: "Optimizing visits in progress for",
-        legend_depot: "Agent HQ",
+        legend_depot: "Agent Departure",
         legend_planned: "Planned Visit",
         legend_unplanned: "Other Company Client",
         table_title: "Recommended Optimized Agenda",
@@ -178,7 +178,7 @@ const TRANSLATIONS = {
         no_break_lower: "no break",
         break_label: "Break",
         break_label_lower: "break",
-        hq_title: "Agent Departure HQ",
+        hq_title: "Agent Departure",
         gps_coords: "GPS Coordinates:",
         planned_visit: "Planned Visit",
         unplanned_client: "⚪ Client not planned in this period",
@@ -428,7 +428,7 @@ function showStartHouseOnMap(company, address, lat, lon, zoomTo = false) {
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <span style="font-size:24px;">🏠</span>
                 <div>
-                    <h4 style="margin:0; color:#0f172a; font-size:1rem; font-weight:700;">${isEn ? 'Agent Departure HQ' : 'Sede Partenza Agente'}</h4>
+                    <h4 style="margin:0; color:#0f172a; font-size:1rem; font-weight:700;">${isEn ? 'Agent Departure' : 'Sede Partenza Agente'}</h4>
                     <span style="font-size:0.75rem; font-weight:700; color:white; padding:2px 8px; border-radius:4px; background:${getCompanyColor(company)};">${company}</span>
                 </div>
             </div>
@@ -454,6 +454,8 @@ function showStartHouseOnMap(company, address, lat, lon, zoomTo = false) {
 function renderCompanyClientsOnMap(company, fit = true) {
     if (!company) {
         markersLayer.clearLayers();
+    window.renderedMapMarkers = [];
+    if(window.lastHighlightedRow) { window.lastHighlightedRow.style.backgroundColor = ''; window.lastHighlightedRow = null; }
         showStartHouseOnMap(null, null, null, null);
         const legend = document.getElementById('map-legend');
         if (legend) legend.style.display = 'none';
@@ -462,6 +464,8 @@ function renderCompanyClientsOnMap(company, fit = true) {
 
     const clients = uploadedCompanyClients[company] || [];
     markersLayer.clearLayers();
+    window.renderedMapMarkers = [];
+    if(window.lastHighlightedRow) { window.lastHighlightedRow.style.backgroundColor = ''; window.lastHighlightedRow = null; }
 
     const color = getCompanyColor(company);
     const formatter = getCurrencyFormatter();
@@ -555,6 +559,8 @@ function updateStartLocationUI(company) {
         card.style.display = 'none';
         showStartHouseOnMap(null, null, null, null);
         markersLayer.clearLayers();
+    window.renderedMapMarkers = [];
+    if(window.lastHighlightedRow) { window.lastHighlightedRow.style.backgroundColor = ''; window.lastHighlightedRow = null; }
         const legend = document.getElementById('map-legend');
         if (legend) legend.style.display = 'none';
         return;
@@ -941,12 +947,6 @@ function syncMaxGiorniTrasferta() {
     const daysVal = parseInt(daysEl.value, 10);
     if (!isNaN(daysVal) && daysVal >= 1) {
         trasfertaEl.max = daysVal;
-        let curr = parseInt(trasfertaEl.value, 10);
-        if (isNaN(curr) || curr < 1) {
-            trasfertaEl.value = Math.min(3, daysVal);
-        } else if (curr > daysVal) {
-            trasfertaEl.value = daysVal;
-        }
     }
 }
 
@@ -1211,6 +1211,8 @@ function renderScenario(data) {
             <div>Plan for: <strong style="color:${getCompanyColor(comp)}">${comp}</strong> (${daysCount} work days)</div>
             <div>Recoverable Revenue: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
             <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} total visits (Hours: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
+            <div>Actual Calendar Span: <strong>${kpis.total_days_spanned || 0} days</strong> utilized to schedule all visits</div>
+            ${kpis.is_fallback === true ? '<div style="color: #ef4444; margin-top: 5px; font-weight: 600;"><span style="font-size:1.1rem;">⚠️</span> INACCURATE TRAVEL DETAILS DUE TO MISSING CONNECTION TO OSRM SERVER</div>' : ''}
             <div>${droppedCount} visits without valid coordinates</div>
         `;
     } else {
@@ -1218,12 +1220,16 @@ function renderScenario(data) {
             <div>Piano per: <strong style="color:${getCompanyColor(comp)}">${comp}</strong> (${daysCount} giorni lavorativi)</div>
             <div>Fatturato Recuperabile: <strong>${formatter.format(kpis.recovered_revenue || 0)}</strong></div>
             <div>${kpis.visits || 0}/${kpis.geocoded_clients || 0} visite totali (Orario: <strong>${timeInfo.work_start} - ${timeInfo.work_end}</strong>, ${pauseLabel})</div>
+            <div>Occupazione Calendario: <strong>${kpis.total_days_spanned || 0} giornate</strong> effettivamente necessarie per schedulare tutto</div>
+            ${kpis.is_fallback === true ? '<div style="color: #ef4444; margin-top: 5px; font-weight: 600;"><span style="font-size:1.1rem;">⚠️</span> DETTAGLI DI VIAGGIO NON ACCURATI POICHÉ CONNESSIONE AL SERVER OSRM ASSENTE</div>' : ''}
             <div>${droppedCount} visite senza coordinate valide</div>
         `;
     }
 
     // 3. Render Mappa
     markersLayer.clearLayers();
+    window.renderedMapMarkers = [];
+    if(window.lastHighlightedRow) { window.lastHighlightedRow.style.backgroundColor = ''; window.lastHighlightedRow = null; }
     const mapPoints = data.map_points || [];
 
     // Assicura che anche tutti gli altri clienti dell'azienda presenti nel file siano visualizzati sulla mappa
@@ -1330,9 +1336,14 @@ function renderScenario(data) {
             </div>
         `;
 
-        L.marker([point.lat, point.lon], { icon, zIndexOffset: zIndex })
+        const marker = L.marker([point.lat, point.lon], { icon, zIndexOffset: zIndex })
             .bindPopup(popupContent)
             .addTo(markersLayer);
+            
+        marker.clientName = point.name;
+        marker.originalIcon = icon;
+        marker.originalZIndex = zIndex;
+        window.renderedMapMarkers.push(marker);
     });
 
     const legend = document.getElementById('map-legend');
@@ -1388,6 +1399,43 @@ function renderScenario(data) {
             <td><small style="color:#94a3b8;">${row['Indirizzo']}</small></td>
             <td style="color:var(--accent); font-weight:700; white-space:nowrap;">${formatter.format(row['Fatturato Stimato'])}</td>
         `;
+        
+        tr.style.cursor = 'pointer';
+        tr.title = isEn ? "Click to view on map" : "Clicca per mostrare sulla mappa";
+        tr.addEventListener('click', () => {
+            // Restore previous row
+            if(window.lastHighlightedRow) {
+                window.lastHighlightedRow.style.backgroundColor = '';
+            }
+            tr.style.backgroundColor = 'rgba(59, 130, 246, 0.15)';
+            window.lastHighlightedRow = tr;
+        
+            // Restore previous markers
+            window.renderedMapMarkers.forEach(m => {
+                if (m.isHighlighted) {
+                    m.setIcon(m.originalIcon);
+                    m.setZIndexOffset(m.originalZIndex);
+                    m.isHighlighted = false;
+                }
+            });
+            
+            // Highlight selected
+            const target = window.renderedMapMarkers.find(m => m.clientName === row['Cliente']);
+            if (target) {
+                const highlightIcon = L.divIcon({
+                    html: '<div style="width: 22px; height: 22px; border-radius: 50%; background: #facc15; border: 3px solid white; display: inline-block; box-shadow: 0 0 16px rgba(250, 204, 21, 0.8);"></div>',
+                    className: 'custom-marker',
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11]
+                });
+                target.setIcon(highlightIcon);
+                target.setZIndexOffset(9999);
+                target.isHighlighted = true;
+                target.openPopup();
+                map.panTo(target.getLatLng());
+            }
+        });
+        
         tbody.appendChild(tr);
     });
 }

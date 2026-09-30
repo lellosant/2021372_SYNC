@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  30 SEP 2026 00:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  30 SEP 2026 11:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -918,18 +918,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 25730 strings out of 469006
- 509398 string characters out of 5454813
- 873627 words of memory out of 5000000
- 53794 multiletter control sequences out of 15000+600000
- 698929 words of font info for 105 fonts, out of 8000000 for 9000
+ 25734 strings out of 469006
+ 509552 string characters out of 5454813
+ 873629 words of memory out of 5000000
+ 53798 multiletter control sequences out of 15000+600000
+ 699235 words of font info for 105 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
  101i,13n,107p,474b,985s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </Users/leo/Library/texlive/2026basic/texmf-var/fonts/pk/ljfour/jknappen/ec/tctt1095.600pk></usr/local/texlive/2026basic/texmf-dist/fonts/type1/huerta/caladea/Caladea-Italic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Bold.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-BoldItalic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Italic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Regular.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on main.pdf (17 pages, 1501420 bytes).
+ </Users/leo/Library/texlive/2026basic/texmf-var/fonts/pk/ljfour/jknappen/ec/tctt1095.600pk></usr/local/texlive/2026basic/texmf-dist/fonts/type1/huerta/caladea/Caladea-Italic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Bold.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-BoldItalic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Italic.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/google/carlito/Crlt-Regular.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on main.pdf (17 pages, 1510472 bytes).
 PDF statistics:
- 199 PDF objects out of 1000 (max. 8388607)
- 134 compressed objects within 2 object streams
+ 204 PDF objects out of 1000 (max. 8388607)
+ 137 compressed objects within 2 object streams
  35 named destinations out of 1000 (max. 500000)
  79 words of extra memory for PDF output out of 10000 (max. 10000000)
 
