@@ -1,55 +1,41 @@
-\begin{frame}[fragile]{Real Optimizer Code - Repair}
+\begin{frame}[fragile]{ALNS - Repair}
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.48\textwidth}
-\begin{block}{\texttt{alns.py}}
+\begin{column}{0.50\textwidth}
+\begin{block}{\texttt{alns.py} \& \texttt{construction.py}}
 \scriptsize
 \begin{verbatim}
-for client_idx in candidates:
-    # Skips if already scheduled
+# Best insertion scoring logic
+for day, pos in feasible_slots:
+    extra = new_r.travel - r.travel
+    score = c.revenue / max(1, extra)
     
-    insertion = _find_best_insertion(...)
-    
-    if insertion:
-        d_idx, pos, route, _ = insertion
-        solution.day_routes[d_idx] = route
-        solution.scheduled_ids.add(...)
+    if shares_cluster:
+        score *= 1.10  # Compactness
+
+    if score > best_score:
+        best_slot = (day, pos)
 \end{verbatim}
 \end{block}
 \end{column}
 
-\begin{column}{0.48\textwidth}
+\begin{column}{0.46\textwidth}
+\vspace{0.15cm}
 \footnotesize
-\textbf{Candidate visit} (removed or unscheduled)
-
-\vspace{0.1cm}
-\centering $\downarrow$
-
-\vspace{0.1cm}
-\raggedright
-\textbf{Try feasible positions across all days}
-\begin{itemize}
-    \item Day 1 - Position 1\\
-    \textcolor{red}{Not feasible (time/lunch)}
-    
-    \vspace{0.1cm}
-    \item Day 1 - Position 2\\
-    \textcolor{green!60!black}{Feasible}
-    
-    \vspace{0.1cm}
-    \item Day 2 - Position 1\\
-    \textcolor{green!60!black}{\textbf{Feasible and better}}
-\end{itemize}
-
-\vspace{0.1cm}
-\centering $\downarrow$
-
-\vspace{0.1cm}
-\raggedright
-\textbf{Choose the best feasible position}
+\begin{enumerate}
+    \item \textbf{Candidate Selection}\\
+    Removed visits + unscheduled accounts.
+    \vspace{0.2cm}
+    \item \textbf{Feasibility Filter}\\
+    Enforces work hours, lunch, and transfers.
+    \vspace{0.2cm}
+    \item \textbf{Greedy Slot Assignment}\\
+    Maximizes $\Delta\text{Revenue} / \Delta\text{Travel Time}$.
+\end{enumerate}
+\end{column}
+\end{columns}
 
 \vspace{0.3cm}
 \footnotesize
-\texttt{\_find\_best\_insertion} maximizes marginal revenue per added travel minute.
-\end{column}
-\end{columns}
+\textbf{Goal:}\\
+\textbf{Rebuilds dense, high-yield routes} by prioritizing clients that bring maximum revenue for minimal extra driving time.
 \end{frame}

@@ -1,31 +1,25 @@
-\frametitle{Testing \& Automated Verification}
-\begin{block}{Test Suite Execution (14 Unit Tests)}
-\texttt{\$ pytest -q}\\
-\texttt{..............} \hfill \texttt{[100\%]}\\
-\texttt{14 passed in 8.24s}
+\frametitle{Testing}
+\begin{block}{Test Execution}
+\texttt{\$ python3 -m pytest -q source/test}\\
+\texttt{......}\\
+\texttt{6 passed}
 \end{block}
 
 \vspace{0.2cm}
-\begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-        \footnotesize
-        \textbf{Planner \& Scheduling (6 tests)}
-        \begin{itemize}\setlength{\itemsep}{2pt}
-            \item \textbf{Working time}: 8h/day limit and flexible lunch window.
-            \item \textbf{Calendar}: Skips weekends and national holidays.
-            \item \textbf{Transfers}: Parametric round-trip ($t_{\text{out}} + t_{\text{visit}} + t_{\text{in}} > T_{\text{work}}$).
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-        \footnotesize
-        \textbf{Geocoding \& Routing (8 tests)}
-        \begin{itemize}\setlength{\itemsep}{2pt}
-            \item \textbf{Civic numbers}: Exact house number parsing and local caching.
-            \item \textbf{Travel time}: OSRM matrix with Haversine fallback.
-            \item \textbf{Feasibility}: Recheck all constraints on final schedule.
-        \end{itemize}
-    \end{column}
-\end{columns}
+\footnotesize
+\textbf{1. Daily capacity}\\
+Four 2-hour visits fit in one working day when travel time is zero.
+
+\vspace{0.15cm}
+\textbf{2. Weekend rule}\\
+Saturday is moved to the next working day.
+
+\vspace{0.15cm}
+\textbf{3. National holidays}\\
+Christmas and Easter Monday are skipped.
+
+\vspace{0.15cm}
+\textbf{4. Transfer logic}\\
+A nearby client is not treated as a transfer, while a distant client is.
 
 \vspace{0.25cm}
-%\centering \scriptsize \textit{Automated tests guarantee algorithm correctness and dataset integrity.}
