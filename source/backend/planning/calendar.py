@@ -35,10 +35,7 @@ def _resolve_config_path() -> str | None:
     return None
 
 def load_fixed_holidays(config_path: str = None) -> set[tuple[int, int]]:
-    """
-    Carica i giorni festivi fissi da feste.config (formato GG/MM).
-    Rileva automaticamente le modifiche al file (hot-reload).
-    """
+    """Load fixed national holidays from feste.config with file-mtime hot reloading."""
     global _cached_holidays, _last_mtime
     path = config_path or _resolve_config_path()
     if not path or not os.path.isfile(path):
@@ -60,7 +57,7 @@ def load_fixed_holidays(config_path: str = None) -> set[tuple[int, int]]:
                         parts = [p.strip() for p in line.split(sep) if p.strip()]
                         if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
                             val1, val2 = int(parts[0]), int(parts[1])
-                            # Formato GG/MM: val1 = giorno, val2 = mese
+                            # Handle DD/MM or MM/DD input formats
                             if val1 > 12:
                                 holidays.add((val2, val1))
                             elif val2 > 12:
@@ -78,6 +75,7 @@ def load_fixed_holidays(config_path: str = None) -> set[tuple[int, int]]:
 
 
 def _easter_sunday(year):
+    # Anonymous Gregorian algorithm (Meeus/Jones/Butcher)
     a = year % 19; b = year // 100; c = year % 100
     d = b // 4; e = b % 4; f = (b + 8) // 25
     g = (b - f + 1) // 3; h = (19 * a + b - d - g + 15) % 30
@@ -118,31 +116,24 @@ def get_day_weight(day) -> float:
     import datetime
     weight = 1.0
     
-    # Calcola i giorni di distanza dal prossimo giorno non lavorativo (festa o weekend)
+    # Distance in days to the next non-working day (weekend or holiday)
     distance = 1
     while is_business_day(day + datetime.timedelta(days=distance)):
         distance += 1
-        # Fallback di sicurezza
         if distance > 7:
             break
             
-    # Incremento progressivo: più è vicino, più il peso aumenta
-    # distance=1 (vigilia) -> +0.4
-    # distance=2 -> +0.3
-    # distance=3 -> +0.2
-    # distance=4 -> +0.1
-    # distance>=5 -> nessuna aggiunta per il fine settimana
+    # Priority boost closer to weekends and holidays (e.g. Fridays / holiday eves)
+    # distance=1 (eve) -> +0.4, distance=2 -> +0.3, distance=3 -> +0.2, distance=4 -> +0.1
     if distance < 5:
         weight += 0.5 - (0.1 * distance)
         
-    # Fine estate (parametrico con valori di default in caso di errore)
+    # Late summer commercial rush boost (default window: Aug 20 - Sep 15)
     try:
         from backend.planning.config import (
             SUMMER_END_START_MONTH, SUMMER_END_START_DAY,
             SUMMER_END_END_MONTH, SUMMER_END_END_DAY
         )
-        
-        # Protezione addizionale nel caso in cui i valori letti siano None
         s_month = SUMMER_END_START_MONTH if SUMMER_END_START_MONTH is not None else 8
         s_day = SUMMER_END_START_DAY if SUMMER_END_START_DAY is not None else 20
         e_month = SUMMER_END_END_MONTH if SUMMER_END_END_MONTH is not None else 9
@@ -159,7 +150,7 @@ def get_day_weight(day) -> float:
         if start_md <= current_md <= end_md:
             weight += 0.3
     else:
-        # A cavallo di capodanno
+        # Handles year-wrap window (e.g. Dec to Jan)
         if current_md >= start_md or current_md <= end_md:
             weight += 0.3
 

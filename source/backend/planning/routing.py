@@ -16,6 +16,7 @@ _matrix_cache = {}
 _matrix_cache_lock = threading.Lock()
 
 def _haversine_minutes(lat1, lon1, lat2, lon2):
+    """Estimate driving minutes using Haversine distance, 1.25 winding factor, and average fallback speed."""
     radius_km = 6371.0
     p1 = math.radians(lat1)
     p2 = math.radians(lat2)
@@ -27,6 +28,7 @@ def _haversine_minutes(lat1, lon1, lat2, lon2):
     return (road_km / AVERAGE_FALLBACK_SPEED_KMH) * 60
 
 def _fallback_matrix(coords):
+    """Compute NxN travel matrix using the Haversine distance fallback."""
     return [
         [
             0.0 if i == j else _haversine_minutes(lat1, lon1, lat2, lon2)
@@ -36,16 +38,19 @@ def _fallback_matrix(coords):
     ]
 
 def build_travel_matrix_with_status(depot: Location, clients: List[Client]):
+    """Fetch driving duration matrix from OSRM Table API with thread-safe LRU caching and Haversine fallback."""
     coords = [(depot.lat, depot.lon)] + [(c.latitude, c.longitude) for c in clients]
     if not coords:
         return [], False
         
     rounded = tuple((round(lat, 5), round(lon, 5)) for lat, lon in coords)
 
+    # Check in-memory matrix cache
     with _matrix_cache_lock:
         if rounded in _matrix_cache:
             return _matrix_cache[rounded], False
 
+    # OSRM public table API limits requests to ~100 coordinates
     if len(coords) > 100:
         return _fallback_matrix(coords), "too_large"
 
@@ -66,6 +71,7 @@ def build_travel_matrix_with_status(depot: Location, clients: List[Client]):
         if payload.get("code") != "Ok" or not durations:
             raise ValueError(payload.get("message", "OSRM matrix unavailable"))
 
+        # Convert seconds to minutes
         matrix = [
             [
                 math.inf if seconds is None else float(seconds) / 60
@@ -74,6 +80,7 @@ def build_travel_matrix_with_status(depot: Location, clients: List[Client]):
             for row in durations
         ]
     except Exception:
+        # Fall back to Haversine if network times out or OSRM is unreachable
         matrix = _fallback_matrix(coords)
         is_fallback = True
 
@@ -86,6 +93,7 @@ def build_travel_matrix_with_status(depot: Location, clients: List[Client]):
     return matrix, is_fallback
 
 def build_travel_matrix(depot: Location, clients: List[Client]) -> List[List[float]]:
+    """Build pairwise driving travel matrix between depot (index 0) and all candidate clients."""
     matrix, _ = build_travel_matrix_with_status(depot, clients)
     return matrix
 

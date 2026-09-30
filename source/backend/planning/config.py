@@ -1,7 +1,7 @@
 import os
 
 DEFAULT_CONFIG = {
-    # Orari di lavoro e pausa
+    # Workday and lunch break hours
     "WORK_START": "09:00",
     "WORK_END": "18:00",
     "LUNCH_EARLIEST": "12:00",
@@ -9,26 +9,23 @@ DEFAULT_CONFIG = {
     "LUNCH_DURATION_MINUTES": 60,
     "WORK_END_GRACE_MINUTES": 15,
 
-    # Parametri visite e giornata
+    # Daily capacity and visit parameters
     "DEFAULT_VISIT_HOURS": 3.5,
     "MAX_WORK_HOURS_PER_DAY": 8.0,
 
-    # Parametri Ottimizzatore Euristico (ALNS)
+    # Metaheuristic optimizer parameters (ALNS)
     "PLANNING_RANDOM_SEED": 42,
     "PLANNING_TIME_LIMIT_SECONDS": 30.0,
     "PLANNING_MAX_ITERATIONS": 500,
     "PLANNING_POOL_MULTIPLIER": 5,
 
-    # Parametri Routing e OSRM
+    # Routing and OSRM parameters
     "OSRM_BASE_URL": "https://router.project-osrm.org",
     "OSRM_TIMEOUT_SECONDS": 8.0,
     "MAX_ROUTING_CANDIDATES": 100,
     "AVERAGE_FALLBACK_SPEED_KMH": 35.0,
 
-    # Regole Trasferte
-    "MIN_TRASFERTA_TRAVEL_MINUTES": 120,
-
-    # Periodi Particolari (es. Fine Estate)
+    # Seasonal weighting (late summer rush)
     "SUMMER_END_START_MONTH": 8,
     "SUMMER_END_START_DAY": 20,
     "SUMMER_END_END_MONTH": 9,
@@ -37,6 +34,7 @@ DEFAULT_CONFIG = {
 
 
 def _resolve_planner_config_path() -> str | None:
+    """Search known container and relative host paths for planner.config."""
     env_path = os.getenv("PLANNER_CONFIG_PATH")
     if env_path and os.path.isfile(env_path):
         return env_path
@@ -55,6 +53,7 @@ def _resolve_planner_config_path() -> str | None:
     return None
 
 def _load_planner_config() -> dict:
+    """Load configuration from planner.config file with environment variable overrides."""
     cfg = dict(DEFAULT_CONFIG)
     config_path = _resolve_planner_config_path()
     if config_path and os.path.isfile(config_path):
@@ -84,7 +83,7 @@ def _load_planner_config() -> dict:
         except Exception:
             pass
             
-    # Override da variabili d'ambiente se presenti
+    # Apply environment variable overrides if present
     for key, default_val in cfg.items():
         env_val = os.getenv(key)
         if env_val is not None:
@@ -122,7 +121,6 @@ PLANNING_RANDOM_SEED = _CONFIG["PLANNING_RANDOM_SEED"]
 PLANNING_TIME_LIMIT_SECONDS = _CONFIG["PLANNING_TIME_LIMIT_SECONDS"]
 PLANNING_MAX_ITERATIONS = _CONFIG["PLANNING_MAX_ITERATIONS"]
 PLANNING_POOL_MULTIPLIER = _CONFIG["PLANNING_POOL_MULTIPLIER"]
-MIN_TRASFERTA_TRAVEL_MINUTES = _CONFIG["MIN_TRASFERTA_TRAVEL_MINUTES"]
 
 SUMMER_END_START_MONTH = _CONFIG["SUMMER_END_START_MONTH"]
 SUMMER_END_START_DAY = _CONFIG["SUMMER_END_START_DAY"]
@@ -132,6 +130,7 @@ SUMMER_END_END_DAY = _CONFIG["SUMMER_END_END_DAY"]
 
 
 def _parse_time_val(val, default_minutes):
+    """Parse "HH:MM" string or numeric minutes into integer minutes from midnight."""
     if val is None:
         return default_minutes
     if isinstance(val, (int, float)):

@@ -35,7 +35,7 @@ _processed_dataset_cache = {}
 
 
 def clean_scenarios_cache():
-    """Svuota la cache su disco e in memoria degli scenari."""
+    """Clear scenario caches in memory and on disk."""
     global _scenario_memory_cache
     _scenario_memory_cache.clear()
     try:
@@ -52,13 +52,13 @@ def clean_scenarios_cache():
         logger.warning(f"Errore durante la pulizia della cache scenari: {e}")
 
 
-# Registra pulizia all'uscita del processo
+# Clean scenario cache on process termination
 atexit.register(clean_scenarios_cache)
 
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pulizia sia all'avvio che allo spegnimento
+    # Clean cache on application startup and shutdown
     clean_scenarios_cache()
     yield
     clean_scenarios_cache()
@@ -66,7 +66,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GeoAnalytics API",
-    description="API per geocodifica, ottimizzazione percorsi, pianificazione delle visite commerciali e gestione trasferte remote.",
+    description="API for geocoding, route optimization, sales visit scheduling, and multi-day travel management.",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -80,7 +80,7 @@ app.add_middleware(
 )
 
 
-@app.post("/api/upload", tags=["Upload"], summary="Caricamento ed estrazione dati", description="Carica un file Excel o CSV, estrae le aziende e geocodifica i clienti.")
+@app.post("/api/upload", tags=["Upload"], summary="Upload and process ERP dataset", description="Upload an Excel or CSV file, detect companies, and geocode client locations.")
 async def upload_file(file: UploadFile = File(...)):
     try:
         contents = await file.read()
@@ -117,13 +117,13 @@ async def upload_file(file: UploadFile = File(...)):
         set_progress_status(False, "idle")
 
 
-@app.get("/api/progress", tags=["Progress"], summary="Stato avanzamento geocodifica e calcolo")
+@app.get("/api/progress", tags=["Progress"], summary="Geocoding and optimization progress")
 def api_progress_endpoint():
-    """Restituisce lo stato attuale della geocodifica e dell'ottimizzazione in tempo reale."""
+    """Return real-time geocoding and optimization progress status."""
     return get_progress_status()
 
 
-@app.get("/api/geocode", tags=["Geocoding"], summary="Geocodifica indirizzo", description="Geocodifica un indirizzo testuale utilizzando OpenStreetMap/Nominatim con cache locale.")
+@app.get("/api/geocode", tags=["Geocoding"], summary="Geocode address", description="Geocode an address string using OpenStreetMap / Photon with local caching.")
 async def geocode_endpoint(address: str, city: str = ""):
     try:
         geo_cache = load_geocache()
@@ -159,9 +159,9 @@ async def geocode_endpoint(address: str, city: str = ""):
         }
 
 
-@app.get("/api/config", tags=["Configurazione"], summary="Configurazioni di default del planner", description="Restituisce le configurazioni predefinite di orari di lavoro, pausa pranzo, durata visite e tolleranze da planner.config.")
+@app.get("/api/config", tags=["Configuration"], summary="Default planner configuration", description="Return default working hours, lunch break, visit duration, and grace limits from planner.config.")
 async def get_config():
-    """Restituisce le configurazioni predefinite di orari e parametri da planner.config"""
+    """Return default work schedule and planner settings from planner.config."""
     cfg = _load_planner_config()
     return {
         "work_start": cfg["WORK_START"],
@@ -175,7 +175,7 @@ async def get_config():
     }
 
 
-@app.get("/api/travel-time", tags=["Routing"], summary="Calcolo tempo di viaggio tra due indirizzi", description="Calcola il tempo di percorrenza tra due indirizzi con l'algoritmo del sistema (OSRM + fallback Haversine) e verifica parametricamente se è considerata trasferta (t1 + t2 + t3 > tempo agente).")
+@app.get("/api/travel-time", tags=["Routing"], summary="Compute travel time between two addresses", description="Compute travel duration between two addresses using OSRM + Haversine fallback and check multi-day trip feasibility.")
 async def travel_time_endpoint(
     origin: str,
     destination: str,
@@ -197,7 +197,7 @@ async def travel_time_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.post("/api/analyze", tags=["Pianificazione"], summary="Ottimizzazione e pianificazione visite", description="Pianifica e ottimizza il calendario delle visite commerciali sui giorni lavorativi disponibili con supporto trasferte.")
+@app.post("/api/analyze", tags=["Planning"], summary="Optimize visit schedule", description="Plan and optimize the sales visit schedule across available working days with multi-day trip support.")
 async def analyze_data(
     file: UploadFile = File(...),
     days: int = Form(30),
@@ -220,7 +220,7 @@ async def analyze_data(
     contents = await file.read()
     content_hash = hashlib.sha256(contents).hexdigest()[:16]
 
-    # Determinazione dell'azienda richiesta
+    # Resolve target company name
     target_company = company
     if not target_company and companies:
         try:
@@ -232,7 +232,7 @@ async def analyze_data(
         except Exception:
             target_company = companies.split(',')[0].strip()
 
-    # Normalizzazione parametri orari lavorativi e pausa pranzo da planner.config
+    # Load working hours and lunch break defaults from planner.config
     cfg = _load_planner_config()
     eff_work_start = work_start.strip() if work_start and work_start.strip() else cfg["WORK_START"]
     eff_work_end = work_end.strip() if work_end and work_end.strip() else cfg["WORK_END"]
@@ -248,7 +248,7 @@ async def analyze_data(
     time_suffix = f"_{eff_work_start}_{eff_work_end}_{eff_lunch_earliest}_{eff_lunch_latest_start}_{eff_lunch_duration}"
     cache_key = f"{PLANNER_CACHE_VERSION}_{content_hash}_{target_company}_{days}_{hours_per_visit}_{work_hours}_{start_date}{loc_suffix}{time_suffix}_{enable_trasferte}_{max_giorni_trasferta}"
 
-    # 1. Verifica cache in memoria
+    # 1. Check in-memory scenario cache
     if cache_key in _scenario_memory_cache:
         logger.info(f"Scenario cache HIT (memoria): {cache_key}")
         data = dict(_scenario_memory_cache[cache_key])
@@ -259,7 +259,7 @@ async def analyze_data(
         data["from_cache"] = True
         return data
 
-    # 2. Verifica cache su disco
+    # 2. Check on-disk scenario cache
     cache_path = os.path.join(SCENARIO_CACHE_DIR, f"{cache_key}.json")
     if os.path.exists(cache_path):
         try:
@@ -276,7 +276,7 @@ async def analyze_data(
         except Exception as e:
             logger.warning(f"Errore lettura cache disco: {e}")
 
-    # 3. Elaborazione del dataset (riuso del dataset già geocodificato in memoria se disponibile)
+    # 3. Process dataset (reuse pre-geocoded dataframe from memory when available)
     try:
         if content_hash in _processed_dataset_cache:
             logger.info(f"Dataset pre-geocodificato riusato dalla memoria per hash {content_hash}")
@@ -303,10 +303,10 @@ async def analyze_data(
     if not target_company or target_company not in available_companies:
         target_company = available_companies[0]
 
-    # Fatturato potenziale complessivo dell'azienda selezionata nel dataset
+    # Total potential revenue for the selected company
     company_potential = float(df[target_company].sum()) if target_company in df.columns else 0.0
 
-    # Numero totale di clienti validi per l'azienda selezionata
+    # Count valid and geocoded clients for the selected company
     if target_company in df.columns:
         valid_clients_mask = pd.to_numeric(df[target_company], errors='coerce').fillna(0) > 0
         valid_clients_df = df[valid_clients_mask]
@@ -347,7 +347,7 @@ async def analyze_data(
     scheduled_client_names = set(schedule_df["Cliente"].dropna().unique()) if not schedule_df.empty and "Cliente" in schedule_df.columns else set()
 
     map_points = []
-    # 1. Clienti pianificati per la visita
+    # 1. Planned visit stops on the map
     if not schedule_df.empty:
         for _, row in schedule_df.iterrows():
             lat = row.get("Lat")
@@ -367,7 +367,7 @@ async def analyze_data(
                     "planned": True
                 })
 
-    # 2. Tutti gli altri clienti di quell'azienda localizzabili ma non pianificati
+    # 2. Remaining localized clients not scheduled
     if target_company in df.columns:
         for _, row in valid_clients_df.iterrows():
             client_name = row.get("Cliente", "")
@@ -436,7 +436,7 @@ async def analyze_data(
         }
     }
 
-    # Salva in cache se andato a buon fine O se il fallback è intenzionale per via del limite
+    # Save solution to cache if optimization succeeded or fallback was intentional
     is_fallback = response_payload["kpis"].get("is_fallback", False)
     if is_fallback in (False, "too_large"):
         _scenario_memory_cache[cache_key] = response_payload

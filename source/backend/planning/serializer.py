@@ -5,13 +5,16 @@ from .models import PlanningSolution, Client
 from .calendar import GIORNI_IT
 
 def format_time(minutes):
+    """Convert minutes from midnight into HH:MM string format."""
     hours = int(minutes // 60)
     minutes = int(minutes % 60)
     return f"{hours:02d}:{minutes:02d}"
 
 def serialize_solution(solution: PlanningSolution, clients: List[Client]) -> pd.DataFrame:
+    """Transform PlanningSolution dataclass models into a tabular DataFrame for the API and frontend."""
     schedule = []
     
+    # Map day indices to business calendar dates
     day_date_map = {}
     for r in solution.day_routes:
         if hasattr(r.day, 'day_index') and hasattr(r.day, 'date_val'):
@@ -25,6 +28,7 @@ def serialize_solution(solution: PlanningSolution, clients: List[Client]) -> pd.
             client = next(c for c in clients if c.id == visit.client_id)
             time_str = f"{format_time(visit.visit_start)} - {format_time(visit.visit_end)}"
             
+            # Resolve actual date accounting for multi-day transfer day offsets
             day_offset = getattr(visit, 'day_offset', 0)
             actual_day_idx = getattr(route.day, 'day_index', 0) + day_offset
             
@@ -36,6 +40,7 @@ def serialize_solution(solution: PlanningSolution, clients: List[Client]) -> pd.
             date_str = actual_date.strftime("%d/%m/%Y")
             day_name = GIORNI_IT[actual_date.weekday()]
             
+            # Label transfer departure vs continuation days
             is_multi = getattr(route, 'spans_days', 1) > 1
             if is_multi:
                 day_ds = f"{day_name} (+{day_offset}gg)" if day_offset > 0 else f"{day_name} (Partenza trasferta)"

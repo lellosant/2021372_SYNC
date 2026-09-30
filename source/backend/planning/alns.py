@@ -8,7 +8,10 @@ from .construction import _find_best_insertion, _get_covered_days
 from .feasibility import evaluate_day_route
 from .trasferte import is_trasferta_trip
 
+# --- Destroy Operators ---
+
 def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
+    """Randomly drop 10-20% of visits from planned days to escape local minima."""
     new_solution = copy.deepcopy(solution)
     removed_clients = []
     
@@ -30,6 +33,7 @@ def destroy_random(solution: PlanningSolution, clients: List[Client], matrix, wo
     return new_solution, removed_clients
 
 def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
+    """Pick an active spatial cluster and drop up to half its visits to allow tighter regrouping."""
     new_solution = copy.deepcopy(solution)
     removed_clients = []
     
@@ -62,13 +66,17 @@ def destroy_cluster(solution: PlanningSolution, clients: List[Client], matrix, w
              new_solution.day_routes[d_idx] = evaluate_day_route(new_indices, clients, matrix, route.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
              
     return new_solution, removed_clients
-    
+
+
+# --- Repair Operator ---
+
 def repair_greedy(solution: PlanningSolution, removed_clients: List[int], clients: List[Client], pool: List[Client], matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
+    """Greedy best-insertion for removed clients plus a small random sample of unscheduled pool clients."""
     candidates = removed_clients.copy()
     unscheduled = [c.source_index for c in pool if c.id not in solution.scheduled_client_ids]
     candidates.extend(random.sample(unscheduled, min(5, len(unscheduled))))
     
-
+    # Prioritize remote / multi-day candidates when trasferte are enabled
     def is_remote_client(i: int) -> bool:
         if not enable_trasferte: return False
         t1 = matrix[0][i+1]
@@ -93,7 +101,11 @@ def repair_greedy(solution: PlanningSolution, removed_clients: List[int], client
     solution.total_travel_minutes = sum(r.travel_minutes for i, r in enumerate(solution.day_routes) if i not in covered)
     return solution
 
+
+# --- Local Search & Post-Processing ---
+
 def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta):
+    """2-opt style swap between two distinct days if feasible and Pareto-improving."""
     if len(solution.day_routes) < 2: return False
     
     covered_days = _get_covered_days(solution.day_routes)
@@ -118,11 +130,10 @@ def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunc
     new_r2 = evaluate_day_route(new_r2_ids, clients, matrix, r2.day, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
     
     if new_r1.feasible and new_r2.feasible:
-        # Check capacity
+        # Check capacity when multi-day routes change span
         can_fit = True
         for (idx, old_r, new_r) in [(d1_idx, r1, new_r1), (d2_idx, r2, new_r2)]:
             if new_r.spans_days > old_r.spans_days:
-                # Need extra days
                 extra = new_r.spans_days - old_r.spans_days
                 if idx + new_r.spans_days - 1 >= len(solution.day_routes):
                     can_fit = False
@@ -149,6 +160,7 @@ def local_search_swap(solution: PlanningSolution, clients, matrix, workday, lunc
     return False
 
 def _sol_score(s: PlanningSolution):
+    # Lexicographic score: Total Revenue > Calendar-Weighted Revenue > Minimum Travel Time
     return (
         round(s.total_revenue, 2),
         round(s.weighted_revenue, 2),
@@ -165,10 +177,7 @@ def optimize_days_assignment(
     enable_trasferte: bool,
     max_giorni_trasferta: int
 ) -> PlanningSolution:
-    """
-    Riassegna/scambia le intere giornate per allineare le giornate a più alto fatturato
-    con i giorni a maggior peso (es. giorni pre-festivi / vigilia delle festività).
-    """
+    """Swap whole day routes so higher-revenue days align with higher-weight calendar days (e.g. pre-holidays)."""
     routes = solution.day_routes
     n = len(routes)
     improved = True
@@ -204,6 +213,9 @@ def optimize_days_assignment(
     solution.total_travel_minutes = sum(r.travel_minutes for k, r in enumerate(routes) if k not in covered)
     return solution
 
+
+# --- Main Metaheuristic Loop ---
+
 def run_alns(
     initial_solution: PlanningSolution,
     pool: List[Client], 
@@ -228,10 +240,10 @@ def run_alns(
         temp_solution, removed = destroy_op(current_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
         temp_solution = repair_greedy(temp_solution, removed, pool, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
         
+        # 10% chance to run 2-opt inter-day swap
         if random.random() < 0.1:
              local_search_swap(temp_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
              
-        # Recompute totals for safety
         covered = _get_covered_days(temp_solution.day_routes)
         temp_solution.total_revenue = sum(r.revenue for i, r in enumerate(temp_solution.day_routes) if i not in covered)
         temp_solution.total_travel_minutes = sum(r.travel_minutes for i, r in enumerate(temp_solution.day_routes) if i not in covered)
@@ -239,6 +251,7 @@ def run_alns(
         temp_score = _sol_score(temp_solution)
         current_score = _sol_score(current_solution)
         
+        # Acceptance: accept improvements immediately, worse moves with 5% probability (SA temperature floor)
         if temp_score > current_score:
             current_solution = temp_solution
             if temp_score > _sol_score(best_solution):
@@ -247,5 +260,6 @@ def run_alns(
             if random.random() < 0.05:
                 current_solution = temp_solution
                 
+    # Final pass to align high-revenue routes with weighted days
     best_solution = optimize_days_assignment(best_solution, pool, matrix, workday, lunch, work_end_grace_minutes, enable_trasferte, max_giorni_trasferta)
-    import logging; logging.getLogger(__name__).info(f"iterazioni ALNS: {iterations}"); return best_solution
+    return best_solution
