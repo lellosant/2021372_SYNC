@@ -1,7 +1,6 @@
 import math
 from typing import List, Optional
 from .models import Client, LunchConfig, WorkdayConfig, PlanningDay, DayRoute, VisitSchedule
-from .config import MIN_TRASFERTA_TRAVEL_MINUTES
 
 
 def is_trasferta_trip(
@@ -10,13 +9,11 @@ def is_trasferta_trip(
     t3: float,
     available_time: float
 ) -> bool:
-    """
-    Calcola se una destinazione è considerata un viaggio / trasferta:
-    è considerato un viaggio se:
-      t1 = tempo per raggiungere il posto (depot -> client)
-      t2 = tempo di durata della visita (service_minutes)
-      t3 = tempo per tornare (client -> depot)
-      e t1 + t2 + t3 > tempo a disposizione dell'agente.
+    """Determine whether a destination qualifies as a remote trip:
+    t1 = outbound travel (depot -> client)
+    t2 = visit service time
+    t3 = return travel (client -> depot)
+    A trip requires an overnight stay if t1 + t2 + t3 exceeds the agent's available daily working hours.
     """
     return (t1 + t2 + t3) > available_time
 
@@ -30,9 +27,9 @@ def evaluate_transfer(
     lunch: LunchConfig,
     work_end_grace_minutes: int,
     max_giorni_trasferta: int,
-    min_trasferta_minutes: int = MIN_TRASFERTA_TRAVEL_MINUTES,
     agent_available_minutes: Optional[int] = None
 ) -> DayRoute:
+    """Evaluate feasibility of a multi-day route spanning consecutive workdays with overnight stays."""
     current_day = 1
     current_minute = workday.start
     lunch_taken_today = False
@@ -55,7 +52,7 @@ def evaluate_transfer(
         travel_int = int(math.ceil(travel))
         travel_minutes += travel_int
         
-        # Advance time by travel
+        # Advance time across days if travel extends past end of workday
         remaining_travel = travel_int
         while remaining_travel > 0:
             time_to_end = workday.end - current_minute
@@ -74,6 +71,7 @@ def evaluate_transfer(
         direct_end = arrival + client.service_minutes
         lunch_before = False
         
+        # Insert lunch before visit if visit would finish past latest lunch start
         if lunch.duration > 0 and not lunch_taken_today and direct_end > lunch.latest_start:
             lunch_start = max(arrival, lunch.earliest)
             if lunch_start + lunch.duration + client.service_minutes > workday.end:
@@ -91,6 +89,7 @@ def evaluate_transfer(
         visit_start = current_minute
         visit_end = visit_start + client.service_minutes
         
+        # Move to next day if visit exceeds end of current workday
         if visit_end > workday.end:
             current_day += 1
             current_minute = workday.start
@@ -122,6 +121,7 @@ def evaluate_transfer(
                 
         current_loc_idx = target_idx
 
+    # Return travel to home base (depot)
     travel_to_depot = travel_matrix[current_loc_idx][0]
     if not math.isfinite(travel_to_depot):
         return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [], 1)
@@ -144,10 +144,8 @@ def evaluate_transfer(
                  return DayRoute(day, client_ids, client_indices.copy(), False, 0.0, 0, 0, [], 1)
 
     if current_day > 1:
-        # Una trasferta multi-giorno (+1gg) è giustificata solo se almeno un cliente
-        # costituisce effettivamente un viaggio (t1 + t2 + t3 > tempo a disposizione dell'agente).
-        # Se per tutti i clienti t1 + t2 + t3 <= tempo a disposizione, le visite devono
-        # essere pianificate come giornate locali separate e non come trasferta con pernottamento.
+        # Multi-day transfer is only justified if at least one client qualifies as a remote trip
+        # (t1 + t2 + t3 > available_time). Otherwise, visits must be scheduled as separate local days.
         available_time = agent_available_minutes if agent_available_minutes is not None else (workday.end - workday.start)
 
         has_remote_trip = False

@@ -9,7 +9,7 @@ import urllib.request
 
 
 # ---------------------------------------------------------
-# Configurazione geocodifica
+# Geocoding configuration
 # ---------------------------------------------------------
 
 NOMINATIM_URL = os.getenv(
@@ -46,7 +46,7 @@ USER_AGENT = os.getenv(
 
 
 def query_photon(plan_val, plan_type, base_url=None):
-    """Interroga un'istanza di Photon (locale o pubblica) e mappa il GeoJSON nello schema atteso dallo scoring."""
+    """Query a Photon geocoding instance (local or public) and map results to the scoring schema."""
     target_url = base_url or PHOTON_URL
     if not target_url:
         return []
@@ -99,7 +99,7 @@ def query_photon(plan_val, plan_type, base_url=None):
 
 
 def query_nominatim(plan_val, plan_type):
-    """Interroga Nominatim pubblico con query strutturata o testuale."""
+    """Query public Nominatim using structured or free-text search."""
     if plan_type == "structured":
         params = dict(plan_val)
     else:
@@ -124,7 +124,7 @@ def query_nominatim(plan_val, plan_type):
 
 
 # ---------------------------------------------------------
-# Mappatura colonne ERP
+# ERP column name mapping
 # ---------------------------------------------------------
 
 STANDARD_COL_MAP = {
@@ -158,20 +158,17 @@ IGNORED_META_COLS = {
 
 
 # ---------------------------------------------------------
-# Funzioni comuni di lettura / normalizzazione
+# Dataframe loading and normalization
 # ---------------------------------------------------------
 
 def read_and_normalize_dataframe(file_bytes):
-    """
-    Legge l'Excel, elimina le righe di riepilogo e normalizza
-    i nomi delle colonne. NON esegue geocodifica.
-    """
+    """Parse Excel, drop summary total rows, and normalize column headers without geocoding."""
 
     df = pd.read_excel(
         io.BytesIO(file_bytes)
     )
 
-    # Rimozione delle righe di riepilogo "Totale"
+    # Drop summary 'Total' rows
     for col in df.columns:
         if any(
             term in str(col).lower()
@@ -194,7 +191,7 @@ def read_and_normalize_dataframe(file_bytes):
 
             break
 
-    # Normalizzazione dei nomi delle colonne
+    # Normalize known ERP column headers
     rename_dict = {}
 
     for col in df.columns:
@@ -218,10 +215,7 @@ def read_and_normalize_dataframe(file_bytes):
 
 
 def detect_company_columns(df):
-    """
-    Individua dinamicamente le colonne delle aziende.
-    """
-
+    """Detect company/customer revenue columns by excluding known metadata fields."""
     return [
         str(col).strip()
         for col in df.columns
@@ -236,14 +230,7 @@ def detect_company_columns(df):
 
 
 def extract_companies_from_file(file_bytes):
-    """
-    Legge solo la struttura dell'Excel e restituisce
-    le aziende disponibili.
-
-    Importante:
-    NON aggrega i punti visita e NON geocodifica.
-    """
-
+    """Inspect Excel headers and return available company columns without geocoding."""
     df = read_and_normalize_dataframe(
         file_bytes
     )
@@ -254,10 +241,11 @@ def extract_companies_from_file(file_bytes):
 
 
 # ---------------------------------------------------------
-# Cache geocodifica
+# Geocache persistence
 # ---------------------------------------------------------
 
 def load_geocache():
+    """Load cached geocoding results from disk."""
     if not os.path.exists(
         GEOCACHE_FILE
     ):
@@ -279,6 +267,7 @@ def load_geocache():
 
 
 def save_geocache(cache):
+    """Save geocache to disk, merging with existing on-disk entries to avoid losing data."""
     cache_directory = os.path.dirname(
         GEOCACHE_FILE
     )
@@ -288,7 +277,7 @@ def save_geocache(cache):
         exist_ok=True
     )
 
-    # Protezione: unisci sempre con la cache esistente su disco per evitare che test o chiamate parziali la cancellino
+    # Merge with on-disk cache to prevent overwriting from concurrent or partial runs
     disk_cache = load_geocache()
     if disk_cache and cache is not disk_cache:
         cache_to_save = dict(disk_cache)
@@ -310,11 +299,11 @@ def save_geocache(cache):
 
 
 # ---------------------------------------------------------
-# Sanitizzazione, correzione toponomastica e Geocodifica
+# Address sanitization, toponym correction, and geocoding
 # ---------------------------------------------------------
 
 TOPONYM_REPLACEMENTS = [
-    # Refusi tipo via / piazza / corso / viale / circonvallazione
+    # Common street prefix typos and abbreviations
     (r'\b(VUA|VOA)\b', 'VIA'),
     (r'\b(PÈIAZZA|PEIAZZA|PZZA|P\.ZZA|PIAZ\.)\b', 'PIAZZA'),
     (r'\b(V\.LE|VLE)\b', 'VIALE'),
@@ -327,7 +316,7 @@ TOPONYM_REPLACEMENTS = [
     (r'\bSANTISSIMI\b', 'SANTI'),
     (r'\bS\.\s*(?=[A-Z])', 'SAN '),
     (r'\bSTA\.\s*(?=[A-Z])', 'SANTA '),
-    # Refusi ed errori toponomastici frequenti
+    # Frequent toponym typos and OCR errors
     (r"\bDOI\s+SANT'", "DI SANT'"),
     (r'\bCARACCI\b', 'CARRACCI'),
     (r'\bMANUNZIO\b', 'MANUZIO'),
@@ -353,22 +342,19 @@ TOPONYM_REPLACEMENTS = [
 
 
 def sanitize_address_string(address):
-    """
-    Ripulisce la stringa di indirizzo da rumore logistico (note di consegna, piani,
-    scale, incroci, snc, km) e corregge automaticamente refusi toponomastici noti.
-    """
+    """Clean address string from logistic noise (delivery notes, floors, stairs, snc, km) and fix known toponym typos."""
     if not address or pd.isna(address):
         return ""
 
     s = str(address).strip()
     s = s.replace('’', "'").replace('`', "'").replace("\\'", "'").replace('--', '-')
 
-    # Prefissi tipo via
+    # Standardize street prefixes
     s = re.sub(r'(?i)\bS\.?S\.?\s*(\d+)?\s*', 'VIA ', s)
     s = re.sub(r'(?i)^V\.\s+', 'VIA ', s)
     s = re.sub(r'(?i)\bV\.\s+([A-Z])', r'VIA \1', s)
 
-    # Rimuovi note logistiche e istruzioni di consegna
+    # Remove delivery notes and internal building details
     s = re.sub(r'(?i)\bC/O\b.*', '', s)
     s = re.sub(r'(?i)\b\d+°\s*(?:PIANO|P\b).*', '', s)
     s = re.sub(r'(?i)\b(?:PIANO|SCALA|INTERNO|INT\.)\s+[A-Za-z0-9]+', '', s)
@@ -379,36 +365,36 @@ def sanitize_address_string(address):
     s = re.sub(r'(?i)\(?\bKM\.?\s*\d+(?:[.,+]\d+)?\)?', '', s)
     s = re.sub(r'(?i)\b(?:S\.?N\.?C\.?|SENZA\s+NUMERO)\b', '', s)
 
-    # Correzioni toponomastiche
+    # Apply toponym corrections
     for pattern, replacement in TOPONYM_REPLACEMENTS:
         s = re.sub(pattern, replacement, s, flags=re.I)
 
-    # Spazia lettere puntate attaccate (es: 'G.PACINI' -> 'G. PACINI')
+    # Separate attached initial letters (e.g. 'G.PACINI' -> 'G. PACINI')
     s = re.sub(r'\b([A-Za-z])\.([A-Za-z])', r'\1. \2', s)
 
-    # Normalizza spazi
+    # Normalize whitespace
     s = re.sub(r'\s+', ' ', s).strip(' ,.-')
     return s
 
 
 def parse_address_and_civic(address, city=""):
     """
-    Estrae via, numero civico e città da una stringa indirizzo italiana.
-    Supporta formati come 'Via del Corso 184', 'Via del Corso, 184', 'Via del Corso n. 184',
+    Extract street name, house number, and city from an Italian address string.
+    Supports formats like 'Via del Corso 184', 'Via del Corso, 184', 'Via del Corso n. 184',
     'Via del Corso civico 184', 'Largo Corrado Ricci 40/43 A', 'Via Roma 10, Milano'.
     """
     address = (str(address) if pd.notnull(address) else "").strip()
     city = (str(city) if pd.notnull(city) else "").strip()
 
-    # Se la città non è fornita, prova ad estrarla se separata da virgola
+    # Extract city if missing and separated by comma
     if "," in address:
         parts = [p.strip() for p in address.split(",") if p.strip()]
         if len(parts) >= 2:
-            # Se l'ultima parte è una città (testo senza numeri)
+            # City name (alphabetic text only)
             if not city and re.search(r"^[a-zA-Z\s\'-]+$", parts[-1]):
                 city = parts.pop()
                 address = ", ".join(parts)
-            # Oppure CAP + Città (es. '00186 Roma')
+            # Postal code + City (e.g. '00186 Roma')
             elif not city and re.search(r"^\d{5}\s+[a-zA-Z\s\'-]+$", parts[-1]):
                 city = re.sub(r"^\d{5}\s+", "", parts.pop())
                 address = ", ".join(parts)
@@ -416,7 +402,7 @@ def parse_address_and_civic(address, city=""):
     civic = None
     street = address
 
-    # Pattern 1: 'n. 12', 'n° 12', 'num. 12', 'civico 12'
+    # Pattern 1: explicit prefix ('n. 12', 'n° 12', 'civico 12')
     m = re.search(r"(?i)\b(?:n\.?|n°|num\.?|numero|civico)\s*[:.]?\s*(\d+[a-zA-Z]?(?:[/-]\d+[a-zA-Z]?)?)", address)
     if m:
         first_num = re.match(r"^\d+", m.group(1))
@@ -424,7 +410,7 @@ def parse_address_and_civic(address, city=""):
         street = address[:m.start()].strip().rstrip(",").strip() + " " + address[m.end():].strip()
         street = street.strip().rstrip(",").strip()
     else:
-        # Pattern 2: numero civico (anche con lettere/barre) dopo spazio o virgola
+        # Pattern 2: trailing house number after space or comma
         m2 = re.search(r"(?i)(?:,\s*|\s+)(\d+)(?:[/\-a-zA-Z0-9\s]*)$", address)
         if m2:
             civic = m2.group(1)
@@ -438,6 +424,7 @@ def geocode_address(
     city,
     cache
 ):
+    """Geocode an address using local/public Photon or Nominatim with candidate scoring and caching."""
     address = (
         str(address).strip()
         if pd.notnull(address)
@@ -453,7 +440,7 @@ def geocode_address(
     if not address and not city:
         return None, None
 
-    # Estrazione via, civico e città normalizzata
+    # Extract street, civic number, and normalized city
     street, civic, detected_city = parse_address_and_civic(address, city)
     effective_city = detected_city or city or ""
 
@@ -469,7 +456,7 @@ def geocode_address(
 
     cache_key = query.upper()
 
-    # Se già geocodificato con successo valido, usa la cache
+    # Return cached coordinates if already resolved
     if cache_key in cache:
         cached_value = cache[cache_key]
         if cached_value is not None:
@@ -478,9 +465,7 @@ def geocode_address(
                 cached_value["lon"]
             )
 
-    # -----------------------------------------------------
-    # Sanitizzazione intelligente della stringa di ricerca
-    # -----------------------------------------------------
+    # Clean search address string
     sanitized_raw = sanitize_address_string(address)
     s_street, s_civic, s_detected_city = parse_address_and_civic(sanitized_raw, effective_city)
     
@@ -488,35 +473,33 @@ def geocode_address(
     clean_civic = s_civic or civic
     clean_city = s_detected_city or effective_city
 
-    # Versione della via senza iniziale puntata (es. 'Via G. Pacini' -> 'Via Pacini')
+    # Street name without single-letter initials (e.g. 'Via G. Pacini' -> 'Via Pacini')
     street_no_init = re.sub(r'\b[A-Za-z]\.\s+', '', clean_street).strip()
 
-    # -----------------------------------------------------
-    # Costruzione piani di query a cascata (resilient fallback)
-    # -----------------------------------------------------
+    # Build multi-tier fallback query cascade
     query_plans = []
 
-    # 1. Ricerca specifica con civico
+    # 1. Exact query with house number
     if clean_civic:
         if clean_city:
             query_plans.append(("structured", {"street": f"{clean_civic} {clean_street}", "city": clean_city, "country": "Italy"}))
         query_plans.append(("q", f"{clean_street} {clean_civic}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
         query_plans.append(("q", f"{clean_civic} {clean_street}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
         
-        # Con civico ma senza iniziale puntata
+        # House number without initials
         if street_no_init and street_no_init != clean_street:
             query_plans.append(("q", f"{street_no_init} {clean_civic}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
 
-    # 2. Ricerca standard
+    # 2. Standard street search
     if clean_city:
         query_plans.append(("q", f"{clean_street}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
     query_plans.append(("q", f"{sanitized_raw or address}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
 
-    # 3. Ricerca senza iniziale puntata (spesso OSM registra solo il cognome)
+    # 3. Search without initials (OSM often indexes by surname only)
     if street_no_init and street_no_init != clean_street and clean_city:
         query_plans.append(("q", f"{street_no_init}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
 
-    # 4. Varianti toponomastiche comuni (es. 'via san' vs 'via di san')
+    # 4. Common Italian article variants (e.g. 'via san' vs 'via di san')
     sub_di = re.sub(r'(?i)\bvia\s+(san|santa|sant\')\b', r'via di \1', clean_street)
     if sub_di != clean_street:
         query_plans.append(("q", f"{sub_di} {clean_civic or ''}, {clean_city}, Italy".replace(", ,", ",").strip(", ")))
@@ -528,7 +511,7 @@ def geocode_address(
 
     for plan_type, plan_val in query_plans:
         results = None
-        # 1. Prova prima con Photon locale
+        # 1. Try local Photon first
         if USE_LOCAL_PHOTON and PHOTON_URL:
             try:
                 results = query_photon(plan_val, plan_type, base_url=PHOTON_URL)
@@ -537,7 +520,7 @@ def geocode_address(
             except Exception:
                 results = None
 
-        # 2. Se Photon locale non risponde ancora, usa Photon pubblico (veloce, nessun delay artificiale)
+        # 2. Fall back to public Photon if local instance is unavailable
         if results is None:
             try:
                 results = query_photon(plan_val, plan_type, base_url="https://photon.komoot.io/api")
@@ -546,7 +529,7 @@ def geocode_address(
             except Exception:
                 results = None
 
-        # 3. Fallback estremo su Nominatim pubblico
+        # 3. Final fallback to public Nominatim
         if results is None:
             try:
                 results = query_nominatim(plan_val, plan_type)
@@ -563,7 +546,7 @@ def geocode_address(
             r_type = r.get("type", "")
             dn = r.get("display_name", "")
 
-            # 1. Pertinenza città (FONDAMENTALE per evitare vie omonime in altre città)
+            # 1. City relevance check (prevents false matches in other cities)
             c_low = clean_city.lower() if clean_city else ""
             r_city = (addr_info.get("city") or "").lower()
             dn_low = dn.lower()
@@ -574,7 +557,7 @@ def geocode_address(
                 else:
                     score -= 5000
 
-            # 2. Priorità al numero civico esatto o parziale
+            # 2. Match house number priority
             if clean_civic:
                 if r_civic and str(r_civic).strip() == str(clean_civic).strip():
                     score += 1000
@@ -583,7 +566,7 @@ def geocode_address(
                 elif clean_civic in dn:
                     score += 300
 
-            # 3. Punteggio tipologia immobile/punto esatto o strada
+            # 3. Feature type weighting (building vs road)
             if r_type in ["house", "building", "residential", "commercial", "retail", "shop", "office"]:
                 score += 100
             elif r_type in ["street", "highway", "pedestrian", "footway", "living_street", "road"]:
@@ -593,7 +576,7 @@ def geocode_address(
                 best_score = score
                 best_item = r
 
-        # Se abbiamo trovato un civico esatto o quasi esatto nella città corretta
+        # Early exit on high-confidence match in the right city
         if best_score >= 3000 or (clean_civic and best_score >= 2500):
             break
 
@@ -613,10 +596,10 @@ def geocode_address(
         lon = None
         cache[cache_key] = None
 
-    # Salvataggio progressivo della cache
+    # Persist cache incrementally
     save_geocache(cache)
 
-    # Pausa solo per Nominatim pubblico per rispettare i ToS
+    # Respect Nominatim rate limit if used
     if not used_photon and GEOCODING_DELAY_SECONDS > 0:
         time.sleep(GEOCODING_DELAY_SECONDS)
 
@@ -636,7 +619,7 @@ _geocoding_progress = {
 
 
 def get_progress_status():
-    """Restituisce una copia dello stato attuale di avanzamento della geocodifica / analisi."""
+    """Return a snapshot of current geocoding and optimization progress."""
     res = dict(_geocoding_progress)
     res["stage"] = res.get("phase", "idle")
     res["current_address"] = res.get("address", "")
@@ -644,7 +627,7 @@ def get_progress_status():
 
 
 def set_progress_status(active, phase, current=0, total=0, address="", geocoded=0, failed=0):
-    """Aggiorna lo stato di avanzamento in modo thread-safe e sincrono."""
+    """Update progress tracking state."""
     _geocoding_progress["active"] = bool(active)
     _geocoding_progress["phase"] = str(phase)
     _geocoding_progress["current"] = int(current)
@@ -655,45 +638,35 @@ def set_progress_status(active, phase, current=0, total=0, address="", geocoded=
 
 
 # ---------------------------------------------------------
-# Elaborazione completa dataset ERP
+# Full ERP dataset processing pipeline
 # ---------------------------------------------------------
 
 def process_data(file_bytes):
     """
-    Esegue l'elaborazione completa:
-    - lettura Excel
-    - normalizzazione colonne
-    - identificazione aziende
-    - aggregazione per punto visita
-    - geocodifica reale
+    Run end-to-end dataset pipeline:
+    - Load and clean Excel
+    - Normalize headers and extract company revenue columns
+    - Aggregate rows by visit stop (Client + Address + City)
+    - Geocode unique visit locations
     """
 
     df = read_and_normalize_dataframe(
         file_bytes
     )
 
-    # -----------------------------------------------------
-    # 1. Identificazione dinamica aziende
-    # -----------------------------------------------------
-
+    # 1. Dynamically identify company revenue columns
     company_columns = detect_company_columns(
         df
     )
 
-    # -----------------------------------------------------
-    # 2. Conversione fatturati
-    # -----------------------------------------------------
-
+    # 2. Convert revenue columns to numeric
     for col in company_columns:
         df[col] = pd.to_numeric(
             df[col],
             errors='coerce'
         ).fillna(0)
 
-    # -----------------------------------------------------
-    # 3. Gestione colonna Totale
-    # -----------------------------------------------------
-
+    # 3. Compute total revenue column
     if 'Totale' in df.columns:
         df['Totale'] = pd.to_numeric(
             df['Totale'],
@@ -710,13 +683,7 @@ def process_data(file_bytes):
     else:
         df['Totale'] = 0.0
 
-    # -----------------------------------------------------
-    # 4. Aggregazione per punto visita
-    #
-    # Una visita =
-    # Cliente + Indirizzo + Città
-    # -----------------------------------------------------
-
+    # 4. Aggregate by unique visit stop (Client + Address + City)
     group_columns = [
         'Cliente',
         'Indirizzo',
@@ -774,10 +741,7 @@ def process_data(file_bytes):
         )
     )
 
-    # -----------------------------------------------------
-    # 5. Ricalcolo del Totale
-    # -----------------------------------------------------
-
+    # 5. Recompute aggregated total revenue
     if company_columns:
         df['Totale'] = df[
             company_columns
@@ -793,10 +757,7 @@ def process_data(file_bytes):
         flush=True
     )
 
-    # -----------------------------------------------------
-    # 6. Geocodifica reale
-    # -----------------------------------------------------
-
+    # 6. Geocode unique visit stops
     cache = load_geocache()
 
     latitudes = []
@@ -855,10 +816,7 @@ def process_data(file_bytes):
     df["Lat"] = latitudes
     df["Lon"] = longitudes
 
-    # -----------------------------------------------------
-    # 7. Statistiche geocodifica
-    # -----------------------------------------------------
-
+    # 7. Geocoding statistics
     geocoded_count = (
         df["Lat"]
         .notna()
@@ -883,10 +841,7 @@ def process_data(file_bytes):
         flush=True
     )
 
-    # -----------------------------------------------------
-    # 8. Restituzione dataset
-    # -----------------------------------------------------
-
+    # 8. Return cleaned dataframe and company list
     return (
         df,
         company_columns

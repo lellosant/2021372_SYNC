@@ -6,6 +6,7 @@ from .config import PLANNING_RANDOM_SEED
 from .models import Client, Location
 
 def cluster_clients(clients: List[Client], depot: Location, target_cluster_size: int = 20) -> None:
+    """Group clients into spatial clusters using equirectangular km projection and K-Means."""
     if not clients:
         return
         
@@ -16,6 +17,8 @@ def cluster_clients(clients: List[Client], depot: Location, target_cluster_size:
             c.cluster_id = 0
         return
     
+    # Project (lon, lat) to local Cartesian km (x, y) relative to depot.
+    # 1 deg latitude ~ 111 km; longitude is scaled by cos(latitude) to account for meridian convergence.
     coords = []
     depot_lat_rad = math.radians(depot.lat)
     for c in clients:

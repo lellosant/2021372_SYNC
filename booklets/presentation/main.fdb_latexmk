@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1790760934.08107 "/Users/leo/Desktop/Hackaton_sep2026/booklets/presentation/main.tex" "main.pdf" "main" 1790760936.37198 0
+["pdflatex"] 1790765399.37959 "/Users/leo/Desktop/Hackaton_sep2026/booklets/presentation/main.tex" "main.pdf" "main" 1790765403.5481 0
   "/Users/leo/Desktop/Hackaton_sep2026/booklets/presentation/main.tex" 1790717739.97139 1133 8621d9f876939c78e93f0b4b5f0fa9fb ""
   "/Users/leo/Library/texlive/2026basic/texmf-var/fonts/pk/ljfour/jknappen/ec/tctt1095.600pk" 1790713627.31006 10372 4b3d1dd05621b4cf95146bdc5021e942 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/enc/dvips/caladea/cld_prieif.enc" 1408564761 2909 0d9a00ce3f1df725b182b15dd24bf4a5 ""
@@ -244,11 +244,11 @@
   "images/mockup_01_setup.png" 1790716081.20849 219031 d5f987967d79a61914b1f3ef672ff62d ""
   "images/mockup_02_results.png" 1790716081.20973 368520 b8120c4390a497a0c808d1638c669990 ""
   "images/mockup_03_agenda.png" 1790716081.21044 204969 a9b38d091eb53f3e268d2dea0318d3ee ""
-  "main.aux" 1790760936.24421 2625 8a097b126bbff294b7b17f65f55cb0e3 "pdflatex"
-  "main.nav" 1790760936.24527 1760 fe54d4138ba0be3d51ab98762e00407d "pdflatex"
-  "main.out" 1790760934.66005 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.aux" 1790765403.35978 2625 8a097b126bbff294b7b17f65f55cb0e3 "pdflatex"
+  "main.nav" 1790765403.3617 1760 fe54d4138ba0be3d51ab98762e00407d "pdflatex"
+  "main.out" 1790765400.46292 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "main.tex" 1790717739.97139 1133 8621d9f876939c78e93f0b4b5f0fa9fb ""
-  "main.vrb" 1790760936.1781 1307 0542a184d2440096adf544bee954bb3d "pdflatex"
+  "main.vrb" 1790765403.27735 1307 0542a184d2440096adf544bee954bb3d "pdflatex"
   "sintefcolor.sty" 1790716460.63587 1024 11c5d6508f4a1f9a5069bd87a4e8c4b4 ""
   "slides/01_problem.tex" 1790716081.22453 773 2c3e69f5588a61465fcec2baeb0622c6 ""
   "slides/02_nfr.tex" 1790716081.22466 698 6b9a0fc327767d73400eb92146e88b17 ""
@@ -258,7 +258,7 @@
   "slides/05_architecture.tex" 1790718060.43605 1655 73a4b58b7496c38586e25ea556c3183b ""
   "slides/06_docker.tex" 1790718194.71121 857 23387526d8d9c4e6e736c9907b3f7ad2 ""
   "slides/07_data_processing.tex" 1790718971.45859 1013 a4f228155f8d05bc50ecab09c959f099 ""
-  "slides/08_optimization_problem.tex" 1790719548.74114 1191 a32120b5f108151d1fe51ac30eb04f6a ""
+  "slides/08_optimization_problem.tex" 1790765398.99501 1191 49da5965450c09a46f131a59bc13aece ""
   "slides/09_optimizer_works.tex" 1790716081.22666 1270 312ea7c334b4556a001d723e9751212a ""
   "slides/10_pseudocode.tex" 1790716081.22681 893 00d7ec8437757bbb8e80c1cb8aa02fab ""
   "slides/11_real_code_destroy.tex" 1790716081.22695 983 a183e85cd927e82f38c9742da76ac777 ""
