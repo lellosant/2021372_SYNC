@@ -1,6 +1,6 @@
 \frametitle{Testing}
 \begin{block}{Test Execution}
-\texttt{\$ python3 -m pytest -q source/test}\\
+\texttt{\$ python3 -m pytest -v test}\\
 \texttt{......}\\
 \texttt{6 passed}
 \end{block}
